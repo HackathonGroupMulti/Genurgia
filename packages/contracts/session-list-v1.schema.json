@@ -1,0 +1,286 @@
+{
+  "$defs": {
+    "AnalysisMetadata": {
+      "properties": {
+        "id": {
+          "exclusiveMinimum": 0,
+          "title": "Id",
+          "type": "integer"
+        },
+        "analysis_type": {
+          "enum": [
+            "knee_flexion",
+            "squat_repetitions"
+          ],
+          "title": "Analysis Type",
+          "type": "string"
+        },
+        "analysis_version": {
+          "title": "Analysis Version",
+          "type": "string"
+        },
+        "artifact_reference": {
+          "title": "Artifact Reference",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "analysis_type",
+        "analysis_version",
+        "artifact_reference",
+        "created_at"
+      ],
+      "title": "AnalysisMetadata",
+      "type": "object"
+    },
+    "PoseSequenceMetadata": {
+      "properties": {
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "recording_id": {
+          "format": "uuid",
+          "title": "Recording Id",
+          "type": "string"
+        },
+        "pose_model": {
+          "title": "Pose Model",
+          "type": "string"
+        },
+        "pose_model_version": {
+          "title": "Pose Model Version",
+          "type": "string"
+        },
+        "raw_landmarks_reference": {
+          "title": "Raw Landmarks Reference",
+          "type": "string"
+        },
+        "annotated_video_reference": {
+          "title": "Annotated Video Reference",
+          "type": "string"
+        },
+        "frame_count": {
+          "exclusiveMinimum": 0,
+          "title": "Frame Count",
+          "type": "integer"
+        },
+        "detected_frame_count": {
+          "minimum": 0,
+          "title": "Detected Frame Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "recording_id",
+        "pose_model",
+        "pose_model_version",
+        "raw_landmarks_reference",
+        "annotated_video_reference",
+        "frame_count",
+        "detected_frame_count"
+      ],
+      "title": "PoseSequenceMetadata",
+      "type": "object"
+    },
+    "RecordingMetadata": {
+      "properties": {
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "original_filename": {
+          "title": "Original Filename",
+          "type": "string"
+        },
+        "content_type": {
+          "title": "Content Type",
+          "type": "string"
+        },
+        "storage_reference": {
+          "title": "Storage Reference",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "fps": {
+          "exclusiveMinimum": 0,
+          "title": "Fps",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "original_filename",
+        "content_type",
+        "storage_reference",
+        "size_bytes",
+        "duration_ms",
+        "fps",
+        "width",
+        "height"
+      ],
+      "title": "RecordingMetadata",
+      "type": "object"
+    },
+    "SessionMetric": {
+      "properties": {
+        "name": {
+          "enum": [
+            "repetition_count",
+            "mean_left_rom_degrees",
+            "mean_right_rom_degrees",
+            "mean_rom_degrees",
+            "mean_duration_ms",
+            "mean_confidence"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "count",
+            "degree",
+            "millisecond",
+            "ratio"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "source_analysis_version": {
+          "title": "Source Analysis Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "unit",
+        "source_analysis_version"
+      ],
+      "title": "SessionMetric",
+      "type": "object"
+    },
+    "SessionSummary": {
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "exercise_type": {
+          "const": "squat",
+          "default": "squat",
+          "title": "Exercise Type",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pose_extracted",
+            "knee_flexion_complete",
+            "complete"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "recording": {
+          "$ref": "#/$defs/RecordingMetadata"
+        },
+        "pose_sequence": {
+          "$ref": "#/$defs/PoseSequenceMetadata"
+        },
+        "analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisMetadata"
+          },
+          "title": "Analyses",
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/SessionMetric"
+          },
+          "title": "Metrics",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "recorded_at",
+        "created_at",
+        "status",
+        "recording",
+        "pose_sequence",
+        "analyses",
+        "metrics"
+      ],
+      "title": "SessionSummary",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "sessions": {
+      "items": {
+        "$ref": "#/$defs/SessionSummary"
+      },
+      "title": "Sessions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "sessions"
+  ],
+  "title": "SessionListResponse",
+  "type": "object"
+}

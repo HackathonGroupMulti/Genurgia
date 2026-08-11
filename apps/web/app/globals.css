@@ -311,7 +311,8 @@ button,
   line-height: 1.45;
 }
 
-.repetition-summary {
+.repetition-summary,
+.session-history {
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
@@ -320,11 +321,16 @@ button,
   background: rgba(255, 255, 255, 0.72);
 }
 
+.session-history {
+  margin-top: 1rem;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
 
-.repetition-summary table {
+.repetition-summary table,
+.session-history table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
@@ -332,13 +338,16 @@ button,
 }
 
 .repetition-summary th,
-.repetition-summary td {
+.repetition-summary td,
+.session-history th,
+.session-history td {
   padding: 0.7rem 0.6rem;
   border-bottom: 1px solid rgba(18, 33, 27, 0.1);
   white-space: nowrap;
 }
 
-.repetition-summary thead th {
+.repetition-summary thead th,
+.session-history thead th {
   color: var(--muted);
   font-size: 0.72rem;
   letter-spacing: 0.04em;

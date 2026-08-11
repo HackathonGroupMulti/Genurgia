@@ -29,6 +29,13 @@ def artifact_root() -> Path:
     return _configured_path("KNEE_TWIN_ARTIFACT_DIR", repository_root() / "data" / "local")
 
 
+def session_database_path() -> Path:
+    return _configured_path(
+        "KNEE_TWIN_DATABASE_PATH",
+        repository_root() / "data" / "local" / "knee_twin.sqlite3",
+    )
+
+
 def pose_model_path() -> Path:
     return _configured_path(
         "POSE_LANDMARKER_MODEL_PATH",

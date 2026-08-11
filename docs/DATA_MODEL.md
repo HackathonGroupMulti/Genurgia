@@ -127,3 +127,15 @@ Quality states distinguish valid, low-confidence, missing pose, missing landmark
 * minimum bilateral input confidence across contributing valid samples.
 
 The artifact embeds the full phase-model configuration and algorithm version so acceptance behavior is reproducible. An empty repetition list is a valid result and is distinct from analysis failure.
+
+## Milestone 4 representation
+
+The conceptual session graph now has a local SQLite representation:
+
+* `sessions` stores exercise, upload-time `recorded_at`, creation time, and monotonic processing status;
+* `recordings` stores identity, schema version, media metadata, and an artifact reference;
+* `pose_sequences` stores identity, schema/model versions, frame counts, and raw/overlay references;
+* `analyses` stores every distinct analysis type/version and its artifact reference;
+* `session_metrics` stores compact named values, units, and their source analysis version.
+
+Detailed time series, raw landmarks, and media do not enter SQLite. A repeated run of the same analysis version updates that version's artifact reference and replaces its metric set. A new analysis version creates a new analysis row. Session comparisons use metrics from the newest repetition-analysis version and define change as current mean modeled ROM minus the preceding stored squat session's mean modeled ROM.

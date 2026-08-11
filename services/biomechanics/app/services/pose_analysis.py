@@ -2,6 +2,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from analysis.pose import PoseProvider
+from app.persistence import SQLiteSessionRepository
 from app.schemas.pose import (
     Landmark,
     PoseAnalysisResponse,
@@ -31,10 +32,12 @@ class PoseAnalysisService:
         artifact_store: LocalArtifactStore,
         pose_provider: PoseProvider,
         max_upload_bytes: int,
+        session_repository: SQLiteSessionRepository | None = None,
     ) -> None:
         self._artifacts = artifact_store
         self._pose_provider = pose_provider
         self._max_upload_bytes = max_upload_bytes
+        self._sessions = session_repository
 
     @property
     def max_upload_bytes(self) -> int:
@@ -118,6 +121,8 @@ class PoseAnalysisService:
                     annotated_filename,
                 ),
             )
+            if self._sessions is not None:
+                self._sessions.record_pose_extraction(recording, summary)
             return PoseAnalysisResponse(recording=recording, pose_sequence=summary)
         except Exception:
             self._artifacts.delete_bundle(pose_sequence_id)

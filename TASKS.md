@@ -46,12 +46,12 @@
 
 ## Milestone 4 — Sessions
 
-* [ ] Persist sessions.
-* [ ] Persist recordings.
-* [ ] Persist pose sequences.
-* [ ] Persist analyses and versions.
-* [ ] Display historical sessions.
-* [ ] Compare sessions.
+* [x] Persist sessions.
+* [x] Persist recordings.
+* [x] Persist pose sequences.
+* [x] Persist analyses and versions.
+* [x] Display historical sessions.
+* [x] Compare sessions.
 
 ## Milestone 5 — Visualization
 

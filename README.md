@@ -2,7 +2,7 @@
 
 Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
 
-Milestones 0 through 3 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, and displays per-repetition boundaries and ROM.
+Milestones 0 through 4 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, and stores comparable session summaries.
 
 ## Architecture
 
@@ -88,6 +88,7 @@ Open <http://localhost:3000>. The homepage displays backend connectivity and pro
 | `BIOMECHANICS_API_URL` | `http://127.0.0.1:8000` | Backend URL used by the Next.js server |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated origins accepted by FastAPI |
 | `KNEE_TWIN_ARTIFACT_DIR` | `./data/local` | Local recording and artifact storage root |
+| `KNEE_TWIN_DATABASE_PATH` | `./data/local/knee_twin.sqlite3` | Local SQLite session-metadata database |
 | `POSE_LANDMARKER_MODEL_PATH` | `./data/models/pose_landmarker_full.task` | MediaPipe full float16 model path |
 | `MAX_VIDEO_UPLOAD_BYTES` | `104857600` | Maximum accepted upload size |
 
@@ -113,6 +114,6 @@ GitHub Actions runs the same test, lint, type-check, and frontend build validati
 
 ## Current status
 
-Milestone 3 is complete. Pose extraction, knee-flexion analysis, and squat repetition segmentation run synchronously for the local vertical slice and store separate raw and derived artifacts under `data/local`. Reported angles and repetition metrics are model-derived kinematic estimates from monocular video, not clinical measurements.
+Milestone 4 is complete. Pose extraction and derived analysis remain synchronous. SQLite stores searchable session, source, version, and summary-metric metadata while original videos and detailed JSON artifacts remain separately stored under `data/local`. The UI lists prior sessions and compares each mean modeled ROM with the preceding session. Reported values are monocular model estimates, not clinical measurements.
 
-The next task is Milestone 4: persist session metadata, associate existing artifacts with sessions, and support historical comparison.
+The next task is Milestone 5: synchronize video playback with the chart and current-frame movement measurements.

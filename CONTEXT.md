@@ -47,7 +47,7 @@ The system should retain raw pose landmarks so improved analysis algorithms can 
 
 CURRENT MILESTONE:
 
-Milestone 4 — persistent sessions and longitudinal comparison.
+Milestone 5 — synchronized movement visualization.
 
 CURRENT BLOCKER:
 
@@ -55,6 +55,6 @@ None.
 
 NEXT ACTION:
 
-Define the smallest durable Session and Recording metadata model, keeping artifact payloads behind the existing storage boundary.
+Synchronize annotated video time with the knee-flexion chart and current-frame measurements.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

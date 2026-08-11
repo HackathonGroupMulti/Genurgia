@@ -79,3 +79,11 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 * The pure analysis layer owns phase transitions, acceptance thresholds, boundaries, ROM, and confidence propagation; HTTP and UI code only orchestrate and present those results.
 * The resulting `squat_repetitions.json` remains separate from both `pose_sequence.json` and `knee_flexion.json`.
 * The frontend calls the repetition endpoint after knee-flexion analysis, validates the versioned response, and presents boundaries and metrics without recalculating them.
+
+## Milestone 4 interfaces
+
+* SQLite stores relational metadata for sessions, recordings, pose sequences, analysis versions, and compact summary metrics. Videos, frame series, overlays, and derived JSON remain behind `LocalArtifactStore`.
+* Pose extraction creates one squat session and links its recording and pose sequence in one database transaction after artifacts are safely written.
+* Derived-analysis services register versioned artifact references and update session status. Same-version reanalysis replaces its metrics; completed status does not regress.
+* `GET /sessions` returns newest-first history, `GET /sessions/{id}` returns one stored graph, and `GET /sessions/comparison` returns exact longitudinal metric comparisons.
+* Next.js proxies the session endpoints. The browser validates their contracts and displays server-computed metrics rather than reading SQLite or analysis artifacts directly.

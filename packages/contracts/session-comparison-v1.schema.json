@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "SessionComparisonEntry": {
+      "properties": {
+        "session_id": {
+          "format": "uuid",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "repetition_count": {
+          "minimum": 0,
+          "title": "Repetition Count",
+          "type": "integer"
+        },
+        "mean_left_rom_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Left Rom Degrees"
+        },
+        "mean_right_rom_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Right Rom Degrees"
+        },
+        "mean_rom_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Rom Degrees"
+        },
+        "mean_duration_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Duration Ms"
+        },
+        "mean_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Confidence"
+        },
+        "mean_rom_change_from_previous_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Rom Change From Previous Degrees"
+        }
+      },
+      "required": [
+        "session_id",
+        "recorded_at",
+        "repetition_count",
+        "mean_left_rom_degrees",
+        "mean_right_rom_degrees",
+        "mean_rom_degrees",
+        "mean_duration_ms",
+        "mean_rom_change_from_previous_degrees"
+      ],
+      "title": "SessionComparisonEntry",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "exercise_type": {
+      "const": "squat",
+      "default": "squat",
+      "title": "Exercise Type",
+      "type": "string"
+    },
+    "sessions": {
+      "items": {
+        "$ref": "#/$defs/SessionComparisonEntry"
+      },
+      "title": "Sessions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "sessions"
+  ],
+  "title": "SessionComparisonResponse",
+  "type": "object"
+}

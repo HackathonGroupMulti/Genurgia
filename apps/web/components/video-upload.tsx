@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { KneeFlexionChart } from "@/components/knee-flexion-chart";
 import { RepetitionSummary } from "@/components/repetition-summary";
+import { SessionHistory } from "@/components/session-history";
 import {
   parseKneeFlexionAnalysis,
   type KneeFlexionAnalysis,
@@ -143,6 +144,9 @@ export function VideoUpload() {
           analysisError={state.analysisError}
         />
       )}
+      <SessionHistory
+        refreshKey={state.status === "complete" ? state.result.pose_sequence.id : "initial"}
+      />
     </section>
   );
 }

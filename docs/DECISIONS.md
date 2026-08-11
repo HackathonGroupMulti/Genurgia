@@ -151,3 +151,30 @@ Continue a repetition from whichever side remains visible.
 Why rejected:
 
 It changes the phase signal according to availability and can create boundaries or ROM metrics from asymmetrical evidence without telling the consumer.
+
+---
+
+## ADR-009 — SQLite owns local session metadata, not large artifacts
+
+Status:
+Accepted
+
+Decision:
+
+Use a local SQLite repository for Milestone 4 session, recording, pose-sequence, analysis-version, and compact metric metadata. Continue storing videos and detailed JSON artifacts behind `LocalArtifactStore` and retain only their references relationally.
+
+Reason:
+
+The local single-user MVP needs durable relationships and queryable history, but does not need a database server. SQLite provides transactions and portable relational queries while respecting the existing artifact-storage boundary.
+
+Rejected alternative:
+
+Derive session history by scanning artifact directories on every request.
+
+Why rejected:
+
+Directory structure is not a reliable metadata model, does not naturally represent analysis-version history, and makes longitudinal queries increasingly brittle.
+
+Operational boundary:
+
+This choice is for local MVP persistence. Multi-user deployment, concurrent workers, authentication, and remote backup would require a production persistence design.

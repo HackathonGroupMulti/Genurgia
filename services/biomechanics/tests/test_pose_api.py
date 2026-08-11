@@ -4,6 +4,7 @@ from pathlib import Path
 from httpx import ASGITransport, AsyncClient, Response
 
 from app.main import create_app
+from app.persistence import SQLiteSessionRepository
 from app.services.pose_analysis import PoseAnalysisService
 from app.storage import LocalArtifactStore
 from tests.fakes import FakePoseProvider
@@ -25,8 +26,18 @@ def request(app, method: str, path: str, **kwargs) -> Response:
 
 def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> None:
     store = LocalArtifactStore(tmp_path)
-    service = PoseAnalysisService(store, FakePoseProvider(), max_upload_bytes=1024 * 1024)
-    app = create_app(pose_analysis_service=service, artifact_store=store)
+    sessions = SQLiteSessionRepository(tmp_path / "sessions.sqlite3")
+    service = PoseAnalysisService(
+        store,
+        FakePoseProvider(),
+        max_upload_bytes=1024 * 1024,
+        session_repository=sessions,
+    )
+    app = create_app(
+        pose_analysis_service=service,
+        artifact_store=store,
+        session_repository=sessions,
+    )
 
     response = request(
         app,
@@ -82,6 +93,28 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     assert repetitions["repetitions"] == []
     repetition_artifact = request(app, "GET", repetitions["artifact_reference"])
     assert repetition_artifact.status_code == 200
+
+    sessions_response = request(app, "GET", "/sessions")
+    assert sessions_response.status_code == 200
+    stored_session = sessions_response.json()["sessions"][0]
+    assert stored_session["status"] == "complete"
+    assert stored_session["pose_sequence"]["id"] == payload["pose_sequence"]["id"]
+    assert [item["analysis_type"] for item in stored_session["analyses"]] == [
+        "knee_flexion",
+        "squat_repetitions",
+    ]
+    assert stored_session["metrics"] == [
+        {
+            "name": "repetition_count",
+            "value": 0.0,
+            "unit": "count",
+            "source_analysis_version": "squat-repetition-analysis-v1",
+        }
+    ]
+
+    comparison_response = request(app, "GET", "/sessions/comparison")
+    assert comparison_response.status_code == 200
+    assert comparison_response.json()["sessions"][0]["repetition_count"] == 0
 
 
 def test_upload_rejects_unsupported_extension(tmp_path: Path) -> None:

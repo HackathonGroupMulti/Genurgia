@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
 from app.api.pose_sequences import router as pose_sequences_router
+from app.api.sessions import router as sessions_router
+from app.persistence import SQLiteSessionRepository
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.settings import (
@@ -10,6 +12,7 @@ from app.settings import (
     artifact_root,
     max_video_upload_bytes,
     pose_model_path,
+    session_database_path,
 )
 from app.storage import LocalArtifactStore
 
@@ -26,6 +29,7 @@ def create_app(
         AUTO_CONFIGURE_POSE_SERVICE
     ),
     artifact_store: LocalArtifactStore | None = None,
+    session_repository: SQLiteSessionRepository | None = None,
 ) -> FastAPI:
     application = FastAPI(
         title="Knee Twin Biomechanics API",
@@ -40,6 +44,9 @@ def create_app(
         allow_headers=["*"],
     )
     store = artifact_store or LocalArtifactStore(artifact_root())
+    sessions = session_repository or SQLiteSessionRepository(
+        session_database_path() if artifact_store is None else store.root / "knee_twin.sqlite3"
+    )
     if isinstance(pose_analysis_service, _AutoConfigurePoseService):
         if pose_model_path().is_file():
             from analysis.mediapipe_pose import MediaPipePoseProvider
@@ -48,6 +55,7 @@ def create_app(
                 artifact_store=store,
                 pose_provider=MediaPipePoseProvider(pose_model_path()),
                 max_upload_bytes=max_video_upload_bytes(),
+                session_repository=sessions,
             )
         else:
             configured_pose_service = None
@@ -55,9 +63,11 @@ def create_app(
         configured_pose_service = pose_analysis_service
     application.state.artifact_store = store
     application.state.pose_analysis_service = configured_pose_service
-    application.state.kinematics_service = KinematicsService(store)
+    application.state.kinematics_service = KinematicsService(store, sessions)
+    application.state.session_repository = sessions
     application.include_router(health_router)
     application.include_router(pose_sequences_router)
+    application.include_router(sessions_router)
     return application
 
 

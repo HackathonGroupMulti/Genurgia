@@ -10,7 +10,7 @@ export default async function Home() {
   return (
     <main>
       <section className="hero" aria-labelledby="page-title">
-        <div className="eyebrow">Knee Twin · Milestone 0</div>
+        <div className="eyebrow">Knee Twin · Local movement twin</div>
         <h1 id="page-title">Movement, made comparable.</h1>
         <p className="lede">
           A foundation for turning recorded movement into a longitudinal,

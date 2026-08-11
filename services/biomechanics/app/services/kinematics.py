@@ -1,3 +1,4 @@
+from statistics import fmean
 from uuid import UUID
 
 from analysis.kinematics import (
@@ -24,6 +25,7 @@ from analysis.reps import (
     SQUAT_REPETITION_ALGORITHM_VERSION,
     detect_squat_repetitions,
 )
+from app.persistence import SQLiteSessionRepository
 from app.schemas.kinematics import (
     FilterDescription,
     KneeFlexionAnalysis,
@@ -44,8 +46,13 @@ class PoseSequenceNotFound(FileNotFoundError):
 
 
 class KinematicsService:
-    def __init__(self, artifact_store: LocalArtifactStore) -> None:
+    def __init__(
+        self,
+        artifact_store: LocalArtifactStore,
+        session_repository: SQLiteSessionRepository | None = None,
+    ) -> None:
         self._artifacts = artifact_store
+        self._sessions = session_repository
 
     def analyze_knee_flexion(self, pose_sequence_id: UUID) -> KneeFlexionAnalysis:
         raw_path = self._artifacts.path_for(pose_sequence_id, "pose_sequence.json")
@@ -97,6 +104,14 @@ class KinematicsService:
             artifact_filename,
             analysis.model_dump(mode="json"),
         )
+        if self._sessions is not None:
+            self._sessions.record_analysis(
+                pose_sequence_id=pose_sequence_id,
+                analysis_type="knee_flexion",
+                analysis_version=analysis.analysis_version,
+                artifact_reference=analysis.artifact_reference,
+                status="knee_flexion_complete",
+            )
         return analysis
 
     def analyze_squat_repetitions(self, pose_sequence_id: UUID) -> SquatRepetitionAnalysis:
@@ -149,6 +164,48 @@ class KinematicsService:
             artifact_filename,
             analysis.model_dump(mode="json"),
         )
+        if self._sessions is not None:
+            metrics: list[tuple[str, float, str]] = [
+                ("repetition_count", float(len(repetitions)), "count")
+            ]
+            if repetitions:
+                metrics.extend(
+                    [
+                        (
+                            "mean_left_rom_degrees",
+                            fmean(item.left_rom_degrees for item in repetitions),
+                            "degree",
+                        ),
+                        (
+                            "mean_right_rom_degrees",
+                            fmean(item.right_rom_degrees for item in repetitions),
+                            "degree",
+                        ),
+                        (
+                            "mean_rom_degrees",
+                            fmean(item.mean_rom_degrees for item in repetitions),
+                            "degree",
+                        ),
+                        (
+                            "mean_duration_ms",
+                            fmean(item.duration_ms for item in repetitions),
+                            "millisecond",
+                        ),
+                        (
+                            "mean_confidence",
+                            fmean(item.confidence for item in repetitions),
+                            "ratio",
+                        ),
+                    ]
+                )
+            self._sessions.record_analysis(
+                pose_sequence_id=pose_sequence_id,
+                analysis_type="squat_repetitions",
+                analysis_version=analysis.analysis_version,
+                artifact_reference=analysis.artifact_reference,
+                status="complete",
+                metrics=metrics,
+            )
         return analysis
 
     @staticmethod
