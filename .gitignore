@@ -11,6 +11,10 @@ out/
 coverage/
 *.tsbuildinfo
 
+# Local Knee Twin artifacts and downloaded models
+data/local/
+data/models/*.task
+
 # Python
 __pycache__/
 *.py[cod]

@@ -17,14 +17,14 @@
 
 ## Milestone 1 — Video to landmarks
 
-* [ ] Define Recording and PoseSequence contracts.
-* [ ] Add video upload.
-* [ ] Add MediaPipe pose adapter.
-* [ ] Extract timestamped landmarks.
-* [ ] Preserve raw pose data.
-* [ ] Add fixture video.
-* [ ] Render or export annotated pose overlay.
-* [ ] Add extraction tests.
+* [x] Define Recording and PoseSequence contracts.
+* [x] Add video upload.
+* [x] Add MediaPipe pose adapter.
+* [x] Extract timestamped landmarks.
+* [x] Preserve raw pose data.
+* [x] Add fixture video.
+* [x] Render or export annotated pose overlay.
+* [x] Add extraction tests.
 
 ## Milestone 2 — Knee-flexion series
 

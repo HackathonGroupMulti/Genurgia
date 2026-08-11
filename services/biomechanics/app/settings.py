@@ -1,6 +1,20 @@
 import os
+from pathlib import Path
 
 DEFAULT_ALLOWED_ORIGINS = ("http://localhost:3000",)
+DEFAULT_MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024
+
+
+def repository_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
+def _configured_path(variable: str, default: Path) -> Path:
+    configured = os.getenv(variable)
+    path = Path(configured) if configured else default
+    if not path.is_absolute():
+        path = repository_root() / path
+    return path.resolve()
 
 
 def allowed_origins() -> list[str]:
@@ -9,3 +23,25 @@ def allowed_origins() -> list[str]:
         return list(DEFAULT_ALLOWED_ORIGINS)
 
     return [origin.strip() for origin in configured.split(",") if origin.strip()]
+
+
+def artifact_root() -> Path:
+    return _configured_path("KNEE_TWIN_ARTIFACT_DIR", repository_root() / "data" / "local")
+
+
+def pose_model_path() -> Path:
+    return _configured_path(
+        "POSE_LANDMARKER_MODEL_PATH",
+        repository_root() / "data" / "models" / "pose_landmarker_full.task",
+    )
+
+
+def max_video_upload_bytes() -> int:
+    configured = os.getenv("MAX_VIDEO_UPLOAD_BYTES")
+    if configured is None:
+        return DEFAULT_MAX_VIDEO_UPLOAD_BYTES
+
+    value = int(configured)
+    if value <= 0:
+        raise ValueError("MAX_VIDEO_UPLOAD_BYTES must be a positive integer.")
+    return value

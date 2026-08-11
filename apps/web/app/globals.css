@@ -26,9 +26,12 @@ body {
 }
 
 main {
-  display: grid;
+  display: flex;
   min-height: 100vh;
-  place-items: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
   padding: 3rem 1.5rem;
 }
 
@@ -126,4 +129,134 @@ h1 {
   margin-top: 1.25rem;
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.upload-panel {
+  display: grid;
+  width: min(100%, 58rem);
+  gap: 1.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1rem 3rem rgba(18, 33, 27, 0.08);
+}
+
+.section-label {
+  margin: 0 0 0.45rem;
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h2,
+h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+.section-copy {
+  max-width: 42rem;
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.upload-panel form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+}
+
+.file-field {
+  display: grid;
+  min-width: min(100%, 28rem);
+  flex: 1;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.file-field input {
+  padding: 0.85rem;
+  border: 1px solid rgba(18, 33, 27, 0.18);
+  border-radius: 0.75rem;
+  background: white;
+  color: var(--ink);
+}
+
+button,
+.artifact-link {
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+button {
+  padding: 0.95rem 1.35rem;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.upload-message {
+  margin: 0;
+}
+
+.upload-message.error {
+  color: var(--red);
+}
+
+.analysis-result {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(18, 33, 27, 0.12);
+}
+
+.result-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.frame-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.analysis-result video {
+  width: 100%;
+  max-height: 32rem;
+  border-radius: 1rem;
+  background: #0d1713;
+}
+
+.artifact-link {
+  width: fit-content;
+  padding: 0.8rem 1.1rem;
 }

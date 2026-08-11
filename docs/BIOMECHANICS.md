@@ -1,6 +1,20 @@
 # Biomechanics
 
-This document defines conventions before numerical implementation. Milestone 0 intentionally contains no biomechanical calculations.
+This document defines conventions before numerical implementation. Milestone 1 preserves raw observations but intentionally contains no joint-angle calculations.
+
+## Raw pose observations
+
+MediaPipe image landmarks are stored under the `mediapipe-normalized-image-v1` convention:
+
+* origin at the image top-left;
+* positive x points right;
+* positive y points down;
+* x and y are normalized by image dimensions;
+* z remains MediaPipe model-relative depth, with smaller values closer to the camera.
+
+MediaPipe world landmarks are stored separately under `mediapipe-pose-world-v1`, in meters relative to MediaPipe's model-defined midpoint-of-hips origin. They are model estimates, not calibrated laboratory coordinates.
+
+Raw landmark `visibility` and `presence` values are retained when the provider supplies them. A frame with no detected pose stores an empty pose list. Knee Twin does not interpolate, fabricate, or silently carry forward missing landmarks at this stage.
 
 ## General principles
 

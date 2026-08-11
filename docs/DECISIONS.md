@@ -71,3 +71,41 @@ Design normalized motion outputs so a future musculoskeletal-simulation adapter 
 Reason:
 
 The initial problem is movement reconstruction and longitudinal kinematics.
+
+---
+
+## ADR-005 — Local artifact storage behind a boundary
+
+Status:
+Accepted
+
+Decision:
+
+Store Milestone 1 recordings, raw pose JSON, and annotated videos in a local filesystem implementation addressed through artifact references.
+
+Reason:
+
+Local development needs durable, inspectable artifacts without introducing cloud infrastructure. `LocalArtifactStore` isolates filesystem details so object storage can replace it later without changing pose extraction.
+
+Rejected alternative:
+
+Store videos and frame-level landmark arrays directly in a relational database.
+
+Why rejected:
+
+Large binary and time-series artifacts have different access patterns from searchable relational metadata.
+
+---
+
+## ADR-006 — Synchronous pose extraction for the first vertical slice
+
+Status:
+Accepted
+
+Decision:
+
+Run pose extraction inside the upload request during Milestone 1.
+
+Reason:
+
+The local single-user slice does not yet justify a queue or background-job system. The analysis service boundary allows asynchronous execution to be introduced later if measured video duration or concurrency requires it.

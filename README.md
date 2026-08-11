@@ -2,7 +2,7 @@
 
 Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
 
-Milestone 0 is complete: the Next.js frontend and FastAPI backend run, `GET /health` is typed and tested, and the homepage renders the backend connection state.
+Milestones 0 and 1 are complete. The application accepts a video, extracts timestamped MediaPipe pose landmarks, preserves the original and raw observation artifact, and exports an annotated MP4 for visual verification. Knee-angle calculations are intentionally deferred to Milestone 2.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ Milestone 0 is complete: the Next.js frontend and FastAPI backend run, `GET /hea
 Next.js UI → FastAPI → application services → analysis/domain modules
 ```
 
-Python owns numerical and biomechanics logic. Raw pose observations will be preserved independently from derived metrics so historical sessions can be reanalyzed. Video and large artifacts will remain separate from relational metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DECISIONS.md](docs/DECISIONS.md).
+Python owns numerical and biomechanics logic. Raw pose observations are preserved independently from derived metrics so historical sessions can be reanalyzed. Videos and large artifacts use a replaceable local storage boundary, separate from future relational metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Repository layout
 
@@ -21,8 +21,11 @@ services/biomechanics/analysis/
                              Framework-independent analysis modules
 services/biomechanics/tests/ Backend tests
 packages/contracts/          Cross-boundary contracts
-data/                        Deterministic fixtures and sample media
+data/fixtures/                Deterministic test media
+data/local/                   Ignored local recordings and artifacts
+data/models/                  Ignored downloaded MediaPipe model
 docs/                        Product, architecture, data, and state docs
+scripts/                     Model download and contract export tools
 ```
 
 ## Prerequisites
@@ -47,6 +50,7 @@ Create an isolated Python environment and install the backend with development t
 python -m venv .venv
 .\.venv\Scripts\python -m pip install --upgrade pip
 .\.venv\Scripts\python -m pip install -e ".\services\biomechanics[dev]"
+.\.venv\Scripts\python scripts\download_pose_model.py
 ```
 
 Optionally copy the local environment template. The defaults work without these files:
@@ -75,7 +79,7 @@ Start the frontend from the repository root in another terminal:
 npm run dev:web
 ```
 
-Open <http://localhost:3000>. The homepage calls the backend from the Next.js server and displays the connection result.
+Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful extraction displays the annotated video and a link to the preserved raw landmark JSON.
 
 ## Environment variables
 
@@ -83,6 +87,9 @@ Open <http://localhost:3000>. The homepage calls the backend from the Next.js se
 | --- | --- | --- |
 | `BIOMECHANICS_API_URL` | `http://127.0.0.1:8000` | Backend URL used by the Next.js server |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated origins accepted by FastAPI |
+| `KNEE_TWIN_ARTIFACT_DIR` | `./data/local` | Local recording and artifact storage root |
+| `POSE_LANDMARKER_MODEL_PATH` | `./data/models/pose_landmarker_full.task` | MediaPipe full float16 model path |
+| `MAX_VIDEO_UPLOAD_BYTES` | `104857600` | Maximum accepted upload size |
 
 ## Validate
 
@@ -99,11 +106,13 @@ From `services/biomechanics`:
 
 ```powershell
 ..\..\.venv\Scripts\python -m pytest
-..\..\.venv\Scripts\python -m ruff check .
+..\..\.venv\Scripts\python -m ruff check . ..\..\scripts
 ```
 
 GitHub Actions runs the same test, lint, type-check, and frontend build validations on pushes to `main` and pull requests.
 
 ## Current status
 
-Milestone 0 is complete. No pose estimation, biomechanics calculations, database, or OpenSim integration has been introduced. The next task is to define versioned Recording and PoseSequence contracts for Milestone 1 before implementing upload or MediaPipe integration.
+Milestone 1 is complete. Pose extraction runs synchronously for the first local vertical slice and stores artifacts under `data/local`; no database, knee-angle calculations, repetition logic, or OpenSim integration has been introduced.
+
+The next task is Milestone 2: implement tested vector-angle primitives and the documented `0° = modeled extension` knee-flexion convention before exposing a left/right time series.

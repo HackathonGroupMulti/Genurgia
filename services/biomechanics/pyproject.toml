@@ -9,6 +9,9 @@ description = "Knee Twin biomechanics API and analysis domain"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.141,<0.142",
+  "mediapipe>=1.0,<1.1",
+  "opencv-contrib-python>=5,<6",
+  "python-multipart>=0.0.22,<1",
   "uvicorn[standard]>=0.35,<1",
 ]
 
@@ -25,6 +28,7 @@ include = ["app*", "analysis*"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

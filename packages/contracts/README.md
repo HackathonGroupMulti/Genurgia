@@ -1,5 +1,12 @@
 # API Contracts
 
-This package is reserved for API contracts shared across application boundaries.
+This package contains versioned JSON Schemas shared across application boundaries.
 
-Milestone 0 keeps the health contract explicit in both FastAPI/Pydantic and TypeScript, with validation at the frontend boundary. Recording and pose-sequence contracts belong here in Milestone 1. Do not place biomechanics calculations in this package.
+The backend Pydantic models are the source of truth. Regenerate schemas from the repository root after a contract change:
+
+```powershell
+$env:PYTHONPATH = "services/biomechanics"
+.\.venv\Scripts\python scripts\export_contracts.py
+```
+
+Tests verify that the committed schemas remain synchronized. Do not place biomechanics calculations in this package.

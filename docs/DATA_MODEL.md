@@ -89,3 +89,16 @@ Every analysis must carry enough version information to determine which algorith
 ## Persistence approach
 
 Structured application entities and searchable metrics belong in a relational database. Videos and large pose or analysis artifacts belong behind a file/object-storage abstraction, with only their references and metadata stored relationally. Local development should use simple local persistence when these capabilities are introduced.
+
+## Milestone 1 representation
+
+Milestone 1 implements `Recording` and `PoseSequence` as versioned Pydantic contracts rather than SQL tables. Each frame preserves:
+
+* zero-based frame index;
+* derived millisecond timestamp based on decoded frame order and source FPS;
+* an explicit empty pose list when no person is detected;
+* all MediaPipe normalized-image landmarks;
+* all MediaPipe world landmarks returned by the model;
+* raw landmark visibility and presence values where available.
+
+The raw JSON artifact is separate from the original recording and annotated overlay. Every artifact records the schema version, pose-model name, pose-model/package version, and coordinate convention.

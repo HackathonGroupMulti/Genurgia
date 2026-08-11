@@ -47,7 +47,7 @@ The system should retain raw pose landmarks so improved analysis algorithms can 
 
 CURRENT MILESTONE:
 
-Milestone 1 — one video to preserved pose landmarks.
+Milestone 2 — tested left/right knee-flexion time series.
 
 CURRENT BLOCKER:
 
@@ -55,6 +55,6 @@ None.
 
 NEXT ACTION:
 
-Define versioned Recording and PoseSequence contracts, including timestamped landmark and confidence representations, before implementing video upload or the MediaPipe adapter.
+Implement tested vector-angle primitives and the documented knee-flexion convention, then derive confidence-aware left/right series from preserved pose observations.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

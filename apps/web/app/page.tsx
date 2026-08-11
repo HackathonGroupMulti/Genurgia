@@ -1,4 +1,5 @@
 import { getBackendHealth } from "@/lib/biomechanics-api";
+import { VideoUpload } from "@/components/video-upload";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export default async function Home() {
           Knee Twin is a movement-analysis tool, not a medical diagnostic device.
         </p>
       </section>
+      <VideoUpload />
     </main>
   );
 }

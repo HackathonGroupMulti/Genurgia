@@ -9,6 +9,10 @@ export type HealthResult =
 
 const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
 
+export function getBackendBaseUrl(): string {
+  return process.env.BIOMECHANICS_API_URL ?? DEFAULT_BACKEND_URL;
+}
+
 export function parseHealthResponse(value: unknown): HealthResponse | null {
   if (
     typeof value === "object" &&
@@ -25,7 +29,7 @@ export function parseHealthResponse(value: unknown): HealthResponse | null {
 }
 
 export async function getBackendHealth(): Promise<HealthResult> {
-  const backendUrl = process.env.BIOMECHANICS_API_URL ?? DEFAULT_BACKEND_URL;
+  const backendUrl = getBackendBaseUrl();
 
   try {
     const response = await fetch(`${backendUrl}/health`, { cache: "no-store" });

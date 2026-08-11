@@ -43,7 +43,9 @@ Interpretation / Visualization
 * Persistence models are not required to be identical to API response models.
 * Large video and artifact storage remains conceptually separate from relational metadata.
 
-Milestone 0 has no persistence layer and no analysis orchestration implementation. The health endpoint establishes connectivity without inventing domain abstractions before their requirements are known.
+Milestone 1 uses a local filesystem implementation of the artifact-storage boundary. Each successful extraction bundle contains the original recording, a versioned raw pose-sequence JSON artifact, and an annotated MP4. Relational session persistence remains deferred.
+
+Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.
 
 ## Dependency Direction
 
@@ -56,3 +58,10 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 ## Milestone 0 interface
 
 `GET /health` returns a typed JSON response with `status` and `service`. The Next.js server reads the backend base URL from `BIOMECHANICS_API_URL`, calls this route, validates the response shape, and renders the connection state. This server-side call avoids exposing internal service URLs to browser code.
+
+## Milestone 1 interfaces
+
+* `POST /pose-sequences` accepts one MP4, MOV, or WebM multipart upload and returns recording metadata plus a pose-sequence summary.
+* `GET /artifacts/{pose_sequence_id}/{filename}` serves locally preserved artifacts through the storage boundary.
+* Next.js proxies uploads and artifact reads so the browser does not need the backend service address.
+* Versioned JSON Schemas in `packages/contracts` describe both the summary response and full raw artifact.

@@ -5,19 +5,23 @@ Last updated:
 
 ## Working
 
-* Repository initialized.
-* Project documentation exists.
-* Next.js 16 App Router frontend runs from `apps/web`.
-* FastAPI backend runs from `services/biomechanics`.
-* `GET /health` returns the typed biomechanics service status.
-* The server-rendered homepage calls the backend and renders connected or unavailable state.
-* Root npm workspace commands cover frontend development and validation.
-* The Python project installs in editable mode with test and lint tools.
-* GitHub Actions validates frontend and backend jobs.
+* Milestone 0 frontend/backend skeleton and health-check vertical slice.
+* Browser video upload through a Next.js server proxy.
+* FastAPI `POST /pose-sequences` for MP4, MOV, and WebM inputs up to a configurable limit.
+* Replaceable `PoseProvider` protocol with a MediaPipe Pose Landmarker video adapter.
+* Monotonic timestamped extraction of normalized-image and world landmarks.
+* Explicit empty pose lists when a frame has no detection.
+* Local preservation of original recording, versioned raw pose JSON, and annotated MP4.
+* Artifact download/streaming API and annotated replay in the frontend.
+* Versioned Pydantic/TypeScript contracts and exported JSON Schemas.
+* Checksum-verified MediaPipe model download script.
+* Deterministic small MP4 fixture and real MediaPipe integration coverage when the model is present.
+* GitHub Actions frontend and backend validation.
 
 ## Partially working
 
-* Analysis modules document their future responsibilities but intentionally contain no implementation.
+* Local artifacts are not yet represented by persistent relational session metadata.
+* Pose extraction is synchronous and intended for the local first vertical slice.
 
 ## Broken
 
@@ -25,43 +29,45 @@ Nothing known.
 
 ## Important files
 
-* `AGENTS.md`
-* `CONTEXT.md`
-* `TASKS.md`
-* `docs/PRODUCT.md`
-* `docs/ARCHITECTURE.md`
-* `docs/DATA_MODEL.md`
-* `docs/BIOMECHANICS.md`
-* `docs/DECISIONS.md`
-* `apps/web/app/page.tsx`
-* `apps/web/lib/biomechanics-api.ts`
-* `services/biomechanics/app/main.py`
-* `services/biomechanics/app/api/health.py`
-* `.github/workflows/ci.yml`
+* `analysis/pose.py` — provider-independent raw observation types.
+* `analysis/mediapipe_pose.py` — MediaPipe video adapter and overlay export.
+* `app/services/pose_analysis.py` — upload-to-artifact orchestration.
+* `app/schemas/pose.py` — versioned recording and pose contracts.
+* `app/storage.py` — local artifact-storage boundary.
+* `app/api/pose_sequences.py` — upload and artifact HTTP routes.
+* `apps/web/components/video-upload.tsx` — upload and extraction result UI.
+* `packages/contracts/*.schema.json` — exported cross-boundary schemas.
+* `scripts/download_pose_model.py` — pinned model acquisition.
 
 ## Tests
 
 Verified locally on 2026-08-10:
 
-* backend: 4 tests passed;
+* backend: 18 tests passed, including real MediaPipe extraction with the local model;
 * backend Ruff lint: passed;
-* frontend: 5 tests passed;
+* frontend: 8 tests passed;
 * frontend ESLint: passed with zero warnings;
 * frontend TypeScript check: passed;
-* frontend production build: passed;
-* live production vertical slice: API health payload, frontend HTTP 200, and rendered connected state all passed.
+* frontend production build: passed.
+* live Next.js-proxied upload: 12/12 fixture frames detected; raw JSON and overlay both returned HTTP 200.
+
+The MediaPipe integration test skips in environments where the external model has not been downloaded. Deterministic provider, persistence, contract, and API tests always run.
 
 ## Current task
 
-Milestone 1: Define the video-to-landmarks boundary without implementing downstream kinematics.
+Milestone 2: derive tested, confidence-aware left/right knee-flexion series from raw pose observations.
 
 ## Next
 
-1. Define Recording and PoseSequence contracts.
-2. Specify coordinate, timestamp, landmark, confidence, model-name, and model-version fields.
-3. Add contract validation tests.
-4. Only then add video upload and the MediaPipe pose-provider adapter.
+1. Implement pure vector-angle primitives with synthetic exact-geometry tests.
+2. Implement `0° = full modeled extension` knee flexion.
+3. Define missing/low-confidence behavior without fabricating values.
+4. Add filtering as a distinct derived layer.
+5. Expose and graph left/right series only after numerical behavior is verified.
 
 ## Do not redo
 
-The foundational architectural decisions documented in `DECISIONS.md` should not be casually replaced.
+* Preserve raw observations independently from derived values.
+* Keep biomechanics calculations in framework-independent Python modules.
+* Keep MediaPipe and future simulation systems behind adapters.
+* Do not introduce queues or cloud artifact storage without measured need.
