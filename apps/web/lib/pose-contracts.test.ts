@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { artifactProxyUrl, parsePoseAnalysisResponse } from "./pose-contracts";
+import {
+  artifactProxyUrl,
+  nearestPoseFrame,
+  parsePoseAnalysisResponse,
+  parsePoseSequenceArtifact,
+} from "./pose-contracts";
 
 const validResponse = {
   recording: {
@@ -41,5 +46,25 @@ describe("pose analysis contract", () => {
     expect(artifactProxyUrl("/artifacts/id/annotated.mp4")).toBe(
       "/api/artifacts/id/annotated.mp4",
     );
+  });
+
+  it("parses raw frames and selects the nearest synchronized frame", () => {
+    const artifact = {
+      recording: validResponse.recording,
+      pose_sequence: {
+        ...validResponse.pose_sequence,
+        frames: [
+          { frame_index: 0, timestamp_ms: 0, poses: [] },
+          { frame_index: 1, timestamp_ms: 100, poses: [] },
+        ],
+      },
+    };
+    delete (artifact.pose_sequence as Record<string, unknown>).raw_landmarks_reference;
+    delete (artifact.pose_sequence as Record<string, unknown>).annotated_video_reference;
+
+    const parsed = parsePoseSequenceArtifact(artifact);
+
+    expect(parsed).not.toBeNull();
+    expect(parsed && nearestPoseFrame(parsed, 80)?.frame_index).toBe(1);
   });
 });

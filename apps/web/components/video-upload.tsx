@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
+import { CurrentFrameMetrics } from "@/components/current-frame-metrics";
 import { KneeFlexionChart } from "@/components/knee-flexion-chart";
 import { RepetitionSummary } from "@/components/repetition-summary";
 import { SessionHistory } from "@/components/session-history";
+import { SkeletonReplay } from "@/components/skeleton-replay";
 import {
   parseKneeFlexionAnalysis,
   type KneeFlexionAnalysis,
@@ -11,7 +13,9 @@ import {
 import {
   artifactProxyUrl,
   parsePoseAnalysisResponse,
+  parsePoseSequenceArtifact,
   type PoseAnalysisResponse,
+  type PoseSequenceArtifact,
 } from "@/lib/pose-contracts";
 import {
   parseSquatRepetitionAnalysis,
@@ -27,6 +31,7 @@ type UploadState =
       result: PoseAnalysisResponse;
       analysis: KneeFlexionAnalysis | null;
       repetitions: SquatRepetitionAnalysis | null;
+      poseArtifact: PoseSequenceArtifact | null;
       analysisError: string | null;
     }
   | { status: "error"; message: string };
@@ -63,6 +68,7 @@ export function VideoUpload() {
       setState({ status: "analyzing", result });
       let analysis: KneeFlexionAnalysis | null = null;
       let repetitions: SquatRepetitionAnalysis | null = null;
+      let poseArtifact: PoseSequenceArtifact | null = null;
       try {
         const analysisResponse = await fetch(
           `/api/pose-sequences/${result.pose_sequence.id}/knee-flexion`,
@@ -84,11 +90,18 @@ export function VideoUpload() {
         analysis = null;
         repetitions = null;
       }
+      try {
+        const rawResponse = await fetch(artifactProxyUrl(result.pose_sequence.raw_landmarks_reference));
+        poseArtifact = rawResponse.ok ? parsePoseSequenceArtifact(await rawResponse.json()) : null;
+      } catch {
+        poseArtifact = null;
+      }
       setState({
         status: "complete",
         result,
         analysis,
         repetitions,
+        poseArtifact,
         analysisError: analysis && repetitions
           ? null
           : "Pose landmarks were preserved, but one or more derived analyses were unavailable.",
@@ -141,6 +154,7 @@ export function VideoUpload() {
           result={state.result}
           analysis={state.analysis}
           repetitions={state.repetitions}
+          poseArtifact={state.poseArtifact}
           analysisError={state.analysisError}
         />
       )}
@@ -155,14 +169,25 @@ function AnalysisResult({
   result,
   analysis,
   repetitions,
+  poseArtifact,
   analysisError,
 }: {
   result: PoseAnalysisResponse;
   analysis: KneeFlexionAnalysis | null;
   repetitions: SquatRepetitionAnalysis | null;
+  poseArtifact: PoseSequenceArtifact | null;
   analysisError: string | null;
 }) {
   const sequence = result.pose_sequence;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentTimeMs, setCurrentTimeMs] = useState(0);
+
+  function seekVideo(timestampMs: number) {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = timestampMs / 1000;
+    setCurrentTimeMs(timestampMs);
+  }
+
   return (
     <div className="analysis-result" aria-live="polite">
       <div className="result-heading">
@@ -174,14 +199,37 @@ function AnalysisResult({
           {sequence.detected_frame_count} / {sequence.frame_count} frames detected
         </p>
       </div>
+      <p className="section-label">Annotated pose overlay · synchronized playback source</p>
       <video
+        ref={videoRef}
         controls
         preload="metadata"
         src={artifactProxyUrl(sequence.annotated_video_reference)}
+        onTimeUpdate={(event) => setCurrentTimeMs(event.currentTarget.currentTime * 1000)}
+        onSeeked={(event) => setCurrentTimeMs(event.currentTarget.currentTime * 1000)}
       >
         Your browser does not support video playback.
       </video>
-      {analysis && <KneeFlexionChart analysis={analysis} repetitions={repetitions} />}
+      {analysis && (
+        <CurrentFrameMetrics
+          analysis={analysis}
+          repetitions={repetitions}
+          currentTimeMs={currentTimeMs}
+        />
+      )}
+      {analysis && (
+        <KneeFlexionChart
+          analysis={analysis}
+          repetitions={repetitions}
+          currentTimeMs={currentTimeMs}
+          onSeek={seekVideo}
+        />
+      )}
+      {poseArtifact ? (
+        <SkeletonReplay artifact={poseArtifact} currentTimeMs={currentTimeMs} />
+      ) : (
+        <p className="chart-note">The model-relative skeleton replay is unavailable.</p>
+      )}
       {repetitions && <RepetitionSummary analysis={repetitions} />}
       {analysisError && <p className="upload-message error">{analysisError}</p>}
       <a

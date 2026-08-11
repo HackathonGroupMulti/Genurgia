@@ -2,7 +2,7 @@
 
 Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
 
-Milestones 0 through 4 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, and stores comparable session summaries.
+Milestones 0 through 5 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, stores comparable session summaries, and synchronizes playback with its metric and skeleton views.
 
 ## Architecture
 
@@ -79,7 +79,7 @@ Start the frontend from the repository root in another terminal:
 npm run dev:web
 ```
 
-Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful analysis displays the annotated video, a left/right knee-flexion graph with repetition boundaries, per-repetition metrics, and links to preserved raw artifacts.
+Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful analysis displays the annotated video, a seekable synchronized knee-flexion graph, current measurements, repetition metrics, a rotatable model-relative skeleton, session history, and links to preserved raw artifacts.
 
 ## Environment variables
 
@@ -114,6 +114,6 @@ GitHub Actions runs the same test, lint, type-check, and frontend build validati
 
 ## Current status
 
-Milestone 4 is complete. Pose extraction and derived analysis remain synchronous. SQLite stores searchable session, source, version, and summary-metric metadata while original videos and detailed JSON artifacts remain separately stored under `data/local`. The UI lists prior sessions and compares each mean modeled ROM with the preceding session. Reported values are monocular model estimates, not clinical measurements.
+All defined MVP milestones are complete. Pose extraction and derived analysis remain synchronous. SQLite stores searchable metadata while original videos and detailed JSON artifacts remain separately stored under `data/local`. The UI synchronizes annotated playback with the angle chart, current modeled measurements, repetition boundaries, and a rotatable world-landmark skeleton, then compares session summaries over time. Reported values are monocular model estimates, not clinical measurements.
 
-The next task is Milestone 5: synchronize video playback with the chart and current-frame movement measurements.
+The next work is post-MVP hardening: explicit capture-quality guidance, richer capture metadata, and exercise abstraction.

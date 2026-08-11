@@ -55,11 +55,11 @@
 
 ## Milestone 5 — Visualization
 
-* [ ] Synchronize video with metrics chart.
-* [ ] Render pose overlay.
-* [ ] Display current-frame measurements.
+* [x] Synchronize video with metrics chart.
+* [x] Render pose overlay.
+* [x] Display current-frame measurements.
 * [x] Add rep boundaries.
-* [ ] Explore 3D skeleton replay.
+* [x] Explore 3D skeleton replay.
 
 ## Later
 

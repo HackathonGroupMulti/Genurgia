@@ -47,7 +47,7 @@ The system should retain raw pose landmarks so improved analysis algorithms can 
 
 CURRENT MILESTONE:
 
-Milestone 5 — synchronized movement visualization.
+Post-MVP hardening — capture quality and exercise abstraction.
 
 CURRENT BLOCKER:
 
@@ -55,6 +55,6 @@ None.
 
 NEXT ACTION:
 
-Synchronize annotated video time with the knee-flexion chart and current-frame measurements.
+Define explicit capture-quality checks before expanding beyond the squat exercise.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

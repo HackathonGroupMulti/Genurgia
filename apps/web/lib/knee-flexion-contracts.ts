@@ -113,3 +113,16 @@ export function sampleDisplayValue(sample: KneeFlexionSample): number | null {
   if (sample.quality !== "valid") return null;
   return sample.filtered_value_degrees ?? sample.value_degrees;
 }
+
+export function sampleAtTimestamp(
+  series: KneeFlexionSeries,
+  timestampMs: number,
+): KneeFlexionSample | null {
+  if (series.samples.length === 0) return null;
+  return series.samples.reduce((nearest, sample) =>
+    Math.abs(sample.timestamp_ms - timestampMs) <
+    Math.abs(nearest.timestamp_ms - timestampMs)
+      ? sample
+      : nearest,
+  );
+}

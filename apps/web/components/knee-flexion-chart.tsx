@@ -1,3 +1,4 @@
+import type { KeyboardEvent, PointerEvent } from "react";
 import {
   sampleDisplayValue,
   type KneeFlexionAnalysis,
@@ -12,9 +13,13 @@ const PADDING = 42;
 export function KneeFlexionChart({
   analysis,
   repetitions,
+  currentTimeMs = 0,
+  onSeek,
 }: {
   analysis: KneeFlexionAnalysis;
   repetitions?: SquatRepetitionAnalysis | null;
+  currentTimeMs?: number;
+  onSeek?: (timestampMs: number) => void;
 }) {
   const allSamples = analysis.series.flatMap((series) => series.samples);
   const maxTime = Math.max(1, ...allSamples.map((sample) => sample.timestamp_ms));
@@ -35,7 +40,18 @@ export function KneeFlexionChart({
           <span className="right-series">Right</span>
         </div>
       </figcaption>
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="Knee flexion line graph">
+      <svg
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        role={onSeek ? "slider" : "img"}
+        aria-label={onSeek ? "Knee flexion timeline. Click or use arrow keys to seek." : "Knee flexion line graph"}
+        aria-valuemin={onSeek ? 0 : undefined}
+        aria-valuemax={onSeek ? maxTime : undefined}
+        aria-valuenow={onSeek ? Math.round(Math.min(maxTime, currentTimeMs)) : undefined}
+        aria-valuetext={onSeek ? `${(currentTimeMs / 1000).toFixed(2)} seconds` : undefined}
+        tabIndex={onSeek ? 0 : undefined}
+        onPointerDown={onSeek ? (event) => seekFromPointer(event, maxTime, onSeek) : undefined}
+        onKeyDown={onSeek ? (event) => seekFromKeyboard(event, maxTime, currentTimeMs, onSeek) : undefined}
+      >
         <line x1={PADDING} y1={PADDING} x2={PADDING} y2={HEIGHT - PADDING} />
         <line
           x1={PADDING}
@@ -80,6 +96,19 @@ export function KneeFlexionChart({
             d={seriesPath(series, maxTime, maxAngle)}
           />
         ))}
+        <g className="playback-cursor">
+          <line
+            x1={scaleX(Math.min(maxTime, currentTimeMs), maxTime)}
+            y1={PADDING}
+            x2={scaleX(Math.min(maxTime, currentTimeMs), maxTime)}
+            y2={HEIGHT - PADDING}
+          />
+          <circle
+            cx={scaleX(Math.min(maxTime, currentTimeMs), maxTime)}
+            cy={HEIGHT - PADDING}
+            r="4"
+          />
+        </g>
         <text x={WIDTH - PADDING} y={HEIGHT - 12} textAnchor="end">
           {(maxTime / 1000).toFixed(1)} s
         </text>
@@ -117,4 +146,27 @@ function scaleY(value: number, maxAngle: number): number {
 
 function scaleX(timestampMs: number, maxTime: number): number {
   return PADDING + (timestampMs / maxTime) * (WIDTH - PADDING * 2);
+}
+
+function seekFromPointer(
+  event: PointerEvent<SVGSVGElement>,
+  maxTime: number,
+  onSeek: (timestampMs: number) => void,
+) {
+  const bounds = event.currentTarget.getBoundingClientRect();
+  const viewBoxX = ((event.clientX - bounds.left) / bounds.width) * WIDTH;
+  const ratio = Math.max(0, Math.min(1, (viewBoxX - PADDING) / (WIDTH - PADDING * 2)));
+  onSeek(ratio * maxTime);
+}
+
+function seekFromKeyboard(
+  event: KeyboardEvent<SVGSVGElement>,
+  maxTime: number,
+  currentTimeMs: number,
+  onSeek: (timestampMs: number) => void,
+) {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  event.preventDefault();
+  const direction = event.key === "ArrowRight" ? 1 : -1;
+  onSeek(Math.max(0, Math.min(maxTime, currentTimeMs + direction * 100)));
 }

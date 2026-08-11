@@ -87,3 +87,11 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 * Derived-analysis services register versioned artifact references and update session status. Same-version reanalysis replaces its metrics; completed status does not regress.
 * `GET /sessions` returns newest-first history, `GET /sessions/{id}` returns one stored graph, and `GET /sessions/comparison` returns exact longitudinal metric comparisons.
 * Next.js proxies the session endpoints. The browser validates their contracts and displays server-computed metrics rather than reading SQLite or analysis artifacts directly.
+
+## Milestone 5 visualization
+
+* The annotated video element is the playback-clock source. Its current time drives a chart cursor, nearest timestamped knee samples, repetition context, and nearest raw pose frame.
+* Seeking the SVG chart updates the video time; arrow keys provide accessible `100 ms` timeline steps.
+* The browser fetches and validates the already-preserved raw pose artifact for visualization. It does not calculate biomechanical metrics.
+* `SkeletonReplay` rotates and projects MediaPipe world landmarks into SVG with a small presentation-only transform. It adds no Three.js/WebGL dependency and does not persist a new derived artifact.
+* Model-relative 3D replay is visually separated from calibrated measurement claims.

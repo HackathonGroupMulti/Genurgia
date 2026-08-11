@@ -5,21 +5,23 @@ Last updated:
 
 ## Working
 
-* Milestones 0 through 4: upload, pose extraction, modeled knee flexion, squat repetitions, and durable session history.
-* SQLite metadata persistence for sessions, recordings, pose sequences, analysis versions, and searchable summary metrics.
-* Original videos and time-series JSON remain in the separate local artifact store rather than SQLite.
-* Monotonic session status from pose extraction through complete repetition analysis.
-* Idempotent same-version reanalysis that replaces summary metrics without duplicating analysis metadata.
-* `GET /sessions`, `GET /sessions/{id}`, and `GET /sessions/comparison` read interfaces.
-* Newest-first historical session table with rep count, modeled mean ROM, change from the preceding session, and confidence.
-* Versioned Pydantic, TypeScript, and JSON Schema session contracts.
+* Milestones 0 through 5 are complete as a local squat-analysis vertical slice.
+* Upload and timestamped MediaPipe raw-observation preservation.
+* Annotated pose-overlay playback.
+* Confidence-aware three-dimensional modeled left/right knee flexion.
+* Bilateral squat repetition boundaries and per-repetition ROM.
+* SQLite-backed session history and exact longitudinal comparison metrics.
+* One browser playback clock shared by video, chart cursor, current measurements, repetition context, and skeleton frame.
+* Pointer and keyboard seeking on the knee-flexion timeline.
+* Lightweight rotatable SVG replay of preserved MediaPipe world landmarks with no 3D framework dependency.
+* Versioned Pydantic, TypeScript, and JSON Schema contracts across API boundaries.
 
 ## Partially working
 
-* Session time currently represents upload/analysis time because capture timestamps are not collected yet.
-* SQLite and local artifacts are appropriate for a local single-user MVP, not multi-user deployment.
-* Pose extraction and derived analyses remain synchronous.
-* The video and metric chart are not yet time-synchronized.
+* Capture-quality checks are limited to landmark confidence and missing-data behavior.
+* Session time represents upload time; source capture time and capture setup metadata are not collected.
+* SQLite/local artifact storage and synchronous analysis target a local single-user MVP.
+* The 3D skeleton is a model-relative visualization, not calibrated reconstruction.
 
 ## Broken
 
@@ -27,41 +29,41 @@ Nothing known.
 
 ## Important files
 
-* `app/persistence.py` — SQLite schema and session repository.
-* `app/schemas/sessions.py` — session history and comparison contracts.
-* `app/api/sessions.py` — session read endpoints.
-* `app/services/pose_analysis.py` — persists recording and pose-sequence metadata.
-* `app/services/kinematics.py` — persists analysis versions and summary metrics.
-* `apps/web/components/session-history.tsx` — historical comparison table.
-* `packages/contracts/session-list-v1.schema.json` — shared history contract.
-* `packages/contracts/session-comparison-v1.schema.json` — shared comparison contract.
+* `apps/web/components/video-upload.tsx` — upload orchestration and shared playback clock.
+* `apps/web/components/knee-flexion-chart.tsx` — synchronized, seekable metric timeline.
+* `apps/web/components/current-frame-metrics.tsx` — nearest timestamped left/right measurements.
+* `apps/web/components/skeleton-replay.tsx` — rotatable world-landmark projection.
+* `apps/web/lib/pose-contracts.ts` — raw pose artifact validation and frame lookup.
+* `apps/web/lib/knee-flexion-contracts.ts` — analysis validation and sample lookup.
+* `services/biomechanics/analysis/` — framework-independent biomechanics and repetition logic.
+* `services/biomechanics/app/persistence.py` — durable local session metadata.
 
 ## Tests
 
 Verified locally on 2026-08-10:
 
-* backend: 53 tests passed, including persistence graph, reanalysis, resource cleanup, API history, and comparison behavior;
+* backend: 53 tests passed;
 * backend Ruff lint: passed;
-* frontend: 17 tests passed;
+* frontend: 19 tests passed, including synchronized nearest-frame/sample selection;
 * frontend ESLint: passed with zero warnings;
 * frontend TypeScript check: passed;
 * frontend production build: passed.
 
 ## Current task
 
-Milestone 5: synchronize video playback and movement metrics.
+All defined MVP milestones are complete. The next work is product hardening rather than an unfinished milestone.
 
 ## Next
 
-1. Share video current time with the metric visualization.
-2. Render a current-time cursor and current left/right measurements.
-3. Make existing pose overlay playback the primary synchronized replay.
-4. Evaluate a small 3D world-landmark skeleton replay without adding heavy infrastructure.
-5. Verify interaction behavior and responsive presentation.
+1. Define capture-quality checks and actionable recording guidance.
+2. Add capture timestamp and setup metadata.
+3. Extract exercise-specific configuration behind a generic movement-analysis strategy.
+4. Evaluate calibrated/multi-view reconstruction before interpreting the skeleton beyond visualization.
+5. Add authentication and production persistence only when moving beyond the local single-user scope.
 
 ## Do not redo
 
-* Keep raw observations and derived artifacts outside relational metadata.
-* Preserve versioned analysis records and source-version metric labels.
-* Keep comparison definitions exact: v1 change is current mean modeled ROM minus the preceding stored session's mean modeled ROM.
-* Do not present longitudinal changes as diagnoses or treatment conclusions.
+* Keep raw observations separate from derived measurements and relational metadata.
+* Keep biomechanics calculations out of the browser; nearest-sample selection and SVG projection are presentation only.
+* Treat MediaPipe world depth and skeleton scale as model-relative.
+* Keep all modeled values explicitly non-diagnostic.

@@ -178,3 +178,30 @@ Directory structure is not a reliable metadata model, does not naturally represe
 Operational boundary:
 
 This choice is for local MVP persistence. Multi-user deployment, concurrent workers, authentication, and remote backup would require a production persistence design.
+
+---
+
+## ADR-010 — Keep initial synchronized 3D replay presentation-only
+
+Status:
+Accepted
+
+Decision:
+
+Render the current MediaPipe world-landmark frame as a lightweight rotatable SVG in the browser. Use video time as the shared playback clock and do not create a second biomechanics or persistence pipeline for this view.
+
+Reason:
+
+Milestone 5 needs synchronized inspection, not a calibrated simulation engine. Reusing preserved raw observations proves the interaction and keeps numerical analysis authoritative in Python without adding a heavy 3D dependency.
+
+Rejected alternative:
+
+Introduce Three.js or OpenSim as a requirement for the first skeleton replay.
+
+Why rejected:
+
+Neither dependency improves the underlying monocular evidence by itself. Both would add substantial complexity before capture calibration or musculoskeletal-simulation requirements exist.
+
+Limitation:
+
+SVG perspective, rotation, depth, and scale are visualization choices. They are not biomechanical outputs and must not be interpreted as calibrated anatomy.

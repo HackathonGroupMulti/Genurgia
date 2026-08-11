@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   parseKneeFlexionAnalysis,
+  sampleAtTimestamp,
   sampleDisplayValue,
+  type KneeFlexionSeries,
   type KneeFlexionSample,
 } from "./knee-flexion-contracts";
 
@@ -47,5 +49,17 @@ describe("knee-flexion contract", () => {
   it("prefers filtered values only for valid samples", () => {
     expect(sampleDisplayValue(sample)).toBe(88);
     expect(sampleDisplayValue({ ...sample, quality: "low_confidence" })).toBeNull();
+  });
+
+  it("selects the closest source sample for synchronized playback", () => {
+    const series: KneeFlexionSeries = {
+      joint: "knee",
+      side: "left",
+      metric: "flexion",
+      unit: "degree",
+      samples: [sample, { ...sample, timestamp_ms: 100, value_degrees: 80 }],
+    };
+
+    expect(sampleAtTimestamp(series, 80)?.timestamp_ms).toBe(100);
   });
 });
