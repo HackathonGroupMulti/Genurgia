@@ -5,6 +5,7 @@ from pathlib import Path
 
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import PoseAnalysisResponse, PoseSequenceArtifact
+from app.schemas.repetitions import SquatRepetitionAnalysis
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = REPOSITORY_ROOT / "packages" / "contracts"
@@ -12,6 +13,7 @@ CONTRACTS = {
     "pose-analysis-response-v1.schema.json": PoseAnalysisResponse,
     "pose-sequence-artifact-v1.schema.json": PoseSequenceArtifact,
     "knee-flexion-analysis-v1.schema.json": KneeFlexionAnalysis,
+    "squat-repetition-analysis-v1.schema.json": SquatRepetitionAnalysis,
 }
 
 

@@ -13,6 +13,7 @@ from app.dependencies import (
 )
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import PoseAnalysisResponse
+from app.schemas.repetitions import SquatRepetitionAnalysis
 from app.services.kinematics import PoseSequenceNotFound
 from app.services.pose_analysis import InvalidVideoUpload
 
@@ -57,6 +58,25 @@ def create_knee_flexion_analysis(
 ) -> KneeFlexionAnalysis:
     try:
         return service.analyze_knee_flexion(pose_sequence_id)
+    except PoseSequenceNotFound as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+    except PoseExtractionError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+
+
+@router.post(
+    "/pose-sequences/{pose_sequence_id}/squat-repetitions",
+    response_model=SquatRepetitionAnalysis,
+)
+def create_squat_repetition_analysis(
+    pose_sequence_id: UUID,
+    service: KinematicsServiceDependency,
+) -> SquatRepetitionAnalysis:
+    try:
+        return service.analyze_squat_repetitions(pose_sequence_id)
     except PoseSequenceNotFound as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
     except PoseExtractionError as error:

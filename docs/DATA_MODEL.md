@@ -114,3 +114,16 @@ The raw JSON artifact is separate from the original recording and annotated over
 * explicit quality state.
 
 Quality states distinguish valid, low-confidence, missing pose, missing landmark, invalid coordinate, and degenerate geometry. Unavailable measurements remain JSON `null`; they are not replaced with zero or carried forward.
+
+## Milestone 3 representation
+
+`SquatRepetitionAnalysis` is a separate versioned artifact linked to a source `PoseSequence` and `knee-flexion-analysis-v1`. Each accepted `Repetition` records:
+
+* one-based repetition index;
+* start, bottom, and end timestamps in milliseconds;
+* duration in milliseconds;
+* maximum modeled left and right flexion in degrees;
+* left, right, and mean within-repetition ROM in degrees;
+* minimum bilateral input confidence across contributing valid samples.
+
+The artifact embeds the full phase-model configuration and algorithm version so acceptance behavior is reproducible. An empty repetition list is a valid result and is distinct from analysis failure.

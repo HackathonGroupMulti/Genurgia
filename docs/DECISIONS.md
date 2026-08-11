@@ -128,3 +128,26 @@ World landmarks provide one internally consistent three-dimensional coordinate s
 Known limitation:
 
 MediaPipe world landmarks remain monocular model estimates and are not calibrated motion-capture measurements.
+
+---
+
+## ADR-008 — Initial squat segmentation requires bilateral valid measurements
+
+Status:
+Accepted
+
+Decision:
+
+Drive `bilateral-squat-state-machine-v1` with the mean of aligned, valid, filtered left and right knee-flexion values. Reject candidates that cross excessive missing-data gaps; do not substitute one knee for the other or interpolate unavailable measurements.
+
+Reason:
+
+Repetition boundaries and per-side ROM should have one reproducible meaning. Silently changing from bilateral to unilateral evidence would make results incomparable and hide capture-quality failures.
+
+Rejected alternative:
+
+Continue a repetition from whichever side remains visible.
+
+Why rejected:
+
+It changes the phase signal according to availability and can create boundaries or ROM metrics from asymmetrical evidence without telling the consumer.

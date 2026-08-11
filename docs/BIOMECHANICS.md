@@ -111,6 +111,38 @@ Every asymmetry metric must state exactly what is being compared. Examples inclu
 * difference in ROM;
 * temporal difference between repetition phases.
 
+## Initial squat repetition segmentation
+
+Milestone 3 implements `bilateral-squat-state-machine-v1` over the filtered output of `knee-flexion-analysis-v1`. It requires aligned, valid, filtered measurements from both knees. The phase-driving value is the arithmetic mean of left and right flexion; one side is never substituted for missing data.
+
+The state order is:
+
+```text
+standing → descending → bottom → ascending → standing
+```
+
+Initial configuration:
+
+* standing: bilateral mean flexion at or below `25°`;
+* descent started: bilateral mean at or above `35°` after a standing observation;
+* bottom reached: bilateral mean at or above `70°`;
+* bottom exited: bilateral mean at or below `60°`, providing `10°` hysteresis;
+* duration: `800–10,000 ms` inclusive;
+* maximum gap between valid bilateral samples inside a candidate: `500 ms`;
+* minimum ROM independently required on each side: `35°`.
+
+Rep start is the most recent standing timestamp before descent. Bottom is the timestamp of maximum bilateral mean flexion in the candidate. End is the first return to standing after bottom exit. A cycle is omitted if it is incomplete, too shallow, outside the duration limits, has insufficient ROM on either side, or crosses an excessive invalid-data gap. Missing samples are not interpolated.
+
+For each accepted repetition:
+
+```text
+left_rom = maximum_left_flexion - minimum_left_flexion
+right_rom = maximum_right_flexion - minimum_right_flexion
+mean_rom = (left_rom + right_rom) / 2
+```
+
+Rep confidence is the minimum of the contributing bilateral knee-flexion confidences. This conservative value describes pose-input quality, not confidence in clinical accuracy. Fixed v1 thresholds are product heuristics validated against deterministic signals and a small real-video fixture; they are not individualized, diagnostic, or biomechanical ground truth.
+
 ## Known limitations
 
 * monocular depth uncertainty;

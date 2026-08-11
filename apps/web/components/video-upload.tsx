@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { KneeFlexionChart } from "@/components/knee-flexion-chart";
+import { RepetitionSummary } from "@/components/repetition-summary";
 import {
   parseKneeFlexionAnalysis,
   type KneeFlexionAnalysis,
@@ -11,6 +12,10 @@ import {
   parsePoseAnalysisResponse,
   type PoseAnalysisResponse,
 } from "@/lib/pose-contracts";
+import {
+  parseSquatRepetitionAnalysis,
+  type SquatRepetitionAnalysis,
+} from "@/lib/repetition-contracts";
 
 type UploadState =
   | { status: "idle" }
@@ -20,6 +25,7 @@ type UploadState =
       status: "complete";
       result: PoseAnalysisResponse;
       analysis: KneeFlexionAnalysis | null;
+      repetitions: SquatRepetitionAnalysis | null;
       analysisError: string | null;
     }
   | { status: "error"; message: string };
@@ -55,6 +61,7 @@ export function VideoUpload() {
       }
       setState({ status: "analyzing", result });
       let analysis: KneeFlexionAnalysis | null = null;
+      let repetitions: SquatRepetitionAnalysis | null = null;
       try {
         const analysisResponse = await fetch(
           `/api/pose-sequences/${result.pose_sequence.id}/knee-flexion`,
@@ -62,16 +69,28 @@ export function VideoUpload() {
         );
         const analysisPayload: unknown = await analysisResponse.json();
         analysis = analysisResponse.ok ? parseKneeFlexionAnalysis(analysisPayload) : null;
+        if (analysis) {
+          const repetitionResponse = await fetch(
+            `/api/pose-sequences/${result.pose_sequence.id}/squat-repetitions`,
+            { method: "POST" },
+          );
+          const repetitionPayload: unknown = await repetitionResponse.json();
+          repetitions = repetitionResponse.ok
+            ? parseSquatRepetitionAnalysis(repetitionPayload)
+            : null;
+        }
       } catch {
         analysis = null;
+        repetitions = null;
       }
       setState({
         status: "complete",
         result,
         analysis,
-        analysisError: analysis
+        repetitions,
+        analysisError: analysis && repetitions
           ? null
-          : "Pose landmarks were preserved, but knee-flexion analysis was unavailable.",
+          : "Pose landmarks were preserved, but one or more derived analyses were unavailable.",
       });
     } catch {
       setState({ status: "error", message: "The upload service could not be reached." });
@@ -84,8 +103,8 @@ export function VideoUpload() {
         <p className="section-label">Video → raw landmarks</p>
         <h2 id="upload-title">Create a pose sequence</h2>
         <p className="section-copy">
-          Upload an MP4, MOV, or WebM recording. Milestone 1 preserves raw observations and
-          exports a pose overlay; it does not calculate knee angles yet.
+          Upload an MP4, MOV, or WebM squat recording to preserve raw observations, estimate
+          bilateral knee flexion, and segment complete repetitions.
         </p>
       </div>
 
@@ -112,7 +131,7 @@ export function VideoUpload() {
 
       {state.status === "analyzing" && (
         <p className="upload-message" role="status">
-          Pose observations preserved. Calculating knee-flexion series…
+          Pose observations preserved. Calculating knee flexion and squat repetitions…
         </p>
       )}
 
@@ -120,6 +139,7 @@ export function VideoUpload() {
         <AnalysisResult
           result={state.result}
           analysis={state.analysis}
+          repetitions={state.repetitions}
           analysisError={state.analysisError}
         />
       )}
@@ -130,10 +150,12 @@ export function VideoUpload() {
 function AnalysisResult({
   result,
   analysis,
+  repetitions,
   analysisError,
 }: {
   result: PoseAnalysisResponse;
   analysis: KneeFlexionAnalysis | null;
+  repetitions: SquatRepetitionAnalysis | null;
   analysisError: string | null;
 }) {
   const sequence = result.pose_sequence;
@@ -155,7 +177,8 @@ function AnalysisResult({
       >
         Your browser does not support video playback.
       </video>
-      {analysis && <KneeFlexionChart analysis={analysis} />}
+      {analysis && <KneeFlexionChart analysis={analysis} repetitions={repetitions} />}
+      {repetitions && <RepetitionSummary analysis={repetitions} />}
       {analysisError && <p className="upload-message error">{analysisError}</p>}
       <a
         className="artifact-link"

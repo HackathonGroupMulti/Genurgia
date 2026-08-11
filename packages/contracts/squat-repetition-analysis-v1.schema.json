@@ -1,0 +1,213 @@
+{
+  "$defs": {
+    "SquatPhaseModel": {
+      "properties": {
+        "algorithm_version": {
+          "const": "bilateral-squat-state-machine-v1",
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "phase_states": {
+          "items": {
+            "enum": [
+              "standing",
+              "descending",
+              "bottom",
+              "ascending"
+            ],
+            "type": "string"
+          },
+          "title": "Phase States",
+          "type": "array"
+        },
+        "standing_max_degrees": {
+          "title": "Standing Max Degrees",
+          "type": "number"
+        },
+        "descent_start_min_degrees": {
+          "title": "Descent Start Min Degrees",
+          "type": "number"
+        },
+        "bottom_min_degrees": {
+          "title": "Bottom Min Degrees",
+          "type": "number"
+        },
+        "bottom_exit_max_degrees": {
+          "title": "Bottom Exit Max Degrees",
+          "type": "number"
+        },
+        "minimum_duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Minimum Duration Ms",
+          "type": "integer"
+        },
+        "maximum_duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Duration Ms",
+          "type": "integer"
+        },
+        "maximum_gap_ms": {
+          "minimum": 0,
+          "title": "Maximum Gap Ms",
+          "type": "integer"
+        },
+        "minimum_side_rom_degrees": {
+          "minimum": 0,
+          "title": "Minimum Side Rom Degrees",
+          "type": "number"
+        },
+        "behavior": {
+          "title": "Behavior",
+          "type": "string"
+        }
+      },
+      "required": [
+        "algorithm_version",
+        "phase_states",
+        "standing_max_degrees",
+        "descent_start_min_degrees",
+        "bottom_min_degrees",
+        "bottom_exit_max_degrees",
+        "minimum_duration_ms",
+        "maximum_duration_ms",
+        "maximum_gap_ms",
+        "minimum_side_rom_degrees",
+        "behavior"
+      ],
+      "title": "SquatPhaseModel",
+      "type": "object"
+    },
+    "SquatRepetition": {
+      "properties": {
+        "repetition_index": {
+          "exclusiveMinimum": 0,
+          "title": "Repetition Index",
+          "type": "integer"
+        },
+        "start_timestamp_ms": {
+          "minimum": 0,
+          "title": "Start Timestamp Ms",
+          "type": "integer"
+        },
+        "bottom_timestamp_ms": {
+          "minimum": 0,
+          "title": "Bottom Timestamp Ms",
+          "type": "integer"
+        },
+        "end_timestamp_ms": {
+          "minimum": 0,
+          "title": "End Timestamp Ms",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "minimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "left_max_flexion_degrees": {
+          "title": "Left Max Flexion Degrees",
+          "type": "number"
+        },
+        "right_max_flexion_degrees": {
+          "title": "Right Max Flexion Degrees",
+          "type": "number"
+        },
+        "left_rom_degrees": {
+          "minimum": 0,
+          "title": "Left Rom Degrees",
+          "type": "number"
+        },
+        "right_rom_degrees": {
+          "minimum": 0,
+          "title": "Right Rom Degrees",
+          "type": "number"
+        },
+        "mean_rom_degrees": {
+          "minimum": 0,
+          "title": "Mean Rom Degrees",
+          "type": "number"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "required": [
+        "repetition_index",
+        "start_timestamp_ms",
+        "bottom_timestamp_ms",
+        "end_timestamp_ms",
+        "duration_ms",
+        "left_max_flexion_degrees",
+        "right_max_flexion_degrees",
+        "left_rom_degrees",
+        "right_rom_degrees",
+        "mean_rom_degrees",
+        "confidence"
+      ],
+      "title": "SquatRepetition",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "analysis_version": {
+      "const": "squat-repetition-analysis-v1",
+      "default": "squat-repetition-analysis-v1",
+      "title": "Analysis Version",
+      "type": "string"
+    },
+    "source_pose_sequence_id": {
+      "format": "uuid",
+      "title": "Source Pose Sequence Id",
+      "type": "string"
+    },
+    "source_knee_flexion_analysis_version": {
+      "const": "knee-flexion-analysis-v1",
+      "title": "Source Knee Flexion Analysis Version",
+      "type": "string"
+    },
+    "exercise": {
+      "const": "squat",
+      "default": "squat",
+      "title": "Exercise",
+      "type": "string"
+    },
+    "angle_unit": {
+      "const": "degree",
+      "default": "degree",
+      "title": "Angle Unit",
+      "type": "string"
+    },
+    "phase_model": {
+      "$ref": "#/$defs/SquatPhaseModel"
+    },
+    "repetitions": {
+      "items": {
+        "$ref": "#/$defs/SquatRepetition"
+      },
+      "title": "Repetitions",
+      "type": "array"
+    },
+    "artifact_reference": {
+      "title": "Artifact Reference",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_pose_sequence_id",
+    "source_knee_flexion_analysis_version",
+    "phase_model",
+    "repetitions",
+    "artifact_reference"
+  ],
+  "title": "SquatRepetitionAnalysis",
+  "type": "object"
+}

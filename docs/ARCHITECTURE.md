@@ -72,3 +72,10 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 * The resulting `knee_flexion.json` is stored separately from `pose_sequence.json` and includes calculation, confidence, filtering, coordinate, and source-model versions.
 * The Next.js upload flow invokes the derived-analysis endpoint only after raw pose preservation succeeds.
 * The frontend validates the response and graphs valid left/right samples. Missing and low-confidence samples remain visible as gaps rather than being interpolated.
+
+## Milestone 3 interfaces
+
+* `POST /pose-sequences/{id}/squat-repetitions` derives a versioned repetition analysis from the separately stored knee-flexion artifact. It regenerates knee flexion from raw pose observations if that intermediate artifact is absent.
+* The pure analysis layer owns phase transitions, acceptance thresholds, boundaries, ROM, and confidence propagation; HTTP and UI code only orchestrate and present those results.
+* The resulting `squat_repetitions.json` remains separate from both `pose_sequence.json` and `knee_flexion.json`.
+* The frontend calls the repetition endpoint after knee-flexion analysis, validates the versioned response, and presents boundaries and metrics without recalculating them.

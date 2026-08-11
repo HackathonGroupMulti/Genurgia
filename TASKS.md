@@ -38,11 +38,11 @@
 
 ## Milestone 3 — Repetition detection
 
-* [ ] Define squat phase state model.
-* [ ] Detect squat repetitions.
-* [ ] Calculate rep start/bottom/end.
-* [ ] Calculate ROM per repetition.
-* [ ] Add synthetic and real fixture tests.
+* [x] Define squat phase state model.
+* [x] Detect squat repetitions.
+* [x] Calculate rep start/bottom/end.
+* [x] Calculate ROM per repetition.
+* [x] Add synthetic and real fixture tests.
 
 ## Milestone 4 — Sessions
 
@@ -58,7 +58,7 @@
 * [ ] Synchronize video with metrics chart.
 * [ ] Render pose overlay.
 * [ ] Display current-frame measurements.
-* [ ] Add rep boundaries.
+* [x] Add rep boundaries.
 * [ ] Explore 3D skeleton replay.
 
 ## Later

@@ -47,7 +47,7 @@ The system should retain raw pose landmarks so improved analysis algorithms can 
 
 CURRENT MILESTONE:
 
-Milestone 3 — squat repetition detection and per-repetition ROM.
+Milestone 4 — persistent sessions and longitudinal comparison.
 
 CURRENT BLOCKER:
 
@@ -55,6 +55,6 @@ None.
 
 NEXT ACTION:
 
-Define and test the squat phase state model using synthetic knee-flexion signals before calculating repetition boundaries or ROM.
+Define the smallest durable Session and Recording metadata model, keeping artifact payloads behind the existing storage boundary.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

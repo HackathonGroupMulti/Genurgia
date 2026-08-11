@@ -69,6 +69,20 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     analysis_artifact = request(app, "GET", analysis["artifact_reference"])
     assert analysis_artifact.status_code == 200
 
+    repetitions_response = request(
+        app,
+        "POST",
+        f"/pose-sequences/{payload['pose_sequence']['id']}/squat-repetitions",
+    )
+    assert repetitions_response.status_code == 200
+    repetitions = repetitions_response.json()
+    assert repetitions["phase_model"]["algorithm_version"] == (
+        "bilateral-squat-state-machine-v1"
+    )
+    assert repetitions["repetitions"] == []
+    repetition_artifact = request(app, "GET", repetitions["artifact_reference"])
+    assert repetition_artifact.status_code == 200
+
 
 def test_upload_rejects_unsupported_extension(tmp_path: Path) -> None:
     store = LocalArtifactStore(tmp_path)

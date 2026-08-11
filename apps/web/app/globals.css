@@ -243,6 +243,21 @@ button,
   stroke: rgba(18, 33, 27, 0.1);
 }
 
+.angle-chart .repetition-boundary rect {
+  fill: rgba(23, 114, 81, 0.07);
+}
+
+.angle-chart .repetition-boundary line {
+  stroke: rgba(23, 114, 81, 0.55);
+  stroke-dasharray: 4 4;
+}
+
+.angle-chart .repetition-boundary text {
+  fill: var(--green);
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .angle-chart text {
   fill: var(--muted);
   font-size: 12px;
@@ -294,6 +309,40 @@ button,
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.45;
+}
+
+.repetition-summary {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.repetition-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.repetition-summary th,
+.repetition-summary td {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid rgba(18, 33, 27, 0.1);
+  white-space: nowrap;
+}
+
+.repetition-summary thead th {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 button {

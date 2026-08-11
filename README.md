@@ -2,7 +2,7 @@
 
 Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
 
-Milestones 0 through 2 are complete. The application accepts a video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, and displays the time series. Repetition detection remains deferred to Milestone 3.
+Milestones 0 through 3 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, and displays per-repetition boundaries and ROM.
 
 ## Architecture
 
@@ -79,7 +79,7 @@ Start the frontend from the repository root in another terminal:
 npm run dev:web
 ```
 
-Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful extraction displays the annotated video, a left/right knee-flexion graph, and links to preserved artifacts.
+Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful analysis displays the annotated video, a left/right knee-flexion graph with repetition boundaries, per-repetition metrics, and links to preserved raw artifacts.
 
 ## Environment variables
 
@@ -113,6 +113,6 @@ GitHub Actions runs the same test, lint, type-check, and frontend build validati
 
 ## Current status
 
-Milestone 2 is complete. Pose extraction and knee-flexion analysis run synchronously for the local vertical slice and store separate raw and derived artifacts under `data/local`. The reported angle is a model-derived kinematic estimate from monocular video, not a clinical measurement.
+Milestone 3 is complete. Pose extraction, knee-flexion analysis, and squat repetition segmentation run synchronously for the local vertical slice and store separate raw and derived artifacts under `data/local`. Reported angles and repetition metrics are model-derived kinematic estimates from monocular video, not clinical measurements.
 
-The next task is Milestone 3: define a squat phase state model against synthetic knee-flexion signals, then detect start/bottom/end boundaries and calculate per-repetition ROM.
+The next task is Milestone 4: persist session metadata, associate existing artifacts with sessions, and support historical comparison.
