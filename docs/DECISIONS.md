@@ -109,3 +109,22 @@ Run pose extraction inside the upload request during Milestone 1.
 Reason:
 
 The local single-user slice does not yet justify a queue or background-job system. The analysis service boundary allows asynchronous execution to be introduced later if measured video duration or concurrency requires it.
+
+---
+
+## ADR-007 — Initial knee flexion uses MediaPipe world landmarks
+
+Status:
+Accepted
+
+Decision:
+
+Calculate `knee-flexion-world-3d-v1` from same-frame hip, knee, and ankle world landmarks. Do not silently fall back to normalized image coordinates when world landmarks are missing.
+
+Reason:
+
+World landmarks provide one internally consistent three-dimensional coordinate space and avoid mixing normalized image x/y with model-relative image depth. Explicit unavailability is safer and more reproducible than changing coordinate systems per frame.
+
+Known limitation:
+
+MediaPipe world landmarks remain monocular model estimates and are not calibrated motion-capture measurements.

@@ -6,22 +6,22 @@ Last updated:
 ## Working
 
 * Milestone 0 frontend/backend skeleton and health-check vertical slice.
-* Browser video upload through a Next.js server proxy.
-* FastAPI `POST /pose-sequences` for MP4, MOV, and WebM inputs up to a configurable limit.
-* Replaceable `PoseProvider` protocol with a MediaPipe Pose Landmarker video adapter.
-* Monotonic timestamped extraction of normalized-image and world landmarks.
-* Explicit empty pose lists when a frame has no detection.
-* Local preservation of original recording, versioned raw pose JSON, and annotated MP4.
-* Artifact download/streaming API and annotated replay in the frontend.
-* Versioned Pydantic/TypeScript contracts and exported JSON Schemas.
-* Checksum-verified MediaPipe model download script.
-* Deterministic small MP4 fixture and real MediaPipe integration coverage when the model is present.
-* GitHub Actions frontend and backend validation.
+* Milestone 1 upload, MediaPipe extraction, timestamped raw landmark preservation, and overlay replay.
+* Pure three-dimensional vector and included-angle primitives.
+* Versioned `0° = modeled extension` knee-flexion calculation from MediaPipe world landmarks.
+* Left and right series with original timestamps and explicit unavailable states.
+* Conservative hip/knee/ankle confidence propagation and a documented `0.5` validity threshold.
+* Five-sample centered moving-average output that excludes missing and low-confidence centers.
+* Separate versioned `knee_flexion.json` artifact derived from preserved raw observations.
+* FastAPI knee-flexion endpoint and Next.js proxy.
+* Frontend left/right SVG graph with gaps for unavailable observations.
+* Versioned Pydantic, TypeScript, and JSON Schema contracts.
 
 ## Partially working
 
 * Local artifacts are not yet represented by persistent relational session metadata.
-* Pose extraction is synchronous and intended for the local first vertical slice.
+* Pose extraction and derived analysis are synchronous for the local first vertical slice.
+* The committed media fixture validates extraction but is not biomechanical ground truth or a squat repetition fixture.
 
 ## Broken
 
@@ -29,45 +29,46 @@ Nothing known.
 
 ## Important files
 
-* `analysis/pose.py` — provider-independent raw observation types.
-* `analysis/mediapipe_pose.py` — MediaPipe video adapter and overlay export.
-* `app/services/pose_analysis.py` — upload-to-artifact orchestration.
-* `app/schemas/pose.py` — versioned recording and pose contracts.
-* `app/storage.py` — local artifact-storage boundary.
-* `app/api/pose_sequences.py` — upload and artifact HTTP routes.
-* `apps/web/components/video-upload.tsx` — upload and extraction result UI.
-* `packages/contracts/*.schema.json` — exported cross-boundary schemas.
-* `scripts/download_pose_model.py` — pinned model acquisition.
+* `analysis/angles.py` — pure vector and knee-flexion math.
+* `analysis/confidence.py` — conservative confidence propagation.
+* `analysis/filtering.py` — timestamp-preserving smoothing behavior.
+* `analysis/kinematics.py` — left/right series derivation and quality states.
+* `app/services/kinematics.py` — raw-artifact to derived-artifact orchestration.
+* `app/schemas/kinematics.py` — versioned API/artifact contract.
+* `app/api/pose_sequences.py` — pose extraction, knee flexion, and artifact routes.
+* `apps/web/components/knee-flexion-chart.tsx` — valid-sample graph.
+* `packages/contracts/knee-flexion-analysis-v1.schema.json` — shared schema.
 
 ## Tests
 
 Verified locally on 2026-08-10:
 
-* backend: 18 tests passed, including real MediaPipe extraction with the local model;
+* backend: 37 tests passed, including exact synthetic angles and real MediaPipe extraction;
 * backend Ruff lint: passed;
-* frontend: 8 tests passed;
+* frontend: 11 tests passed;
 * frontend ESLint: passed with zero warnings;
 * frontend TypeScript check: passed;
-* frontend production build: passed.
-* live Next.js-proxied upload: 12/12 fixture frames detected; raw JSON and overlay both returned HTTP 200.
+* frontend production build: passed;
+* live production proxies: 12/12 valid left samples, 12/12 valid right samples, and derived artifact HTTP 200.
 
-The MediaPipe integration test skips in environments where the external model has not been downloaded. Deterministic provider, persistence, contract, and API tests always run.
+The MediaPipe integration test skips only where the external model has not been downloaded. Numerical, confidence, filtering, orchestration, schema, and API tests always run.
 
 ## Current task
 
-Milestone 2: derive tested, confidence-aware left/right knee-flexion series from raw pose observations.
+Milestone 3: detect squat repetitions and calculate per-repetition ROM.
 
 ## Next
 
-1. Implement pure vector-angle primitives with synthetic exact-geometry tests.
-2. Implement `0° = full modeled extension` knee flexion.
-3. Define missing/low-confidence behavior without fabricating values.
-4. Add filtering as a distinct derived layer.
-5. Expose and graph left/right series only after numerical behavior is verified.
+1. Define a squat phase state model against synthetic signals.
+2. Establish named thresholds and minimum durations without hiding magic constants.
+3. Detect start, bottom, and end timestamps.
+4. Calculate per-repetition left/right ROM with quality information.
+5. Validate against deterministic pose-series fixtures before using real recordings.
 
 ## Do not redo
 
 * Preserve raw observations independently from derived values.
 * Keep biomechanics calculations in framework-independent Python modules.
-* Keep MediaPipe and future simulation systems behind adapters.
-* Do not introduce queues or cloud artifact storage without measured need.
+* Keep `0° = modeled extension` unless a new version explicitly supersedes it.
+* Never substitute normalized image coordinates when world landmarks are unavailable.
+* Do not graph low-confidence values as valid measurements.

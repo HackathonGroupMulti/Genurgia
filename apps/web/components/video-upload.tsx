@@ -1,6 +1,11 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { KneeFlexionChart } from "@/components/knee-flexion-chart";
+import {
+  parseKneeFlexionAnalysis,
+  type KneeFlexionAnalysis,
+} from "@/lib/knee-flexion-contracts";
 import {
   artifactProxyUrl,
   parsePoseAnalysisResponse,
@@ -10,7 +15,13 @@ import {
 type UploadState =
   | { status: "idle" }
   | { status: "uploading" }
-  | { status: "complete"; result: PoseAnalysisResponse }
+  | { status: "analyzing"; result: PoseAnalysisResponse }
+  | {
+      status: "complete";
+      result: PoseAnalysisResponse;
+      analysis: KneeFlexionAnalysis | null;
+      analysisError: string | null;
+    }
   | { status: "error"; message: string };
 
 export function VideoUpload() {
@@ -42,7 +53,26 @@ export function VideoUpload() {
         setState({ status: "error", message: "The API returned an unexpected response." });
         return;
       }
-      setState({ status: "complete", result });
+      setState({ status: "analyzing", result });
+      let analysis: KneeFlexionAnalysis | null = null;
+      try {
+        const analysisResponse = await fetch(
+          `/api/pose-sequences/${result.pose_sequence.id}/knee-flexion`,
+          { method: "POST" },
+        );
+        const analysisPayload: unknown = await analysisResponse.json();
+        analysis = analysisResponse.ok ? parseKneeFlexionAnalysis(analysisPayload) : null;
+      } catch {
+        analysis = null;
+      }
+      setState({
+        status: "complete",
+        result,
+        analysis,
+        analysisError: analysis
+          ? null
+          : "Pose landmarks were preserved, but knee-flexion analysis was unavailable.",
+      });
     } catch {
       setState({ status: "error", message: "The upload service could not be reached." });
     }
@@ -64,8 +94,13 @@ export function VideoUpload() {
           <span>Movement video</span>
           <input name="video" type="file" accept="video/mp4,video/quicktime,video/webm" required />
         </label>
-        <button type="submit" disabled={state.status === "uploading"}>
-          {state.status === "uploading" ? "Extracting landmarks…" : "Analyze video"}
+        <button
+          type="submit"
+          disabled={state.status === "uploading" || state.status === "analyzing"}
+        >
+          {state.status === "uploading" || state.status === "analyzing"
+            ? "Analyzing movement…"
+            : "Analyze video"}
         </button>
       </form>
 
@@ -75,12 +110,32 @@ export function VideoUpload() {
         </p>
       )}
 
-      {state.status === "complete" && <AnalysisResult result={state.result} />}
+      {state.status === "analyzing" && (
+        <p className="upload-message" role="status">
+          Pose observations preserved. Calculating knee-flexion series…
+        </p>
+      )}
+
+      {state.status === "complete" && (
+        <AnalysisResult
+          result={state.result}
+          analysis={state.analysis}
+          analysisError={state.analysisError}
+        />
+      )}
     </section>
   );
 }
 
-function AnalysisResult({ result }: { result: PoseAnalysisResponse }) {
+function AnalysisResult({
+  result,
+  analysis,
+  analysisError,
+}: {
+  result: PoseAnalysisResponse;
+  analysis: KneeFlexionAnalysis | null;
+  analysisError: string | null;
+}) {
   const sequence = result.pose_sequence;
   return (
     <div className="analysis-result" aria-live="polite">
@@ -100,6 +155,8 @@ function AnalysisResult({ result }: { result: PoseAnalysisResponse }) {
       >
         Your browser does not support video playback.
       </video>
+      {analysis && <KneeFlexionChart analysis={analysis} />}
+      {analysisError && <p className="upload-message error">{analysisError}</p>}
       <a
         className="artifact-link"
         href={artifactProxyUrl(sequence.raw_landmarks_reference)}

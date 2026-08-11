@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
 from app.api.pose_sequences import router as pose_sequences_router
+from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.settings import (
     allowed_origins,
@@ -54,6 +55,7 @@ def create_app(
         configured_pose_service = pose_analysis_service
     application.state.artifact_store = store
     application.state.pose_analysis_service = configured_pose_service
+    application.state.kinematics_service = KinematicsService(store)
     application.include_router(health_router)
     application.include_router(pose_sequences_router)
     return application

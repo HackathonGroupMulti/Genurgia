@@ -2,7 +2,7 @@
 
 Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
 
-Milestones 0 and 1 are complete. The application accepts a video, extracts timestamped MediaPipe pose landmarks, preserves the original and raw observation artifact, and exports an annotated MP4 for visual verification. Knee-angle calculations are intentionally deferred to Milestone 2.
+Milestones 0 through 2 are complete. The application accepts a video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, and displays the time series. Repetition detection remains deferred to Milestone 3.
 
 ## Architecture
 
@@ -79,7 +79,7 @@ Start the frontend from the repository root in another terminal:
 npm run dev:web
 ```
 
-Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful extraction displays the annotated video and a link to the preserved raw landmark JSON.
+Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful extraction displays the annotated video, a left/right knee-flexion graph, and links to preserved artifacts.
 
 ## Environment variables
 
@@ -113,6 +113,6 @@ GitHub Actions runs the same test, lint, type-check, and frontend build validati
 
 ## Current status
 
-Milestone 1 is complete. Pose extraction runs synchronously for the first local vertical slice and stores artifacts under `data/local`; no database, knee-angle calculations, repetition logic, or OpenSim integration has been introduced.
+Milestone 2 is complete. Pose extraction and knee-flexion analysis run synchronously for the local vertical slice and store separate raw and derived artifacts under `data/local`. The reported angle is a model-derived kinematic estimate from monocular video, not a clinical measurement.
 
-The next task is Milestone 2: implement tested vector-angle primitives and the documented `0° = modeled extension` knee-flexion convention before exposing a left/right time series.
+The next task is Milestone 3: define a squat phase state model against synthetic knee-flexion signals, then detect start/bottom/end boundaries and calculate per-repetition ROM.

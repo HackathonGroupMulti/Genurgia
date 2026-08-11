@@ -47,7 +47,7 @@ The system should retain raw pose landmarks so improved analysis algorithms can 
 
 CURRENT MILESTONE:
 
-Milestone 2 — tested left/right knee-flexion time series.
+Milestone 3 — squat repetition detection and per-repetition ROM.
 
 CURRENT BLOCKER:
 
@@ -55,6 +55,6 @@ None.
 
 NEXT ACTION:
 
-Implement tested vector-angle primitives and the documented knee-flexion convention, then derive confidence-aware left/right series from preserved pose observations.
+Define and test the squat phase state model using synthetic knee-flexion signals before calculating repetition boundaries or ROM.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

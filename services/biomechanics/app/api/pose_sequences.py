@@ -6,8 +6,14 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 
 from analysis.pose import PoseExtractionError
-from app.dependencies import ArtifactStoreDependency, PoseServiceDependency
+from app.dependencies import (
+    ArtifactStoreDependency,
+    KinematicsServiceDependency,
+    PoseServiceDependency,
+)
+from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import PoseAnalysisResponse
+from app.services.kinematics import PoseSequenceNotFound
 from app.services.pose_analysis import InvalidVideoUpload
 
 router = APIRouter(tags=["pose sequences"])
@@ -39,6 +45,20 @@ async def create_pose_sequence(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(error),
         ) from error
+
+
+@router.post(
+    "/pose-sequences/{pose_sequence_id}/knee-flexion",
+    response_model=KneeFlexionAnalysis,
+)
+def create_knee_flexion_analysis(
+    pose_sequence_id: UUID,
+    service: KinematicsServiceDependency,
+) -> KneeFlexionAnalysis:
+    try:
+        return service.analyze_knee_flexion(pose_sequence_id)
+    except PoseSequenceNotFound as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
     except PoseExtractionError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

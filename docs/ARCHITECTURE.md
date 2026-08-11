@@ -65,3 +65,10 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 * `GET /artifacts/{pose_sequence_id}/{filename}` serves locally preserved artifacts through the storage boundary.
 * Next.js proxies uploads and artifact reads so the browser does not need the backend service address.
 * Versioned JSON Schemas in `packages/contracts` describe both the summary response and full raw artifact.
+
+## Milestone 2 interfaces
+
+* `POST /pose-sequences/{id}/knee-flexion` derives a versioned analysis from the preserved pose artifact.
+* The resulting `knee_flexion.json` is stored separately from `pose_sequence.json` and includes calculation, confidence, filtering, coordinate, and source-model versions.
+* The Next.js upload flow invokes the derived-analysis endpoint only after raw pose preservation succeeds.
+* The frontend validates the response and graphs valid left/right samples. Missing and low-confidence samples remain visible as gaps rather than being interpolated.

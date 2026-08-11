@@ -211,6 +211,91 @@ button,
   text-decoration: none;
 }
 
+.angle-chart {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.angle-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.angle-chart svg {
+  width: 100%;
+  overflow: visible;
+}
+
+.angle-chart line {
+  stroke: rgba(18, 33, 27, 0.36);
+  stroke-width: 1;
+}
+
+.angle-chart .grid-line {
+  stroke: rgba(18, 33, 27, 0.1);
+}
+
+.angle-chart text {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.chart-series {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.chart-series.left {
+  stroke: #177251;
+}
+
+.chart-series.right {
+  stroke: #d27643;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.chart-legend span::before {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.2rem;
+  margin-right: 0.35rem;
+  border-radius: 999px;
+  content: "";
+  vertical-align: middle;
+}
+
+.chart-legend .left-series::before {
+  background: #177251;
+}
+
+.chart-legend .right-series::before {
+  background: #d27643;
+}
+
+.chart-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 button {
   padding: 0.95rem 1.35rem;
 }

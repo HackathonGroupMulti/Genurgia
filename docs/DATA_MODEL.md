@@ -102,3 +102,15 @@ Milestone 1 implements `Recording` and `PoseSequence` as versioned Pydantic cont
 * raw landmark visibility and presence values where available.
 
 The raw JSON artifact is separate from the original recording and annotated overlay. Every artifact records the schema version, pose-model name, pose-model/package version, and coordinate convention.
+
+## Milestone 2 representation
+
+`KneeFlexionAnalysis` is a versioned derived artifact linked to its source `PoseSequence`. It contains exactly named `JointSeries` for left and right knee flexion. Each sample records:
+
+* source timestamp in milliseconds;
+* raw modeled flexion in degrees when calculable;
+* filtered value when the filter has sufficient valid support;
+* conservative contributing-landmark confidence;
+* explicit quality state.
+
+Quality states distinguish valid, low-confidence, missing pose, missing landmark, invalid coordinate, and degenerate geometry. Unavailable measurements remain JSON `null`; they are not replaced with zero or carried forward.

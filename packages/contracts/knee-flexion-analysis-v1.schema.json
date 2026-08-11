@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "CoordinateConvention": {
+      "properties": {
+        "image": {
+          "const": "mediapipe-normalized-image-v1",
+          "default": "mediapipe-normalized-image-v1",
+          "title": "Image",
+          "type": "string"
+        },
+        "image_axes": {
+          "default": "origin top-left; +x right; +y down; x/y normalized by image size",
+          "title": "Image Axes",
+          "type": "string"
+        },
+        "image_depth": {
+          "default": "MediaPipe model-relative z; smaller values are closer to camera",
+          "title": "Image Depth",
+          "type": "string"
+        },
+        "world": {
+          "const": "mediapipe-pose-world-v1",
+          "default": "mediapipe-pose-world-v1",
+          "title": "World",
+          "type": "string"
+        },
+        "world_units": {
+          "const": "meter",
+          "default": "meter",
+          "title": "World Units",
+          "type": "string"
+        },
+        "world_origin": {
+          "default": "MediaPipe model-defined origin at the midpoint of the hips",
+          "title": "World Origin",
+          "type": "string"
+        }
+      },
+      "title": "CoordinateConvention",
+      "type": "object"
+    },
+    "FilterDescription": {
+      "properties": {
+        "name": {
+          "const": "centered-moving-average-v1",
+          "default": "centered-moving-average-v1",
+          "title": "Name",
+          "type": "string"
+        },
+        "window_size": {
+          "exclusiveMinimum": 0,
+          "title": "Window Size",
+          "type": "integer"
+        },
+        "minimum_valid_values": {
+          "exclusiveMinimum": 0,
+          "title": "Minimum Valid Values",
+          "type": "integer"
+        },
+        "behavior": {
+          "title": "Behavior",
+          "type": "string"
+        }
+      },
+      "required": [
+        "window_size",
+        "minimum_valid_values",
+        "behavior"
+      ],
+      "title": "FilterDescription",
+      "type": "object"
+    },
+    "KneeFlexionSample": {
+      "properties": {
+        "timestamp_ms": {
+          "minimum": 0,
+          "title": "Timestamp Ms",
+          "type": "integer"
+        },
+        "value_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value Degrees"
+        },
+        "filtered_value_degrees": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Filtered Value Degrees"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "quality": {
+          "enum": [
+            "valid",
+            "low_confidence",
+            "missing_pose",
+            "missing_landmark",
+            "invalid_coordinate",
+            "degenerate_geometry"
+          ],
+          "title": "Quality",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp_ms",
+        "value_degrees",
+        "filtered_value_degrees",
+        "quality"
+      ],
+      "title": "KneeFlexionSample",
+      "type": "object"
+    },
+    "KneeFlexionSeries": {
+      "properties": {
+        "joint": {
+          "const": "knee",
+          "default": "knee",
+          "title": "Joint",
+          "type": "string"
+        },
+        "side": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "title": "Side",
+          "type": "string"
+        },
+        "metric": {
+          "const": "flexion",
+          "default": "flexion",
+          "title": "Metric",
+          "type": "string"
+        },
+        "unit": {
+          "const": "degree",
+          "default": "degree",
+          "title": "Unit",
+          "type": "string"
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/KneeFlexionSample"
+          },
+          "title": "Samples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "side",
+        "samples"
+      ],
+      "title": "KneeFlexionSeries",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "analysis_version": {
+      "const": "knee-flexion-analysis-v1",
+      "default": "knee-flexion-analysis-v1",
+      "title": "Analysis Version",
+      "type": "string"
+    },
+    "calculation_version": {
+      "const": "knee-flexion-world-3d-v1",
+      "title": "Calculation Version",
+      "type": "string"
+    },
+    "source_pose_sequence_id": {
+      "format": "uuid",
+      "title": "Source Pose Sequence Id",
+      "type": "string"
+    },
+    "source_pose_model": {
+      "title": "Source Pose Model",
+      "type": "string"
+    },
+    "source_pose_model_version": {
+      "title": "Source Pose Model Version",
+      "type": "string"
+    },
+    "coordinate_convention": {
+      "$ref": "#/$defs/CoordinateConvention"
+    },
+    "minimum_measurement_confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Minimum Measurement Confidence",
+      "type": "number"
+    },
+    "filtering": {
+      "$ref": "#/$defs/FilterDescription"
+    },
+    "series": {
+      "items": {
+        "$ref": "#/$defs/KneeFlexionSeries"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Series",
+      "type": "array"
+    },
+    "artifact_reference": {
+      "title": "Artifact Reference",
+      "type": "string"
+    }
+  },
+  "required": [
+    "calculation_version",
+    "source_pose_sequence_id",
+    "source_pose_model",
+    "source_pose_model_version",
+    "coordinate_convention",
+    "minimum_measurement_confidence",
+    "filtering",
+    "series",
+    "artifact_reference"
+  ],
+  "title": "KneeFlexionAnalysis",
+  "type": "object"
+}

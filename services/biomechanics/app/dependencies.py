@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
 
+from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.storage import LocalArtifactStore
 
@@ -23,5 +24,10 @@ def get_artifact_store(request: Request) -> LocalArtifactStore:
     return request.app.state.artifact_store
 
 
+def get_kinematics_service(request: Request) -> KinematicsService:
+    return request.app.state.kinematics_service
+
+
 PoseServiceDependency = Annotated[PoseAnalysisService, Depends(get_pose_analysis_service)]
 ArtifactStoreDependency = Annotated[LocalArtifactStore, Depends(get_artifact_store)]
+KinematicsServiceDependency = Annotated[KinematicsService, Depends(get_kinematics_service)]

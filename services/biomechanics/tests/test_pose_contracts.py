@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
+from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
@@ -28,6 +29,7 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
     [
         ("pose-analysis-response-v1.schema.json", PoseAnalysisResponse),
         ("pose-sequence-artifact-v1.schema.json", PoseSequenceArtifact),
+        ("knee-flexion-analysis-v1.schema.json", KneeFlexionAnalysis),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

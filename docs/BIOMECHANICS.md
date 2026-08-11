@@ -56,6 +56,18 @@ flexion = 180 degrees - included_angle
 
 Therefore, `0 degrees` means full modeled extension and increasing values mean greater modeled knee flexion. The implementation must handle degenerate vectors and numerical clamping explicitly and must test this convention before use.
 
+Milestone 2 implements this formula in three-dimensional MediaPipe world coordinates only. Required landmarks are hip, knee, and ankle from the same side and frame. The first detected pose (`pose_index = 0`) is used. There is no silent fallback to normalized image coordinates.
+
+The calculation:
+
+* rejects missing or non-finite coordinates;
+* rejects zero-length femur or tibia vectors;
+* clamps the cosine to `[-1, 1]` before `acos` to handle floating-point drift;
+* reports degrees;
+* is versioned as `knee-flexion-world-3d-v1`.
+
+These values are modeled kinematic estimates. MediaPipe world landmarks are inferred from monocular images and are not equivalent to calibrated motion-capture coordinates.
+
 ## Confidence
 
 A derived knee-flexion value requires valid hip, knee, and ankle landmarks.
@@ -63,6 +75,8 @@ A derived knee-flexion value requires valid hip, knee, and ankle landmarks.
 Initial confidence may be derived conservatively from the contributing landmark confidences. Missing required landmarks must produce an unavailable result rather than an invented measurement.
 
 This confidence describes input/model quality and does not represent clinical accuracy.
+
+Milestone 2 first takes the lower of each landmark's available visibility and presence values, then takes the minimum across hip, knee, and ankle. If any required landmark has no confidence signal, joint confidence is unavailable. A configurable initial threshold of `0.5` separates valid from low-confidence samples. Low-confidence angles may be retained for auditability, but they are excluded from filtering and graph display.
 
 ## Filtering
 
@@ -75,6 +89,17 @@ Filtering must:
 * avoid excessive smoothing;
 * be tested on synthetic signals;
 * remain distinct from raw observations.
+
+Milestone 2 uses `centered-moving-average-v1` for offline visualization:
+
+* five-sample centered window;
+* at least three valid values required;
+* only samples labeled valid contribute;
+* a missing or low-confidence center remains unavailable;
+* timestamps and raw values are unchanged;
+* no interpolation or forward filling occurs.
+
+This is a deliberately simple initial filter. Any future filter that changes numerical meaning requires a new version and synthetic-signal tests.
 
 ## Asymmetry
 

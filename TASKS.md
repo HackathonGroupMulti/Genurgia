@@ -28,13 +28,13 @@
 
 ## Milestone 2 — Knee-flexion series
 
-* [ ] Implement tested vector-angle primitives.
-* [ ] Implement knee-flexion calculation.
-* [ ] Establish coordinate convention.
-* [ ] Add confidence propagation.
-* [ ] Add filtering.
-* [ ] Expose knee-flexion time series through API.
-* [ ] Graph left/right knee flexion in frontend.
+* [x] Implement tested vector-angle primitives.
+* [x] Implement knee-flexion calculation.
+* [x] Establish coordinate convention.
+* [x] Add confidence propagation.
+* [x] Add filtering.
+* [x] Expose knee-flexion time series through API.
+* [x] Graph left/right knee flexion in frontend.
 
 ## Milestone 3 — Repetition detection
 
