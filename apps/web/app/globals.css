@@ -1,0 +1,129 @@
+:root {
+  --ink: #12211b;
+  --muted: #526159;
+  --paper: #f4f1e8;
+  --panel: rgba(255, 255, 255, 0.68);
+  --green: #177251;
+  --red: #a13d35;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(41, 137, 101, 0.18), transparent 28rem),
+    linear-gradient(135deg, #faf8f1, var(--paper));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 3rem 1.5rem;
+}
+
+.hero {
+  width: min(100%, 58rem);
+}
+
+.eyebrow {
+  margin-bottom: 1.25rem;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 12ch;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.5rem, 10vw, 7.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.lede {
+  max-width: 42rem;
+  margin: 2rem 0 2.5rem;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.6;
+}
+
+.status-card {
+  display: flex;
+  width: fit-content;
+  min-width: min(100%, 24rem);
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.15rem 1.35rem;
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 1rem;
+  background: var(--panel);
+  box-shadow: 0 1rem 3rem rgba(18, 33, 27, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.status-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  flex: 0 0 auto;
+  margin-top: 0.3rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0.3rem color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.connected {
+  color: var(--green);
+}
+
+.disconnected {
+  color: var(--red);
+}
+
+.status-label,
+.status-value,
+.status-detail {
+  margin: 0;
+}
+
+.status-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-value {
+  margin-top: 0.25rem;
+  font-weight: 700;
+}
+
+.status-detail {
+  max-width: 32rem;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.disclaimer {
+  margin-top: 1.25rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
