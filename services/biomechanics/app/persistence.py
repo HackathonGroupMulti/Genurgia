@@ -11,8 +11,10 @@ from app.migrations import migrate
 from app.schemas.pose import PoseSequenceSummary, Recording
 from app.schemas.sessions import (
     AnalysisMetadata,
+    ComparisonMetric,
     PoseSequenceMetadata,
     RecordingMetadata,
+    SelectedSessionComparison,
     SessionComparisonEntry,
     SessionMetric,
     SessionSummary,
@@ -210,6 +212,81 @@ class SQLiteSessionRepository:
                 previous_mean_rom = mean_rom
         return list(reversed(output))
 
+    def compare_selected_sessions(
+        self,
+        baseline_session_id: UUID,
+        current_session_id: UUID,
+    ) -> SelectedSessionComparison:
+        baseline = self.get_session(baseline_session_id)
+        current = self.get_session(current_session_id)
+        incompatibilities: list[str] = []
+        if baseline.id == current.id:
+            incompatibilities.append("Baseline and current session must be different.")
+        for label, baseline_value, current_value in (
+            ("protocol", baseline.recording.protocol, current.recording.protocol),
+            ("camera view", baseline.recording.camera_view, current.recording.camera_view),
+            ("orientation", baseline.recording.orientation, current.recording.orientation),
+            (
+                "laterality context",
+                baseline.recording.laterality_context,
+                current.recording.laterality_context,
+            ),
+            ("pose model", baseline.pose_sequence.pose_model, current.pose_sequence.pose_model),
+            (
+                "pose model version",
+                baseline.pose_sequence.pose_model_version,
+                current.pose_sequence.pose_model_version,
+            ),
+            (
+                "coordinate convention",
+                baseline.pose_sequence.coordinate_convention,
+                current.pose_sequence.coordinate_convention,
+            ),
+        ):
+            if baseline_value != current_value:
+                incompatibilities.append(
+                    f"{label.capitalize()} differs: {baseline_value!s} vs {current_value!s}."
+                )
+            elif baseline_value == "unknown":
+                incompatibilities.append(f"{label.capitalize()} is unknown.")
+
+        baseline_version = _latest_analysis_version(baseline, "squat_repetitions")
+        current_version = _latest_analysis_version(current, "squat_repetitions")
+        if baseline_version != current_version:
+            incompatibilities.append("Repetition analysis versions differ.")
+        if baseline_version is None:
+            incompatibilities.append("A repetition analysis is missing.")
+
+        metrics: list[ComparisonMetric] = []
+        if not incompatibilities:
+            baseline_metrics = {metric.name: metric for metric in baseline.metrics}
+            current_metrics = {metric.name: metric for metric in current.metrics}
+            for name in sorted(baseline_metrics.keys() & current_metrics.keys()):
+                baseline_metric = baseline_metrics[name]
+                current_metric = current_metrics[name]
+                if (
+                    baseline_metric.unit == current_metric.unit
+                    and baseline_metric.source_analysis_version
+                    == current_metric.source_analysis_version
+                ):
+                    metrics.append(
+                        ComparisonMetric(
+                            name=name,
+                            baseline_value=baseline_metric.value,
+                            current_value=current_metric.value,
+                            change=current_metric.value - baseline_metric.value,
+                            unit=baseline_metric.unit,
+                        )
+                    )
+        return SelectedSessionComparison(
+            baseline_session_id=baseline.id,
+            current_session_id=current.id,
+            compatible=not incompatibilities,
+            incompatibilities=incompatibilities,
+            analysis_version=current_version if not incompatibilities else None,
+            metrics=metrics,
+        )
+
     def _session(self, connection: sqlite3.Connection, session_id: UUID) -> SessionSummary:
         row = connection.execute(
             """
@@ -276,6 +353,7 @@ class SQLiteSessionRepository:
                 recording_id=row["recording_id"],
                 pose_model=row["pose_model"],
                 pose_model_version=row["pose_model_version"],
+                coordinate_convention="mediapipe-pose-world-v1",
                 raw_landmarks_reference=row["raw_landmarks_reference"],
                 annotated_video_reference=row["annotated_video_reference"],
                 frame_count=row["frame_count"],
@@ -316,3 +394,12 @@ class SQLiteSessionRepository:
 
 def _utc_now() -> str:
     return datetime.now(UTC).isoformat()
+
+
+def _latest_analysis_version(session: SessionSummary, analysis_type: str) -> str | None:
+    matches = [
+        analysis.analysis_version
+        for analysis in session.analyses
+        if analysis.analysis_type == analysis_type
+    ]
+    return matches[-1] if matches else None

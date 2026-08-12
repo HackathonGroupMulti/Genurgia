@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "ComparisonMetric": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "baseline_value": {
+          "title": "Baseline Value",
+          "type": "number"
+        },
+        "current_value": {
+          "title": "Current Value",
+          "type": "number"
+        },
+        "change": {
+          "title": "Change",
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "count",
+            "degree",
+            "millisecond",
+            "ratio"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "baseline_value",
+        "current_value",
+        "change",
+        "unit"
+      ],
+      "title": "ComparisonMetric",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "baseline_session_id": {
+      "format": "uuid",
+      "title": "Baseline Session Id",
+      "type": "string"
+    },
+    "current_session_id": {
+      "format": "uuid",
+      "title": "Current Session Id",
+      "type": "string"
+    },
+    "compatible": {
+      "title": "Compatible",
+      "type": "boolean"
+    },
+    "compatibility_basis": {
+      "const": "local-single-subject-v1",
+      "default": "local-single-subject-v1",
+      "title": "Compatibility Basis",
+      "type": "string"
+    },
+    "incompatibilities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Incompatibilities",
+      "type": "array"
+    },
+    "analysis_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Analysis Version"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/ComparisonMetric"
+      },
+      "title": "Metrics",
+      "type": "array"
+    }
+  },
+  "required": [
+    "baseline_session_id",
+    "current_session_id",
+    "compatible",
+    "incompatibilities",
+    "analysis_version",
+    "metrics"
+  ],
+  "title": "SelectedSessionComparison",
+  "type": "object"
+}

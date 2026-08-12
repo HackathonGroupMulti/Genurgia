@@ -180,3 +180,66 @@ def test_repository_migrates_existing_v1_database_without_losing_sessions(
             "SELECT version FROM schema_migrations ORDER BY version"
         )]
     assert versions == [1, 2]
+
+
+def test_selected_comparison_enforces_capture_and_analysis_compatibility(
+    tmp_path: Path,
+) -> None:
+    sessions = repository(tmp_path)
+    ids = []
+    for index, mean_rom in enumerate((60.0, 65.0), start=1):
+        recording, sequence = extraction_metadata(index)
+        recording = recording.model_copy(
+            update={
+                "camera_view": "left_side",
+                "orientation": "landscape",
+                "laterality_context": "bilateral",
+            }
+        )
+        ids.append(sessions.record_pose_extraction(recording, sequence))
+        sessions.record_analysis(
+            sequence.id,
+            "squat_repetitions",
+            "squat-repetition-analysis-v2",
+            f"/artifacts/{sequence.id}/squat_repetitions_v2.json",
+            "complete",
+            metrics=[("mean_rom_degrees", mean_rom, "degree")],
+        )
+
+    comparison = sessions.compare_selected_sessions(ids[0], ids[1])
+
+    assert comparison.compatible is True
+    assert comparison.analysis_version == "squat-repetition-analysis-v2"
+    assert comparison.metrics[0].name == "mean_rom_degrees"
+    assert comparison.metrics[0].change == 5
+
+    same_session = sessions.compare_selected_sessions(ids[0], ids[0])
+    assert same_session.compatible is False
+    assert same_session.metrics == []
+
+
+def test_selected_comparison_rejects_unknown_capture_context(tmp_path: Path) -> None:
+    sessions = repository(tmp_path)
+    recording, sequence = extraction_metadata()
+    first_id = sessions.record_pose_extraction(recording, sequence)
+    sessions.record_analysis(
+        sequence.id,
+        "squat_repetitions",
+        "squat-repetition-analysis-v2",
+        "repetitions-v2.json",
+        "complete",
+    )
+    recording2, sequence2 = extraction_metadata(2)
+    second_id = sessions.record_pose_extraction(recording2, sequence2)
+    sessions.record_analysis(
+        sequence2.id,
+        "squat_repetitions",
+        "squat-repetition-analysis-v2",
+        "repetitions-v2.json",
+        "complete",
+    )
+
+    comparison = sessions.compare_selected_sessions(first_id, second_id)
+
+    assert comparison.compatible is False
+    assert "Camera view is unknown." in comparison.incompatibilities

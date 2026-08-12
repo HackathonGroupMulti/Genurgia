@@ -38,6 +38,7 @@ export type SessionSummary = {
     recording_id: string;
     pose_model: string;
     pose_model_version: string;
+    coordinate_convention: "mediapipe-pose-world-v1";
     raw_landmarks_reference: string;
     annotated_video_reference: string;
     frame_count: number;
@@ -72,6 +73,23 @@ export type SessionComparisonResponse = {
   sessions: SessionComparison[];
 };
 
+export type SelectedSessionComparison = {
+  schema_version: "1.0.0";
+  baseline_session_id: string;
+  current_session_id: string;
+  compatible: boolean;
+  compatibility_basis: "local-single-subject-v1";
+  incompatibilities: string[];
+  analysis_version: string | null;
+  metrics: {
+    name: string;
+    baseline_value: number;
+    current_value: number;
+    change: number;
+    unit: "count" | "degree" | "millisecond" | "ratio";
+  }[];
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -80,7 +98,7 @@ function isNullableNumber(value: unknown): value is number | null {
   return value === null || (typeof value === "number" && Number.isFinite(value));
 }
 
-function isSession(value: unknown): value is SessionSummary {
+export function isSession(value: unknown): value is SessionSummary {
   return (
     isRecord(value) &&
     typeof value.id === "string" &&
@@ -94,6 +112,7 @@ function isSession(value: unknown): value is SessionSummary {
     typeof value.recording.original_filename === "string" &&
     isRecord(value.pose_sequence) &&
     typeof value.pose_sequence.id === "string" &&
+    value.pose_sequence.coordinate_convention === "mediapipe-pose-world-v1" &&
     Array.isArray(value.analyses) &&
     Array.isArray(value.metrics) &&
     value.metrics.every(
@@ -105,6 +124,10 @@ function isSession(value: unknown): value is SessionSummary {
         typeof metric.source_analysis_version === "string",
     )
   );
+}
+
+export function parseSession(value: unknown): SessionSummary | null {
+  return isSession(value) ? value : null;
 }
 
 function isComparison(value: unknown): value is SessionComparison {
@@ -139,6 +162,35 @@ export function parseSessionComparison(value: unknown): SessionComparisonRespons
     return null;
   }
   return value as SessionComparisonResponse;
+}
+
+export function parseSelectedSessionComparison(
+  value: unknown,
+): SelectedSessionComparison | null {
+  if (
+    !isRecord(value) ||
+    value.schema_version !== "1.0.0" ||
+    typeof value.baseline_session_id !== "string" ||
+    typeof value.current_session_id !== "string" ||
+    typeof value.compatible !== "boolean" ||
+    value.compatibility_basis !== "local-single-subject-v1" ||
+    !Array.isArray(value.incompatibilities) ||
+    !value.incompatibilities.every((item) => typeof item === "string") ||
+    !(value.analysis_version === null || typeof value.analysis_version === "string") ||
+    !Array.isArray(value.metrics) ||
+    !value.metrics.every(
+      (metric) =>
+        isRecord(metric) &&
+        typeof metric.name === "string" &&
+        typeof metric.baseline_value === "number" &&
+        typeof metric.current_value === "number" &&
+        typeof metric.change === "number" &&
+        typeof metric.unit === "string",
+    )
+  ) {
+    return null;
+  }
+  return value as SelectedSessionComparison;
 }
 
 export function metricValue(session: SessionSummary, name: string): number | null {

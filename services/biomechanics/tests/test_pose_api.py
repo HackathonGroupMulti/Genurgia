@@ -136,6 +136,29 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     }
     assert metrics["pose_detection_coverage"]["value"] == 1.0
 
+    session_id = stored_session["id"]
+    detail_response = request(app, "GET", f"/sessions/{session_id}")
+    assert detail_response.status_code == 200
+    assert detail_response.json()["id"] == session_id
+
+    export_response = request(app, "GET", f"/sessions/{session_id}/export-manifest")
+    assert export_response.status_code == 200
+    export = export_response.json()
+    assert export["schema_version"] == "1.0.0"
+    assert len(export["artifacts"]) == 6
+    assert all(item["integrity"] == "verified" for item in export["artifacts"])
+    assert all(len(item["sha256"]) == 64 for item in export["artifacts"])
+
+    reanalysis_response = request(
+        app,
+        "POST",
+        f"/sessions/{session_id}/reanalysis",
+        json={},
+    )
+    assert reanalysis_response.status_code == 200
+    assert reanalysis_response.json()["behavior"] == "reuse-current-or-derive-missing"
+    assert len(reanalysis_response.json()["session"]["analyses"]) == 3
+
     comparison_response = request(app, "GET", "/sessions/comparison")
     assert comparison_response.status_code == 200
     assert comparison_response.json()["sessions"][0]["repetition_count"] == 0

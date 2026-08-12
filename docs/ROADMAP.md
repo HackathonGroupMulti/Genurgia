@@ -15,7 +15,7 @@ The present repository is a local technical prototype. It demonstrates raw-evide
 | Squat video and pose extraction | Implemented | First external-observation protocol. |
 | Knee flexion, repetitions, ROM | Implemented | Initial versioned kinematic measurements. |
 | Capture-level quality and left/right differences | Implemented | Versioned observable signals and exact degree differences; diverse validation remains open. |
-| Longitudinal session history | Partial | Foundation for timepoints and episodes. |
+| Longitudinal session history | Implemented for local squat sessions | Historical replay, selected compatibility checks, reanalysis, and export manifests form the timepoint foundation. |
 | Other movement and sensor protocols | Not implemented | Broader functional evidence. |
 | Medical image and internal-imagery ingestion | Not implemented | Preserve authorized anatomical evidence and provenance. |
 | Patient/knee identity and laterality model | Not implemented | Prevent cross-person, cross-knee, and cross-timepoint mixing. |
@@ -92,4 +92,4 @@ Exit gate: product claims match demonstrated evidence and the approved operating
 
 ## Immediate priority
 
-Finish the first squat evidence pipeline while designing its new schemas so they can later attach to a specific knee, episode, timepoint, observation, coordinate system, and derivation. Do not add a simulation engine before trustworthy anatomical inputs and validation targets exist.
+Harden the local workstation with bounded temporary uploads, atomic artifact publication, integrity verification, cleanup/recovery behavior, and visible failure provenance. Continue participant-diverse squat-fixture acquisition in parallel. Do not add a simulation engine before trustworthy anatomical inputs and validation targets exist.

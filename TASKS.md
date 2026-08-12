@@ -73,12 +73,12 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 7 — Longitudinal movement workflows
 
-* [ ] Add a frontend session-detail route backed by the existing `GET /sessions/{id}` API.
-* [ ] Reopen historical evidence, overlay, charts, repetitions, quality, and provenance.
-* [ ] Let users select compatible sessions instead of only the immediately preceding session.
-* [ ] Define compatibility rules for person, knee/laterality, protocol, view, coordinate convention, and analysis version.
-* [ ] Reanalyze preserved raw observations into new versioned outputs without overwriting prior results.
-* [ ] Add session export and artifact-integrity reporting.
+* [x] Add a frontend session-detail route backed by the existing `GET /sessions/{id}` API.
+* [x] Reopen historical evidence, overlay, charts, repetitions, quality, and provenance.
+* [x] Let users select compatible sessions instead of only the immediately preceding session.
+* [x] Define compatibility rules for local subject scope, knee/laterality, protocol, view, coordinate convention, and analysis version.
+* [x] Reanalyze preserved raw observations into new versioned outputs without overwriting prior results.
+* [x] Add session export and artifact-integrity reporting.
 
 ### Milestone 8 — Reliable local research product
 

@@ -134,6 +134,14 @@ Milestone 6 adds the following without putting domain logic in HTTP or UI layers
 
 Additional movement protocols should use a strategy boundary for protocol-specific landmarks, phases, metrics, and quality rules while reusing evidence, artifact, persistence, and visualization infrastructure.
 
+## Milestone 7 longitudinal workflow boundaries
+
+* `/sessions/{id}` reopens preserved video and versioned artifacts; the browser remains a renderer and does not recompute biomechanics.
+* `/sessions/selected-comparison` accepts explicit baseline and current identifiers and returns either comparable server-derived metrics or named incompatibilities.
+* Until Milestone 9 introduces canonical subjects and knees, comparison uses the declared `local-single-subject-v1` scope and refuses unknown view, orientation, or laterality context. It also requires matching protocol, pose model, coordinate convention, and repetition-analysis meaning.
+* `/sessions/{id}/reanalysis` derives only missing current algorithm versions. Existing derived artifacts and analysis-version rows remain available.
+* `/sessions/{id}/export-manifest` enumerates source and derived artifacts with existence, size, SHA-256 digest, role, and analysis version. Milestone 8 will turn these on-demand checks into durable bundle manifests and recovery controls.
+
 ## Target knee-twin boundaries
 
 The broader system should add capabilities in this dependency order:

@@ -266,3 +266,22 @@ Report signed and absolute ROM and maximum-flexion differences in degrees. Signe
 Reason:
 
 Exact named operands, direction, and units are reproducible and avoid suggesting a clinically meaningful normalized score without a validated denominator or interpretation.
+
+---
+
+## ADR-014 — Longitudinal comparisons fail closed and reanalysis is additive
+
+Status:
+Accepted
+
+Decision:
+
+Compare only explicitly selected sessions that share the declared subject scope, target context, protocol, camera view, orientation, pose model, coordinate convention, and repetition-analysis meaning. Return named incompatibilities instead of a numeric delta when compatibility is not established. Reanalysis may reuse an existing current version or add a missing current version, but it must not overwrite earlier algorithm versions.
+
+Reason:
+
+Longitudinal changes are interpretable only when the compared evidence and algorithms mean the same thing. Additive derivation preserves reproducibility and lets future algorithms be evaluated against the exact earlier result.
+
+Temporary boundary:
+
+The current repository has one local research-subject scope rather than canonical subject and knee records. Unknown capture context therefore fails compatibility. Milestone 9 replaces this temporary identity basis with explicit subject, knee, episode, and timepoint relationships.

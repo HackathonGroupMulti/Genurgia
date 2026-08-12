@@ -9,7 +9,14 @@ from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
 from app.schemas.quality import CaptureQualityReport
 from app.schemas.repetitions import SquatRepetitionAnalysis
-from app.schemas.sessions import SessionComparisonResponse, SessionListResponse
+from app.schemas.sessions import (
+    ReanalysisResponse,
+    SelectedSessionComparison,
+    SessionComparisonResponse,
+    SessionExportManifest,
+    SessionListResponse,
+    SessionSummary,
+)
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 
@@ -35,8 +42,12 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
         ("knee-flexion-analysis-v1.schema.json", KneeFlexionAnalysis),
         ("squat-repetition-analysis-v2.schema.json", SquatRepetitionAnalysis),
         ("capture-quality-v1.schema.json", CaptureQualityReport),
-        ("session-list-v2.schema.json", SessionListResponse),
+        ("session-list-v3.schema.json", SessionListResponse),
         ("session-comparison-v1.schema.json", SessionComparisonResponse),
+        ("session-detail-v1.schema.json", SessionSummary),
+        ("selected-session-comparison-v1.schema.json", SelectedSessionComparison),
+        ("session-reanalysis-response-v1.schema.json", ReanalysisResponse),
+        ("session-export-manifest-v1.schema.json", SessionExportManifest),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

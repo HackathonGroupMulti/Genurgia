@@ -7,6 +7,7 @@ from app.api.sessions import router as sessions_router
 from app.persistence import SQLiteSessionRepository
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
+from app.services.sessions import SessionWorkflowService
 from app.settings import (
     allowed_origins,
     artifact_root,
@@ -63,8 +64,14 @@ def create_app(
         configured_pose_service = pose_analysis_service
     application.state.artifact_store = store
     application.state.pose_analysis_service = configured_pose_service
-    application.state.kinematics_service = KinematicsService(store, sessions)
+    kinematics = KinematicsService(store, sessions)
+    application.state.kinematics_service = kinematics
     application.state.session_repository = sessions
+    application.state.session_workflow_service = SessionWorkflowService(
+        sessions,
+        store,
+        kinematics,
+    )
     application.include_router(health_router)
     application.include_router(pose_sequences_router)
     application.include_router(sessions_router)

@@ -32,6 +32,7 @@ class PoseSequenceMetadata(BaseModel):
     recording_id: UUID
     pose_model: str
     pose_model_version: str
+    coordinate_convention: Literal["mediapipe-pose-world-v1"] = "mediapipe-pose-world-v1"
     raw_landmarks_reference: str
     annotated_video_reference: str
     frame_count: int = Field(gt=0)
@@ -100,3 +101,58 @@ class SessionComparisonEntry(BaseModel):
 class SessionComparisonResponse(BaseModel):
     exercise_type: Literal["squat"] = "squat"
     sessions: list[SessionComparisonEntry]
+
+
+class ComparisonMetric(BaseModel):
+    name: str
+    baseline_value: float
+    current_value: float
+    change: float
+    unit: Literal["count", "degree", "millisecond", "ratio"]
+
+
+class SelectedSessionComparison(BaseModel):
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    baseline_session_id: UUID
+    current_session_id: UUID
+    compatible: bool
+    compatibility_basis: Literal["local-single-subject-v1"] = "local-single-subject-v1"
+    incompatibilities: list[str]
+    analysis_version: str | None
+    metrics: list[ComparisonMetric]
+
+
+class ReanalysisRequest(BaseModel):
+    analyses: list[
+        Literal["knee_flexion", "squat_repetitions", "capture_quality"]
+    ] = Field(
+        default_factory=lambda: [
+            "knee_flexion",
+            "squat_repetitions",
+            "capture_quality",
+        ]
+    )
+
+
+class ReanalysisResponse(BaseModel):
+    session: SessionSummary
+    requested_analyses: list[str]
+    behavior: Literal["reuse-current-or-derive-missing"] = "reuse-current-or-derive-missing"
+
+
+class ExportArtifact(BaseModel):
+    role: str
+    artifact_reference: str
+    analysis_type: str | None
+    analysis_version: str | None
+    exists: bool
+    size_bytes: int | None
+    sha256: str | None
+    integrity: Literal["verified", "missing"]
+
+
+class SessionExportManifest(BaseModel):
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    generated_at: datetime
+    session: SessionSummary
+    artifacts: list[ExportArtifact]

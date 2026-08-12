@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 7 — longitudinal movement workflows.
+Milestone 8 — reliable offline research workstation.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Implement historical session replay using stored artifact references, followed by selected compatible comparisons and explicit version-preserving reanalysis.
+Stream bounded uploads through temporary storage and publish complete artifact bundles atomically, then define verified retention, backup, and recovery behavior.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

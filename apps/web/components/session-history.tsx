@@ -5,8 +5,10 @@ import {
   metricValue,
   parseSessionComparison,
   parseSessionList,
+  parseSelectedSessionComparison,
   type SessionComparison,
   type SessionSummary,
+  type SelectedSessionComparison,
 } from "@/lib/session-contracts";
 
 type HistoryState =
@@ -82,7 +84,9 @@ export function SessionHistory({ refreshKey }: { refreshKey: string }) {
                 return (
                   <tr key={session.id}>
                     <td>{new Date(session.recorded_at).toLocaleString()}</td>
-                    <th scope="row">{session.recording.original_filename}</th>
+                    <th scope="row">
+                      <a href={`/sessions/${session.id}`}>{session.recording.original_filename}</a>
+                    </th>
                     <td>{format(metricValue(session, "repetition_count"), 0)}</td>
                     <td>{format(metricValue(session, "mean_rom_degrees"), 1, "°")}</td>
                     <td>
@@ -97,11 +101,90 @@ export function SessionHistory({ refreshKey }: { refreshKey: string }) {
           </table>
         </div>
       )}
+      {state.status === "ready" && state.sessions.length > 1 && (
+        <SelectedComparisonPanel sessions={state.sessions} />
+      )}
       <p className="chart-note">
-        Change compares mean modeled ROM with the preceding stored squat session. It is not a
-        clinical assessment.
+        The table change is a convenience view against the preceding stored squat session. Use the
+        selector for explicit, compatibility-checked comparisons. This is not a clinical assessment.
       </p>
     </section>
+  );
+}
+
+function SelectedComparisonPanel({ sessions }: { sessions: SessionSummary[] }) {
+  const [baselineId, setBaselineId] = useState(sessions.at(-1)?.id ?? "");
+  const [currentId, setCurrentId] = useState(sessions[0]?.id ?? "");
+  const [comparison, setComparison] = useState<SelectedSessionComparison | null>(null);
+  const [error, setError] = useState(false);
+
+  async function compare() {
+    setError(false);
+    const query = new URLSearchParams({ baseline_id: baselineId, current_id: currentId });
+    try {
+      const response = await fetch(`/api/sessions/selected-comparison?${query}`, {
+        cache: "no-store",
+      });
+      const parsed = response.ok ? parseSelectedSessionComparison(await response.json()) : null;
+      setComparison(parsed);
+      setError(parsed === null);
+    } catch {
+      setComparison(null);
+      setError(true);
+    }
+  }
+
+  return (
+    <section className="comparison-selector" aria-labelledby="selected-comparison-title">
+      <h3 id="selected-comparison-title">Compare selected sessions</h3>
+      <div className="comparison-controls">
+        <label>
+          Baseline
+          <select value={baselineId} onChange={(event) => setBaselineId(event.target.value)}>
+            {sessions.map((session) => <SessionOption key={session.id} session={session} />)}
+          </select>
+        </label>
+        <label>
+          Current
+          <select value={currentId} onChange={(event) => setCurrentId(event.target.value)}>
+            {sessions.map((session) => <SessionOption key={session.id} session={session} />)}
+          </select>
+        </label>
+        <button type="button" onClick={compare}>Compare</button>
+      </div>
+      {error && <p className="upload-message error">The selected comparison is unavailable.</p>}
+      {comparison && !comparison.compatible && (
+        <div className="compatibility-warning">
+          <strong>These sessions are not compatible.</strong>
+          <ul>{comparison.incompatibilities.map((item) => <li key={item}>{item}</li>)}</ul>
+        </div>
+      )}
+      {comparison?.compatible && (
+        <div className="table-scroll">
+          <table>
+            <thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Change</th></tr></thead>
+            <tbody>
+              {comparison.metrics.map((metric) => (
+                <tr key={metric.name}>
+                  <th scope="row">{metric.name.replaceAll("_", " ")}</th>
+                  <td>{metric.baseline_value.toFixed(2)} {metric.unit}</td>
+                  <td>{metric.current_value.toFixed(2)} {metric.unit}</td>
+                  <td>{metric.change > 0 ? "+" : ""}{metric.change.toFixed(2)} {metric.unit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function SessionOption({ session }: { session: SessionSummary }) {
+  return (
+    <option value={session.id}>
+      {new Date(session.recorded_at).toLocaleString()} · {session.recording.original_filename}
+    </option>
   );
 }
 

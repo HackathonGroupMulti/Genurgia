@@ -1,127 +1,79 @@
 # Current State
 
-Last updated:
-2026-08-12
+Last updated: 2026-08-12
 
 ## Product and implementation verdict
 
-Knee Twin's intended scope is a complete longitudinal, patient-specific knee twin combining external movement, internal/anatomical evidence, 3D reconstruction, and validated virtual experiments. The repository currently implements only the first external-observation slice: a working local prototype for longitudinal squat movement analysis.
+Knee Twin is intended to become a complete longitudinal, patient-specific knee twin combining external movement, internal/anatomical evidence, reviewed 3D reconstruction, registration, and validated virtual experiments. The repository currently implements the first external-observation slice: a local, research-only squat movement-analysis workflow.
 
-Engineering Milestones 0–5 and the technical implementation of Milestone 6 are complete. Capture-quality reporting, exact named left/right differences, capture metadata, migrations, and model-backed CI are implemented. The squat evidence gate remains open because validation still relies on one attributed real squat fixture rather than participant-diverse recordings. Historical comparison exists, but historical sessions cannot yet be reopened in the UI.
+Engineering Milestones 0–7 are technically complete. A researcher can preserve a squat recording and raw pose observations, inspect quality-aware derived metrics, reopen the synchronized historical evidence, explicitly select compatible sessions for comparison, derive missing current analysis versions without replacing older versions, and export an artifact integrity manifest.
 
-The current “digital twin” is a versioned movement record and synchronized replay. It is not yet a patient-specific anatomical model, registered functional twin, medical device, or musculoskeletal/finite-element simulation.
+The current “digital twin” is a versioned movement evidence record. It is not yet a patient-specific anatomical model, registered functional twin, medical device, or musculoskeletal/finite-element simulation. Milestone 6's participant-diversity evidence gate remains open.
 
 ## Working and verified
 
-### Video and raw observations
+### Evidence and biomechanics
 
-* Upload MP4, MOV, or WebM with a configurable `100 MiB` limit.
-* Decode video and run MediaPipe Pose Landmarker in video mode.
-* Preserve original media, timestamped normalized-image landmarks, model-relative world landmarks, confidence signals, and explicit missing-pose frames.
-* Export and serve an annotated MP4 overlay.
+* Upload MP4, MOV, or WebM and preserve the original media, timestamped image/world landmarks, confidence, missing frames, and annotated overlay.
+* Calculate versioned, confidence-aware bilateral modeled knee flexion with explicit unavailable states and timestamp-preserving filtering.
+* Detect complete squat repetitions and report boundaries, duration, per-side flexion/ROM, exact signed and absolute left-minus-right differences, and confidence.
+* Produce `capture-quality-v1` from decode, pose coverage, bilateral availability, gap, framing, and complete-cycle evidence.
+* Preserve source capture time, protocol, camera view/orientation, knee context, and notes.
 
-### Derived biomechanics
+### Persistence and longitudinal workflows
 
-* Calculate `knee-flexion-world-3d-v1` from same-frame hip, knee, and ankle world landmarks.
-* Report `0°` as modeled extension and increasing values as modeled flexion.
-* Propagate conservative landmark confidence and label missing, low-confidence, invalid, or degenerate samples explicitly.
-* Apply the timestamp-preserving `centered-moving-average-v1` filter without filling unavailable centers.
-* Detect complete bilateral squat cycles with the versioned phase state machine.
-* Report rep start, peak-flexion bottom, end, duration, per-side maximum flexion, and per-side/mean ROM.
-* Report signed and absolute left-minus-right ROM and maximum-flexion differences in degrees.
-* Produce `capture-quality-v1` with observable signals, pass/warning/fail status, and recording guidance.
+* Store large immutable artifacts outside SQLite and relational session, recording, pose-sequence, analysis-version, and metric metadata inside SQLite.
+* Apply ordered, checksummed migrations while preserving legacy local sessions.
+* Reopen any stored session at `/sessions/{id}` with original evidence, overlay, charts, repetition summaries, quality, provenance, and model-relative skeleton.
+* Compare an explicitly selected baseline/current pair only when local subject scope, knee context, protocol, view, orientation, coordinate convention, pose model, and repetition-analysis meaning are compatible.
+* Add missing current derivations without overwriting earlier versioned artifacts.
+* Export session manifests containing artifact roles, references, sizes, versions, missing states, and SHA-256 hashes.
 
-### Persistence and API
+### Contracts and UI
 
-* Store raw and derived artifacts separately from relational metadata.
-* Persist local session, recording, pose-sequence, analysis-version, and compact metric metadata in SQLite.
-* Expose health, upload, artifact, knee-flexion, repetition, session-list, session-detail, and comparison endpoints.
-* Preserve analysis provenance in Pydantic, TypeScript, and exported JSON Schema contracts.
-* Apply ordered, checksummed SQLite migrations and preserve existing local sessions.
-* Persist source capture time, protocol, camera view/orientation, knee context, notes, quality, and exact difference summaries.
+* Python/Pydantic remains authoritative for domain contracts and biomechanics.
+* Versioned JSON Schemas cover pose, kinematics, repetitions, quality, session detail/list, comparisons, reanalysis, and export manifests.
+* TypeScript validates browser inputs and renders server-derived values without recalculating biomechanics.
+* Playback time synchronizes annotated video, curves, current measurements, repetition boundaries, and the presentation-only rotatable skeleton.
 
-### User interface
+## Open evidence and product gaps
 
-* Upload and analyze one squat recording.
-* Replay the annotated overlay.
-* Synchronize video time with knee curves, current-frame values, repetition context, and nearest skeleton frame.
-* Seek with pointer or keyboard on the chart.
-* Display repetition metrics, session history, and mean-ROM change from the preceding stored session.
-* Display a rotatable, presentation-only world-landmark skeleton.
-* Display capture quality/guidance and exact bilateral differences.
+* Participant-diverse, consented or redistributable squat fixtures across views, clothing, lighting, and body types are not present.
+* Upload handling still buffers the bounded request in memory; artifact bundles are not yet atomically published with durable manifests.
+* Retention, deletion, encrypted backup, recovery, and cancellation-safe cleanup behavior remain to be implemented.
+* Interactive component/browser coverage and structured operational failure provenance remain limited.
+* The canonical subject, knee, episode, timepoint, observation, annotation, reconstruction, registration, derivation, and experiment graph is not implemented.
+* MRI, DICOM, arthroscopy, calibrated multi-view capture, reviewed anatomical reconstruction, registration, jobs, motion replay on anatomy, solver adapters, and scientific validation are not implemented.
 
-## Initial squat-slice requirements not implemented
+## Safety and operating boundary
 
-* No historical session-detail/replay UI despite the backend detail endpoint.
-* No user-selected comparison; comparison is fixed to the preceding stored squat session.
-* No participant-diverse licensed fixture set; current real-video evidence is a single attributed squat recording.
-
-## Major product capabilities not started
-
-* Canonical person, knee/laterality, episode, timepoint, observation, and derivation model.
-* Medical-image or authorized internal-imagery ingestion and governance.
-* Reviewed patient-specific anatomical segmentation and 3D reconstruction.
-* Multimodal spatial/temporal registration between anatomy, movement, and sensors.
-* Tissue/property and loading models with explicit uncertainty.
-* Solver-independent virtual-experiment contracts and simulation adapters.
-* Scientific or clinical validation supporting diagnostic, predictive, or treatment claims.
-
-## Prototype constraints and technical debt
-
-* Analysis is synchronous and the upload route accumulates the complete file in memory before processing.
-* Artifact retention, deletion, integrity checking, backup, and recovery are undefined.
-* Local storage has no authentication, user ownership, privacy controls, or multi-user isolation.
-* Real-video validation uses one short attributed squat fixture. CI now executes it with a checksum-verified MediaPipe model, but it remains integration evidence rather than accuracy or population validation.
-* Frontend tests focus on parsers and timestamp selection; interactive upload/playback/history behavior lacks component and browser-level tests.
-* Fixed repetition thresholds and the `0.5` confidence threshold are initial heuristics, not individualized or clinically validated cutoffs.
-* Session `recorded_at` uses source capture time when supplied and upload time otherwise.
-
-## Known failures
-
-No confirmed runtime defect is currently recorded. The items above are scope gaps, validation gaps, or scale limitations rather than evidence that the implemented local happy path is broken.
+* The application is a local, single-user research prototype with no authentication or multi-user isolation.
+* Current values are monocular MediaPipe model estimates, not medically validated measurements.
+* Fixed repetition and confidence thresholds are initial versioned heuristics, not individualized clinical cutoffs.
+* Identifiable or medical research data must not be imported until Milestone 8 security/governance controls and the modality-specific authorization rules are satisfied.
 
 ## Verification baseline
 
 Last verified locally on 2026-08-12:
 
-* backend: 60 tests passed with the MediaPipe model installed;
+* backend: 66 tests passed with contract synchronization and longitudinal workflow coverage;
 * backend Ruff lint: passed;
-* frontend: 21 tests passed;
+* frontend: 22 tests passed;
 * frontend ESLint: passed with zero warnings;
 * frontend TypeScript check: passed;
 * frontend production build: passed.
 
-CI downloads and checksum-verifies the pinned MediaPipe model before running the complete backend suite, so model-backed extraction, repetition, and capture-quality tests execute there.
+CI downloads and checksum-verifies the pinned MediaPipe model before running the complete backend suite.
 
 ## Current priority
 
-Milestone 7: historical replay, selected compatible comparisons, explicit reanalysis, and export/integrity reporting. Participant-diverse fixture acquisition continues as a parallel Milestone 6 evidence gate.
-
-## Next actions
-
-1. Add a frontend historical session route and load preserved analysis artifacts.
-2. Add explicit compatible-session selection and reanalysis without overwriting prior artifacts.
-3. Add artifact export/integrity reporting.
-4. Acquire redistributable participant-diverse squat fixtures and record provenance/expected outcomes.
-5. Write the canonical knee/evidence privacy threat model before accepting internal or medical imagery.
-
-## Important files
-
-* `TASKS.md` — active implementation queue.
-* `docs/ROADMAP.md` — scope review and phased delivery plan.
-* `analysis/kinematics.py` — knee-flexion series and quality states.
-* `analysis/reps.py` — bilateral squat segmentation and ROM.
-* `analysis/symmetry.py` — exact named left/right differences.
-* `analysis/quality.py` — capture-level observable quality signals and thresholds.
-* `app/services/pose_analysis.py` — synchronous upload/extraction orchestration.
-* `app/services/kinematics.py` — derived artifact and metric orchestration.
-* `app/persistence.py` — local SQLite metadata repository.
-* `apps/web/components/video-upload.tsx` — current single-page analysis workflow.
+Milestone 8: reliable offline workstation behavior—bounded temporary uploads, atomic artifact publication, durable integrity verification, retention/recovery controls, structured failures, and broader UI/workflow testing. Participant-diverse fixture acquisition continues as a parallel Milestone 6 evidence gate.
 
 ## Preserve
 
 * Raw observations remain separate from derived measurements and relational metadata.
-* Python remains authoritative for biomechanical calculations.
-* Missing measurements remain unavailable rather than interpolated or substituted silently.
-* Analysis meaning remains explicitly versioned.
-* All modeled values remain non-diagnostic.
+* Missing measurements remain unavailable rather than silently interpolated or substituted.
+* Analysis meaning and coordinate conventions remain explicit and versioned.
+* Comparison and registration fail closed when compatibility is not established.
+* Observed, reconstructed, estimated, and simulated values remain visibly distinct.
+* All outputs remain research-only and non-diagnostic.

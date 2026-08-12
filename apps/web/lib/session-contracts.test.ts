@@ -3,6 +3,7 @@ import {
   metricValue,
   parseSessionComparison,
   parseSessionList,
+  parseSelectedSessionComparison,
   type SessionSummary,
 } from "./session-contracts";
 
@@ -30,6 +31,7 @@ const session: SessionSummary = {
     recording_id: "recording-id",
     pose_model: "model",
     pose_model_version: "v1",
+    coordinate_convention: "mediapipe-pose-world-v1",
     raw_landmarks_reference: "/artifacts/id/pose_sequence.json",
     annotated_video_reference: "/artifacts/id/annotated.mp4",
     frame_count: 60,
@@ -77,5 +79,28 @@ describe("session contracts", () => {
 
   it("rejects malformed history", () => {
     expect(parseSessionList({ sessions: [{ id: "incomplete" }] })).toBeNull();
+  });
+
+  it("parses an explicit compatible session comparison", () => {
+    expect(
+      parseSelectedSessionComparison({
+        schema_version: "1.0.0",
+        baseline_session_id: "baseline-id",
+        current_session_id: "current-id",
+        compatible: true,
+        compatibility_basis: "local-single-subject-v1",
+        incompatibilities: [],
+        analysis_version: "squat-repetition-analysis-v2",
+        metrics: [
+          {
+            name: "mean_rom_degrees",
+            baseline_value: 65,
+            current_value: 70,
+            change: 5,
+            unit: "degree",
+          },
+        ],
+      }),
+    ).not.toBeNull();
   });
 });

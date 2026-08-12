@@ -14,7 +14,7 @@ This gate covers the first external movement protocol. Passing it does not valid
 | Capture metadata | Pass | API, artifact, migration, persistence, and contract tests. |
 | Versioned contracts across Python/JSON Schema/TypeScript | Pass | Contract synchronization and frontend parser tests. |
 | Model-backed CI execution | Pass | CI downloads and checksum-verifies the pinned MediaPipe model. |
-| Historical session replay | Pending Milestone 7 | Backend detail exists; frontend replay route is not implemented. |
+| Historical session replay | Pass | Stored video, overlay, curves, repetitions, quality, provenance, and skeleton reopen through `/sessions/{id}`. |
 | Participant/capture diversity | Blocked on fixture acquisition | One attributed real squat fixture is insufficient for body/view/population coverage. |
 
 The technical Milestone 6 implementation is complete. The overall evidence gate remains open until the repository has consented or redistributable participant-diverse fixtures with provenance and expected outcomes.
