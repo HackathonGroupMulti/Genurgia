@@ -1,0 +1,340 @@
+{
+  "$defs": {
+    "DeidentificationReportV1": {
+      "properties": {
+        "profile": {
+          "const": "knee-twin-research-screen-v1",
+          "default": "knee-twin-research-screen-v1",
+          "title": "Profile",
+          "type": "string"
+        },
+        "dicom_ps3_15_conformance_claimed": {
+          "const": false,
+          "default": false,
+          "title": "Dicom Ps3 15 Conformance Claimed",
+          "type": "boolean"
+        },
+        "direct_identifier_tags_checked": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Direct Identifier Tags Checked",
+          "type": "array"
+        },
+        "populated_direct_identifier_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Populated Direct Identifier Tags",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "direct_identifier_tags_checked",
+        "populated_direct_identifier_tags",
+        "status",
+        "explanation"
+      ],
+      "title": "DeidentificationReportV1",
+      "type": "object"
+    },
+    "ImportQualitySignal": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "explanation"
+      ],
+      "title": "ImportQualitySignal",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "modality": {
+      "const": "MRI",
+      "default": "MRI",
+      "title": "Modality",
+      "type": "string"
+    },
+    "study_instance_uid": {
+      "title": "Study Instance Uid",
+      "type": "string"
+    },
+    "series_instance_uid": {
+      "title": "Series Instance Uid",
+      "type": "string"
+    },
+    "frame_of_reference_uid": {
+      "title": "Frame Of Reference Uid",
+      "type": "string"
+    },
+    "sop_instance_uids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sop Instance Uids",
+      "type": "array"
+    },
+    "instance_count": {
+      "exclusiveMinimum": 0,
+      "title": "Instance Count",
+      "type": "integer"
+    },
+    "rows": {
+      "exclusiveMinimum": 0,
+      "title": "Rows",
+      "type": "integer"
+    },
+    "columns": {
+      "exclusiveMinimum": 0,
+      "title": "Columns",
+      "type": "integer"
+    },
+    "pixel_spacing_mm": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Pixel Spacing Mm",
+      "type": "array"
+    },
+    "slice_spacing_mm": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Slice Spacing Mm"
+    },
+    "slice_thickness_mm": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Slice Thickness Mm"
+    },
+    "image_orientation_patient": {
+      "maxItems": 6,
+      "minItems": 6,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Image Orientation Patient",
+      "type": "array"
+    },
+    "first_image_position_patient_mm": {
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "First Image Position Patient Mm",
+      "type": "array"
+    },
+    "last_image_position_patient_mm": {
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Last Image Position Patient Mm",
+      "type": "array"
+    },
+    "coordinate_system": {
+      "const": "dicom-patient-lps-mm",
+      "default": "dicom-patient-lps-mm",
+      "title": "Coordinate System",
+      "type": "string"
+    },
+    "dicom_laterality": {
+      "enum": [
+        "left",
+        "right",
+        "unknown"
+      ],
+      "title": "Dicom Laterality",
+      "type": "string"
+    },
+    "acquisition_datetime": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Acquisition Datetime"
+    },
+    "source_representation": {
+      "const": "immutable-dicom-zip",
+      "default": "immutable-dicom-zip",
+      "title": "Source Representation",
+      "type": "string"
+    },
+    "computational_volume_status": {
+      "const": "not-generated",
+      "default": "not-generated",
+      "title": "Computational Volume Status",
+      "type": "string"
+    },
+    "deidentification": {
+      "$ref": "#/$defs/DeidentificationReportV1"
+    },
+    "quality_signals": {
+      "items": {
+        "$ref": "#/$defs/ImportQualitySignal"
+      },
+      "title": "Quality Signals",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "study_instance_uid",
+    "series_instance_uid",
+    "frame_of_reference_uid",
+    "sop_instance_uids",
+    "instance_count",
+    "rows",
+    "columns",
+    "pixel_spacing_mm",
+    "image_orientation_patient",
+    "first_image_position_patient_mm",
+    "last_image_position_patient_mm",
+    "dicom_laterality",
+    "deidentification",
+    "quality_signals",
+    "status"
+  ],
+  "title": "DicomSeriesManifestV1",
+  "type": "object"
+}

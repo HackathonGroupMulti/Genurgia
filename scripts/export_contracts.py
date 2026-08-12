@@ -16,6 +16,12 @@ from app.schemas.evidence import (
     TimepointList,
     VirtualExperimentList,
 )
+from app.schemas.imports import (
+    ArthroscopyManifestV1,
+    DicomSeriesManifestV1,
+    MultiViewCaptureManifestV1,
+    ObservationImportResultV1,
+)
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import PoseAnalysisResponse, PoseSequenceArtifact
@@ -58,6 +64,10 @@ CONTRACTS = {
     "derivation-list-v1.schema.json": DerivationList,
     "virtual-experiment-list-v1.schema.json": VirtualExperimentList,
     "simulation-result-list-v1.schema.json": SimulationResultList,
+    "dicom-series-manifest-v1.schema.json": DicomSeriesManifestV1,
+    "arthroscopy-manifest-v1.schema.json": ArthroscopyManifestV1,
+    "multi-view-capture-manifest-v1.schema.json": MultiViewCaptureManifestV1,
+    "observation-import-result-v1.schema.json": ObservationImportResultV1,
 }
 
 

@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, Request, status
 
 from app.evidence_repository import SQLiteEvidenceRepository
 from app.persistence import SQLiteSessionRepository
+from app.services.imports import ObservationImportService
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.services.sessions import SessionWorkflowService
@@ -43,6 +44,10 @@ def get_evidence_repository(request: Request) -> SQLiteEvidenceRepository:
     return request.app.state.evidence_repository
 
 
+def get_observation_import_service(request: Request) -> ObservationImportService:
+    return request.app.state.observation_import_service
+
+
 PoseServiceDependency = Annotated[PoseAnalysisService, Depends(get_pose_analysis_service)]
 ArtifactStoreDependency = Annotated[LocalArtifactStore, Depends(get_artifact_store)]
 KinematicsServiceDependency = Annotated[KinematicsService, Depends(get_kinematics_service)]
@@ -57,4 +62,8 @@ SessionWorkflowDependency = Annotated[
 EvidenceRepositoryDependency = Annotated[
     SQLiteEvidenceRepository,
     Depends(get_evidence_repository),
+]
+ObservationImportServiceDependency = Annotated[
+    ObservationImportService,
+    Depends(get_observation_import_service),
 ]

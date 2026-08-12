@@ -46,6 +46,8 @@ Legacy squat migration preserves all original tables, IDs, endpoints, and artifa
 
 Observation creation requires a source reference, explicit SHA-256 state, acquisition manifest, authorization, quality, and at least one knee target. Subject ownership constraints prevent a timepoint from targeting another subject's knee. Annotation supersession must remain within one observation. Reconstruction and experiment knee/timepoint subjects must match. Registration stores coordinate descriptions, its 4×4 transform, method, coverage, error, and uncertainty without interpreting those fields as validated alignment.
 
+Milestone 10 import observations use their observation UUID as the immutable artifact-bundle UUID. `source_artifact_reference` identifies the primary exact source (or the multi-view acquisition manifest), `source_sha256` records its durable hash, and the complete per-file hashes remain in `artifact_manifest_v1.json`. `acquisition_manifest` is one of the versioned MRI, arthroscopy, or calibrated multi-view contracts; `quality` repeats its status/signals for modality-neutral querying.
+
 ## User
 
 The person whose movement history is being tracked.

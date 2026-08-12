@@ -182,7 +182,12 @@ class SQLiteEvidenceRepository:
             (str(subject_id),) if subject_id else (),
         )
 
-    def create_observation(self, request: ObservationCreate) -> Observation:
+    def create_observation(
+        self,
+        request: ObservationCreate,
+        *,
+        observation_id: UUID | None = None,
+    ) -> Observation:
         timepoint = self._row(
             "SELECT subject_id FROM timepoints WHERE id = ?",
             request.timepoint_id,
@@ -198,7 +203,7 @@ class SQLiteEvidenceRepository:
                 raise EvidenceConflict("One or more knee targets do not exist.")
             if any(knee["subject_id"] != timepoint["subject_id"] for knee in knees):
                 raise EvidenceConflict("Observation timepoint and knee subjects differ.")
-            observation_id = uuid4()
+            observation_id = observation_id or uuid4()
             now = _now()
             connection.execute(
                 """INSERT INTO observations

@@ -199,6 +199,16 @@ mean_rom = (left_rom + right_rom) / 2
 
 Rep confidence is the minimum of the contributing bilateral knee-flexion confidences. This conservative value describes pose-input quality, not confidence in clinical accuracy. Fixed v1 thresholds are product heuristics validated against deterministic signals and a small real-video fixture; they are not individualized, diagnostic, or biomechanical ground truth.
 
+## Multimodal acquisition coordinate conventions
+
+Milestone 10 adds acquisition coordinates but no new biomechanical calculation:
+
+* MRI DICOM metadata uses `dicom-patient-lps-mm`. Pixel spacing is `(row, column)` in millimetres. Slice spacing is the median distance between ordered Image Position (Patient) projections on the cross-product normal of the row and column Image Orientation (Patient) direction cosines. Missing multi-slice evidence remains unavailable; it is not inferred from Slice Thickness.
+* Arthroscopy frames use `arthroscope-image-pixels`. Frame timestamps are derived from decoded frame index and container FPS and are not treated as synchronized hardware time.
+* Four-camera evidence uses `capture-volume-right-handed-mm`, with one explicit 4×4 capture-from-camera transform per view. Import does not triangulate or register anatomy.
+
+Any later conversion among these conventions must be a versioned registration with method, residual error, coverage, and uncertainty. No identity, scale, or laterality transform is implicit.
+
 ## Known limitations
 
 * monocular depth uncertainty;

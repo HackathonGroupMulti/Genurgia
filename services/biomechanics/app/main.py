@@ -4,17 +4,20 @@ from fastapi.responses import JSONResponse
 
 from app.api.evidence import router as evidence_router
 from app.api.health import router as health_router
+from app.api.imports import router as imports_router
 from app.api.operations import router as operations_router
 from app.api.pose_sequences import router as pose_sequences_router
 from app.api.sessions import router as sessions_router
 from app.evidence_repository import EvidenceConflict, EvidenceNotFound, SQLiteEvidenceRepository
 from app.persistence import SQLiteSessionRepository
+from app.services.imports import ObservationImportService
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.services.sessions import SessionWorkflowService
 from app.settings import (
     allowed_origins,
     artifact_root,
+    max_observation_upload_bytes,
     max_video_upload_bytes,
     pose_model_path,
     session_database_path,
@@ -75,12 +78,18 @@ def create_app(
     application.state.kinematics_service = kinematics
     application.state.session_repository = sessions
     application.state.evidence_repository = evidence
+    application.state.observation_import_service = ObservationImportService(
+        store,
+        evidence,
+        max_observation_upload_bytes(),
+    )
     application.state.session_workflow_service = SessionWorkflowService(
         sessions,
         store,
         kinematics,
     )
     application.include_router(health_router)
+    application.include_router(imports_router)
     application.include_router(evidence_router)
     application.include_router(operations_router)
     application.include_router(pose_sequences_router)

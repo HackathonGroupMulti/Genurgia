@@ -2,7 +2,7 @@
 
 Knee Twin is intended to become a longitudinal, patient-specific digital representation of a complete knee. Its target scope combines external movement, internal/anatomical evidence, reviewed 3D reconstruction, and validated virtual experiments over time. It is currently a research and engineering system, not a diagnostic medical device.
 
-This repository contains the first external-observation slice: a working local squat-analysis prototype that preserves timestamped MediaPipe observations, exports an annotated replay, calculates confidence-aware modeled knee flexion, repetitions, and exact bilateral differences, reports capture quality, stores session summaries, reopens historical evidence, and compares explicitly selected compatible sessions. Squats are a foundation and validation protocol, not the product boundary. Patient-specific anatomy, medical/internal imagery, multimodal registration, and simulation are planned stages and are not implemented today.
+This repository contains the first external-observation slice plus controlled multimodal ingestion. The local application preserves squat evidence and can now import pre-de-identified MRI DICOM ZIPs, authorized arthroscopy video, and standardized calibrated four-camera RGB captures into immutable observations with acquisition, quality, coordinate, authorization, and hash provenance. Squats and ingestion are foundations, not the product boundary. Patient-specific anatomy, multimodal registration, and simulation are not implemented today.
 
 ## Architecture
 
@@ -93,6 +93,7 @@ Keep both processes bound to loopback. Do not add `--host 0.0.0.0`. Research evi
 | `KNEE_TWIN_DATABASE_PATH` | `./data/local/knee_twin.sqlite3` | Local SQLite session-metadata database |
 | `POSE_LANDMARKER_MODEL_PATH` | `./data/models/pose_landmarker_full.task` | MediaPipe full float16 model path |
 | `MAX_VIDEO_UPLOAD_BYTES` | `104857600` | Maximum accepted upload size |
+| `MAX_OBSERVATION_UPLOAD_BYTES` | `2147483648` | Per-file MRI, arthroscopy, or multi-view import limit |
 
 ## Validate
 
@@ -117,6 +118,6 @@ GitHub Actions runs the same backend, frontend, production-build, and Chromium s
 
 ## Current status
 
-Engineering Milestones 0–9 are technically complete. The reliable movement slice now attaches to an additive canonical subject/knee/evidence and derivation graph without replacing legacy sessions. This is a technical prototype rather than a completed product. Pose extraction remains synchronous; SQLite and local artifacts assume one local user on an encrypted offline volume. Historical sessions can be replayed and compatibility-checked, but real-video validation is not participant-diverse. Reported values are monocular model estimates, not clinical measurements.
+Engineering Milestones 0–10 are technically complete. The reliable movement slice and synthetic multimodal imports attach to an additive canonical subject/knee/evidence graph without replacing legacy sessions. This is a technical prototype rather than a completed product. Processing/import remains synchronous; SQLite and local artifacts assume one local user on an encrypted offline volume. Historical sessions can be replayed and compatibility-checked, but participant-diverse movement validation and paired-human multimodal validation remain open. Reported values are research estimates, not clinical measurements.
 
-Milestone 6's participant-diversity evidence gate remains open. Milestone 10 now adds controlled multimodal ingestion before patient-specific 3D anatomy, functional registration, and validated simulation. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/OFFLINE_SECURITY.md](docs/OFFLINE_SECURITY.md), [docs/PROCESSING_EVIDENCE.md](docs/PROCESSING_EVIDENCE.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
+Milestone 6's participant-diversity gate and Milestone 10's paired-human-data gate remain open. Milestone 11 adds reviewed patient-specific 3D anatomy next. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/MULTIMODAL_ACQUISITION.md](docs/MULTIMODAL_ACQUISITION.md), [docs/OFFLINE_SECURITY.md](docs/OFFLINE_SECURITY.md), and [docs/ROADMAP.md](docs/ROADMAP.md).

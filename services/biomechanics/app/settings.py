@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 DEFAULT_ALLOWED_ORIGINS = ("http://localhost:3000",)
 DEFAULT_MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024
+DEFAULT_MAX_OBSERVATION_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024
 
 
 def repository_root() -> Path:
@@ -56,4 +57,14 @@ def max_video_upload_bytes() -> int:
     value = int(configured)
     if value <= 0:
         raise ValueError("MAX_VIDEO_UPLOAD_BYTES must be a positive integer.")
+    return value
+
+
+def max_observation_upload_bytes() -> int:
+    configured = os.getenv("MAX_OBSERVATION_UPLOAD_BYTES")
+    if configured is None:
+        return DEFAULT_MAX_OBSERVATION_UPLOAD_BYTES
+    value = int(configured)
+    if value <= 0:
+        raise ValueError("MAX_OBSERVATION_UPLOAD_BYTES must be a positive integer.")
     return value

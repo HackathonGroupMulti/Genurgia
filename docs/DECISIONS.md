@@ -327,3 +327,30 @@ Replace sessions with the new graph and regenerate identifiers.
 Why rejected:
 
 That would break stored URLs, artifact references, comparisons, and external records while providing no scientific benefit. Canonical relationships can mature independently and legacy adapters can be removed only after a separately tested compatibility plan.
+
+---
+
+## ADR-017 — Preserve multimodal sources and their native coordinate meaning
+
+Status:
+Accepted
+
+Decision:
+
+Import MRI DICOM series, arthroscopy video, and calibrated four-camera capture through modality-specific adapters. Preserve exact sources and typed acquisition manifests in immutable atomic bundles. Keep `dicom-patient-lps-mm`, `arthroscope-image-pixels`, and `capture-volume-right-handed-mm` distinct; require a later versioned registration to combine them. Refuse DICOM with populated values in the declared direct-identifier subset and explicitly avoid claiming full PS3.15 de-identification conformance.
+
+Reason:
+
+Lossy normalization at ingestion would destroy evidence needed for future reconstruction and recalculation. Treating different coordinate systems as interchangeable would create unsupported alignment. A narrow, visible identifier screen is safer than overstating a partial implementation as formal confidentiality-profile compliance.
+
+Rejected alternative:
+
+Convert every source directly into one current knee model during upload and discard the input-specific representation.
+
+Why rejected:
+
+That would couple ingestion to immature segmentation/registration algorithms, hide uncertainty and correction history, and make new algorithms impossible to reproduce against the exact original evidence.
+
+Operational boundary:
+
+Synthetic tests close the software gate only. Approved paired human-data acquisition, governed de-identification review, and modality-specific scientific validation remain open evidence gates. Imports remain synchronous until the durable local job runner is introduced in Milestone 13.

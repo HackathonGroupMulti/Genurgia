@@ -48,6 +48,14 @@ Interpretation / Visualization
 * Person, knee/laterality, episode, timepoint, modality, and coordinate context must be explicit before multimodal evidence is combined.
 * Direct observations, expert annotations, reconstructions, estimates, and simulations are separate data classes.
 
+## Milestone 10 multimodal import boundary
+
+`ObservationImportService` is the modality boundary for MRI DICOM, arthroscopy video, and calibrated multi-view video. HTTP routes only stream bounded multipart files and parse typed metadata. The service validates modality-specific evidence, stages exact sources plus `acquisition_manifest.json`, publishes one atomic SHA-256-manifested bundle, and only then inserts its immutable canonical `Observation`. A relational failure removes the just-published bundle.
+
+The adapters preserve source-coordinate meaning rather than converting all evidence into one implied space: MRI uses `dicom-patient-lps-mm`, arthroscopy uses `arthroscope-image-pixels`, and calibrated capture uses `capture-volume-right-handed-mm`. Combining these spaces requires an explicit versioned `Registration`; import never invents one.
+
+Imports are synchronous for the current single-user synthetic-fixture scale. The response declares this execution boundary. Durable progress, cancellation, retry, and recovered jobs are introduced once in Milestone 13 rather than through a second temporary queue.
+
 The local filesystem implementation of the artifact-storage boundary stores each extraction bundle: original recording, versioned raw pose-sequence JSON, annotated MP4, and separate derived JSON artifacts. SQLite stores structured session, source, analysis-version, and compact metric metadata with references to those artifacts.
 
 Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.

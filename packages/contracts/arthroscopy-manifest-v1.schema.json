@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "ArthroscopyVisibleRegionV1": {
+      "properties": {
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "number"
+        },
+        "end_ms": {
+          "exclusiveMinimum": 0,
+          "title": "End Ms",
+          "type": "number"
+        },
+        "anatomical_region": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Anatomical Region",
+          "type": "string"
+        },
+        "author": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Author",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms",
+        "anatomical_region",
+        "author"
+      ],
+      "title": "ArthroscopyVisibleRegionV1",
+      "type": "object"
+    },
+    "ImportQualitySignal": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "explanation"
+      ],
+      "title": "ImportQualitySignal",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "procedure_at": {
+      "format": "date-time",
+      "title": "Procedure At",
+      "type": "string"
+    },
+    "scope_manufacturer": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Scope Manufacturer",
+      "type": "string"
+    },
+    "scope_model": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Scope Model",
+      "type": "string"
+    },
+    "scope_angle_degrees": {
+      "maximum": 180,
+      "minimum": 0,
+      "title": "Scope Angle Degrees",
+      "type": "number"
+    },
+    "camera_manufacturer": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Camera Manufacturer",
+      "type": "string"
+    },
+    "camera_model": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Camera Model",
+      "type": "string"
+    },
+    "calibration_method": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Calibration Method",
+      "type": "string"
+    },
+    "calibration_artifact_reference": {
+      "minLength": 1,
+      "title": "Calibration Artifact Reference",
+      "type": "string"
+    },
+    "calibration_error_px": {
+      "minimum": 0,
+      "title": "Calibration Error Px",
+      "type": "number"
+    },
+    "visible_regions": {
+      "items": {
+        "$ref": "#/$defs/ArthroscopyVisibleRegionV1"
+      },
+      "title": "Visible Regions",
+      "type": "array"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "video_width_px": {
+      "exclusiveMinimum": 0,
+      "title": "Video Width Px",
+      "type": "integer"
+    },
+    "video_height_px": {
+      "exclusiveMinimum": 0,
+      "title": "Video Height Px",
+      "type": "integer"
+    },
+    "fps": {
+      "exclusiveMinimum": 0,
+      "title": "Fps",
+      "type": "number"
+    },
+    "frame_count": {
+      "exclusiveMinimum": 0,
+      "title": "Frame Count",
+      "type": "integer"
+    },
+    "duration_ms": {
+      "exclusiveMinimum": 0,
+      "title": "Duration Ms",
+      "type": "number"
+    },
+    "timestamp_basis": {
+      "const": "decoded-frame-index-and-container-fps",
+      "default": "decoded-frame-index-and-container-fps",
+      "title": "Timestamp Basis",
+      "type": "string"
+    },
+    "coordinate_system": {
+      "const": "arthroscope-image-pixels",
+      "default": "arthroscope-image-pixels",
+      "title": "Coordinate System",
+      "type": "string"
+    },
+    "quality_signals": {
+      "items": {
+        "$ref": "#/$defs/ImportQualitySignal"
+      },
+      "title": "Quality Signals",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedure_at",
+    "scope_manufacturer",
+    "scope_model",
+    "scope_angle_degrees",
+    "camera_manufacturer",
+    "camera_model",
+    "calibration_method",
+    "calibration_artifact_reference",
+    "calibration_error_px",
+    "visible_regions",
+    "video_width_px",
+    "video_height_px",
+    "fps",
+    "frame_count",
+    "duration_ms",
+    "quality_signals",
+    "status"
+  ],
+  "title": "ArthroscopyManifestV1",
+  "type": "object"
+}

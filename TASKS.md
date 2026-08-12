@@ -104,11 +104,15 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 10 — Multimodal observation ingestion
 
-* [ ] Define modality adapters and manifests for external video/sensors, volumetric imaging, and authorized internal imagery.
-* [ ] Preserve original files and essential acquisition metadata without lossy conversion.
-* [ ] Implement modality-specific validation, quality, coverage, and failure reports.
-* [ ] Start with offline de-identified research fixtures; do not connect clinical systems by default.
-* [ ] Add expert annotations as versioned overlays rather than modifications to source evidence.
+* [x] Define typed adapters/manifests for MRI DICOM series, authorized arthroscopy video, and calibrated four-camera RGB captures.
+* [x] Preserve exact source files and acquisition metadata in immutable, SHA-256-manifested bundles without lossy conversion.
+* [x] Validate MRI identity/orientation/spacing/de-identification subset, arthroscopy timing/calibration evidence, and four-view calibration/synchronization evidence.
+* [x] Start with generated synthetic fixtures and keep clinical-system connectivity prohibited by default.
+* [x] Keep expert annotations in the separately versioned canonical annotation model rather than modifying observations.
+* [x] Publish versioned Pydantic, JSON Schema, and TypeScript acquisition contracts and fail-closed API tests.
+* [ ] Add selected sensor adapters only after a supported sensor protocol and scientific purpose are approved.
+* [ ] Obtain approved, paired MRI, arthroscopy, and calibrated multi-view human cases through a research partner.
+* [ ] Pass the human paired-data acquisition and modality-quality evidence gate; synthetic validation alone cannot close it.
 
 ## Program C — patient-specific anatomical and functional twin
 

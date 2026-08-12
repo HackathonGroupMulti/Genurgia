@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 10 — multimodal acquisition and ingestion.
+Milestone 11 — reviewed patient-specific anatomical reconstruction.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Implement de-identified MRI/DICOM and arthroscopy import manifests plus the calibrated four-camera protocol, beginning with synthetic or appropriately licensed fixtures.
+Implement the reviewed manual-segmentation/reference-label-map workflow and structure-complete reconstruction contracts. Keep Milestone 10's approved paired-human-data gate open in parallel.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

@@ -26,7 +26,7 @@ class LocalArtifactStore:
     def create_temporary_upload(self, extension: str = ".upload") -> Path:
         safe_extension = (
             extension.lower()
-            if extension.lower() in {".mp4", ".mov", ".webm"}
+            if extension.lower() in {".mp4", ".mov", ".webm", ".zip", ".dcm"}
             else ".upload"
         )
         return self._upload_root / f"{uuid4()}{safe_extension}"

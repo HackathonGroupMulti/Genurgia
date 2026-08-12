@@ -1,0 +1,971 @@
+{
+  "$defs": {
+    "AnatomicalCalibrationPoseV1": {
+      "properties": {
+        "protocol": {
+          "const": "standard-anatomical-pose-v1",
+          "title": "Protocol",
+          "type": "string"
+        },
+        "visible_in_all_cameras": {
+          "const": true,
+          "title": "Visible In All Cameras",
+          "type": "boolean"
+        },
+        "landmark_set": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Landmark Set",
+          "type": "array"
+        }
+      },
+      "required": [
+        "protocol",
+        "visible_in_all_cameras",
+        "landmark_set"
+      ],
+      "title": "AnatomicalCalibrationPoseV1",
+      "type": "object"
+    },
+    "ArthroscopyManifestV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "procedure_at": {
+          "format": "date-time",
+          "title": "Procedure At",
+          "type": "string"
+        },
+        "scope_manufacturer": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Scope Manufacturer",
+          "type": "string"
+        },
+        "scope_model": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Scope Model",
+          "type": "string"
+        },
+        "scope_angle_degrees": {
+          "maximum": 180,
+          "minimum": 0,
+          "title": "Scope Angle Degrees",
+          "type": "number"
+        },
+        "camera_manufacturer": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Camera Manufacturer",
+          "type": "string"
+        },
+        "camera_model": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Camera Model",
+          "type": "string"
+        },
+        "calibration_method": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Calibration Method",
+          "type": "string"
+        },
+        "calibration_artifact_reference": {
+          "minLength": 1,
+          "title": "Calibration Artifact Reference",
+          "type": "string"
+        },
+        "calibration_error_px": {
+          "minimum": 0,
+          "title": "Calibration Error Px",
+          "type": "number"
+        },
+        "visible_regions": {
+          "items": {
+            "$ref": "#/$defs/ArthroscopyVisibleRegionV1"
+          },
+          "title": "Visible Regions",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "video_width_px": {
+          "exclusiveMinimum": 0,
+          "title": "Video Width Px",
+          "type": "integer"
+        },
+        "video_height_px": {
+          "exclusiveMinimum": 0,
+          "title": "Video Height Px",
+          "type": "integer"
+        },
+        "fps": {
+          "exclusiveMinimum": 0,
+          "title": "Fps",
+          "type": "number"
+        },
+        "frame_count": {
+          "exclusiveMinimum": 0,
+          "title": "Frame Count",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Ms",
+          "type": "number"
+        },
+        "timestamp_basis": {
+          "const": "decoded-frame-index-and-container-fps",
+          "default": "decoded-frame-index-and-container-fps",
+          "title": "Timestamp Basis",
+          "type": "string"
+        },
+        "coordinate_system": {
+          "const": "arthroscope-image-pixels",
+          "default": "arthroscope-image-pixels",
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "quality_signals": {
+          "items": {
+            "$ref": "#/$defs/ImportQualitySignal"
+          },
+          "title": "Quality Signals",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "procedure_at",
+        "scope_manufacturer",
+        "scope_model",
+        "scope_angle_degrees",
+        "camera_manufacturer",
+        "camera_model",
+        "calibration_method",
+        "calibration_artifact_reference",
+        "calibration_error_px",
+        "visible_regions",
+        "video_width_px",
+        "video_height_px",
+        "fps",
+        "frame_count",
+        "duration_ms",
+        "quality_signals",
+        "status"
+      ],
+      "title": "ArthroscopyManifestV1",
+      "type": "object"
+    },
+    "ArthroscopyVisibleRegionV1": {
+      "properties": {
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "number"
+        },
+        "end_ms": {
+          "exclusiveMinimum": 0,
+          "title": "End Ms",
+          "type": "number"
+        },
+        "anatomical_region": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Anatomical Region",
+          "type": "string"
+        },
+        "author": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Author",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms",
+        "anatomical_region",
+        "author"
+      ],
+      "title": "ArthroscopyVisibleRegionV1",
+      "type": "object"
+    },
+    "CameraCaptureV1": {
+      "properties": {
+        "camera_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "view": {
+          "enum": [
+            "front",
+            "rear",
+            "left_side",
+            "right_side"
+          ],
+          "title": "View",
+          "type": "string"
+        },
+        "width_px": {
+          "minimum": 1920,
+          "title": "Width Px",
+          "type": "integer"
+        },
+        "height_px": {
+          "minimum": 1080,
+          "title": "Height Px",
+          "type": "integer"
+        },
+        "fps": {
+          "minimum": 60,
+          "title": "Fps",
+          "type": "number"
+        },
+        "intrinsic": {
+          "$ref": "#/$defs/CameraIntrinsicsV1"
+        },
+        "extrinsic": {
+          "$ref": "#/$defs/CameraExtrinsicsV1"
+        }
+      },
+      "required": [
+        "camera_id",
+        "view",
+        "width_px",
+        "height_px",
+        "fps",
+        "intrinsic",
+        "extrinsic"
+      ],
+      "title": "CameraCaptureV1",
+      "type": "object"
+    },
+    "CameraExtrinsicsV1": {
+      "properties": {
+        "capture_from_camera_transform": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Capture From Camera Transform",
+          "type": "array"
+        },
+        "calibration_error_mm": {
+          "minimum": 0,
+          "title": "Calibration Error Mm",
+          "type": "number"
+        }
+      },
+      "required": [
+        "capture_from_camera_transform",
+        "calibration_error_mm"
+      ],
+      "title": "CameraExtrinsicsV1",
+      "type": "object"
+    },
+    "CameraIntrinsicsV1": {
+      "properties": {
+        "matrix": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Matrix",
+          "type": "array"
+        },
+        "distortion_coefficients": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Distortion Coefficients",
+          "type": "array"
+        },
+        "calibration_error_px": {
+          "minimum": 0,
+          "title": "Calibration Error Px",
+          "type": "number"
+        }
+      },
+      "required": [
+        "matrix",
+        "distortion_coefficients",
+        "calibration_error_px"
+      ],
+      "title": "CameraIntrinsicsV1",
+      "type": "object"
+    },
+    "CaptureVolumeValidationV1": {
+      "properties": {
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "rms_error_mm": {
+          "minimum": 0,
+          "title": "Rms Error Mm",
+          "type": "number"
+        },
+        "validated_at": {
+          "format": "date-time",
+          "title": "Validated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "rms_error_mm",
+        "validated_at"
+      ],
+      "title": "CaptureVolumeValidationV1",
+      "type": "object"
+    },
+    "DeidentificationReportV1": {
+      "properties": {
+        "profile": {
+          "const": "knee-twin-research-screen-v1",
+          "default": "knee-twin-research-screen-v1",
+          "title": "Profile",
+          "type": "string"
+        },
+        "dicom_ps3_15_conformance_claimed": {
+          "const": false,
+          "default": false,
+          "title": "Dicom Ps3 15 Conformance Claimed",
+          "type": "boolean"
+        },
+        "direct_identifier_tags_checked": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Direct Identifier Tags Checked",
+          "type": "array"
+        },
+        "populated_direct_identifier_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Populated Direct Identifier Tags",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "direct_identifier_tags_checked",
+        "populated_direct_identifier_tags",
+        "status",
+        "explanation"
+      ],
+      "title": "DeidentificationReportV1",
+      "type": "object"
+    },
+    "DicomSeriesManifestV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "modality": {
+          "const": "MRI",
+          "default": "MRI",
+          "title": "Modality",
+          "type": "string"
+        },
+        "study_instance_uid": {
+          "title": "Study Instance Uid",
+          "type": "string"
+        },
+        "series_instance_uid": {
+          "title": "Series Instance Uid",
+          "type": "string"
+        },
+        "frame_of_reference_uid": {
+          "title": "Frame Of Reference Uid",
+          "type": "string"
+        },
+        "sop_instance_uids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sop Instance Uids",
+          "type": "array"
+        },
+        "instance_count": {
+          "exclusiveMinimum": 0,
+          "title": "Instance Count",
+          "type": "integer"
+        },
+        "rows": {
+          "exclusiveMinimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "columns": {
+          "exclusiveMinimum": 0,
+          "title": "Columns",
+          "type": "integer"
+        },
+        "pixel_spacing_mm": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Pixel Spacing Mm",
+          "type": "array"
+        },
+        "slice_spacing_mm": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slice Spacing Mm"
+        },
+        "slice_thickness_mm": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slice Thickness Mm"
+        },
+        "image_orientation_patient": {
+          "maxItems": 6,
+          "minItems": 6,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Image Orientation Patient",
+          "type": "array"
+        },
+        "first_image_position_patient_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "First Image Position Patient Mm",
+          "type": "array"
+        },
+        "last_image_position_patient_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Last Image Position Patient Mm",
+          "type": "array"
+        },
+        "coordinate_system": {
+          "const": "dicom-patient-lps-mm",
+          "default": "dicom-patient-lps-mm",
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "dicom_laterality": {
+          "enum": [
+            "left",
+            "right",
+            "unknown"
+          ],
+          "title": "Dicom Laterality",
+          "type": "string"
+        },
+        "acquisition_datetime": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acquisition Datetime"
+        },
+        "source_representation": {
+          "const": "immutable-dicom-zip",
+          "default": "immutable-dicom-zip",
+          "title": "Source Representation",
+          "type": "string"
+        },
+        "computational_volume_status": {
+          "const": "not-generated",
+          "default": "not-generated",
+          "title": "Computational Volume Status",
+          "type": "string"
+        },
+        "deidentification": {
+          "$ref": "#/$defs/DeidentificationReportV1"
+        },
+        "quality_signals": {
+          "items": {
+            "$ref": "#/$defs/ImportQualitySignal"
+          },
+          "title": "Quality Signals",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "study_instance_uid",
+        "series_instance_uid",
+        "frame_of_reference_uid",
+        "sop_instance_uids",
+        "instance_count",
+        "rows",
+        "columns",
+        "pixel_spacing_mm",
+        "image_orientation_patient",
+        "first_image_position_patient_mm",
+        "last_image_position_patient_mm",
+        "dicom_laterality",
+        "deidentification",
+        "quality_signals",
+        "status"
+      ],
+      "title": "DicomSeriesManifestV1",
+      "type": "object"
+    },
+    "ImportQualitySignal": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "explanation"
+      ],
+      "title": "ImportQualitySignal",
+      "type": "object"
+    },
+    "MultiViewCaptureManifestV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "cameras": {
+          "items": {
+            "$ref": "#/$defs/CameraCaptureV1"
+          },
+          "title": "Cameras",
+          "type": "array"
+        },
+        "synchronization": {
+          "$ref": "#/$defs/SynchronizationEventV1"
+        },
+        "capture_volume": {
+          "$ref": "#/$defs/CaptureVolumeValidationV1"
+        },
+        "anatomical_calibration_pose": {
+          "$ref": "#/$defs/AnatomicalCalibrationPoseV1"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "protocol": {
+          "const": "calibrated-four-camera-rgb-v1",
+          "default": "calibrated-four-camera-rgb-v1",
+          "title": "Protocol",
+          "type": "string"
+        },
+        "coordinate_system": {
+          "const": "capture-volume-right-handed-mm",
+          "default": "capture-volume-right-handed-mm",
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "source_artifacts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Artifacts",
+          "type": "object"
+        },
+        "quality_signals": {
+          "items": {
+            "$ref": "#/$defs/ImportQualitySignal"
+          },
+          "title": "Quality Signals",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "captured_at",
+        "cameras",
+        "synchronization",
+        "capture_volume",
+        "anatomical_calibration_pose",
+        "source_artifacts",
+        "quality_signals",
+        "status"
+      ],
+      "title": "MultiViewCaptureManifestV1",
+      "type": "object"
+    },
+    "Observation": {
+      "properties": {
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "modality": {
+          "enum": [
+            "video",
+            "mri",
+            "arthroscopy",
+            "sensor",
+            "other"
+          ],
+          "title": "Modality",
+          "type": "string"
+        },
+        "source_artifact_reference": {
+          "minLength": 1,
+          "title": "Source Artifact Reference",
+          "type": "string"
+        },
+        "source_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Sha256"
+        },
+        "acquisition_manifest": {
+          "additionalProperties": true,
+          "title": "Acquisition Manifest",
+          "type": "object"
+        },
+        "authorization": {
+          "additionalProperties": true,
+          "title": "Authorization",
+          "type": "object"
+        },
+        "quality": {
+          "additionalProperties": true,
+          "title": "Quality",
+          "type": "object"
+        },
+        "knee_target_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Knee Target Ids",
+          "type": "array"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "immutable": {
+          "const": true,
+          "default": true,
+          "title": "Immutable",
+          "type": "boolean"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timepoint_id",
+        "modality",
+        "source_artifact_reference",
+        "source_sha256",
+        "acquisition_manifest",
+        "authorization",
+        "quality",
+        "knee_target_ids",
+        "id",
+        "created_at"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "SynchronizationEventV1": {
+      "properties": {
+        "method": {
+          "const": "visible-event",
+          "title": "Method",
+          "type": "string"
+        },
+        "event_description": {
+          "minLength": 1,
+          "title": "Event Description",
+          "type": "string"
+        },
+        "maximum_offset_ms": {
+          "minimum": 0,
+          "title": "Maximum Offset Ms",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "event_description",
+        "maximum_offset_ms"
+      ],
+      "title": "SynchronizationEventV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "observation": {
+      "$ref": "#/$defs/Observation"
+    },
+    "acquisition_manifest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DicomSeriesManifestV1"
+        },
+        {
+          "$ref": "#/$defs/ArthroscopyManifestV1"
+        },
+        {
+          "$ref": "#/$defs/MultiViewCaptureManifestV1"
+        }
+      ],
+      "title": "Acquisition Manifest"
+    },
+    "artifact_integrity": {
+      "items": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "object"
+      },
+      "title": "Artifact Integrity",
+      "type": "array"
+    },
+    "execution": {
+      "const": "synchronous-local-import",
+      "default": "synchronous-local-import",
+      "title": "Execution",
+      "type": "string"
+    },
+    "job_runner_status": {
+      "const": "deferred-to-milestone-13",
+      "default": "deferred-to-milestone-13",
+      "title": "Job Runner Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "observation",
+    "acquisition_manifest",
+    "artifact_integrity"
+  ],
+  "title": "ObservationImportResultV1",
+  "type": "object"
+}

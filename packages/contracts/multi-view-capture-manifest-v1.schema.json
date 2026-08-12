@@ -1,0 +1,345 @@
+{
+  "$defs": {
+    "AnatomicalCalibrationPoseV1": {
+      "properties": {
+        "protocol": {
+          "const": "standard-anatomical-pose-v1",
+          "title": "Protocol",
+          "type": "string"
+        },
+        "visible_in_all_cameras": {
+          "const": true,
+          "title": "Visible In All Cameras",
+          "type": "boolean"
+        },
+        "landmark_set": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Landmark Set",
+          "type": "array"
+        }
+      },
+      "required": [
+        "protocol",
+        "visible_in_all_cameras",
+        "landmark_set"
+      ],
+      "title": "AnatomicalCalibrationPoseV1",
+      "type": "object"
+    },
+    "CameraCaptureV1": {
+      "properties": {
+        "camera_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Camera Id",
+          "type": "string"
+        },
+        "view": {
+          "enum": [
+            "front",
+            "rear",
+            "left_side",
+            "right_side"
+          ],
+          "title": "View",
+          "type": "string"
+        },
+        "width_px": {
+          "minimum": 1920,
+          "title": "Width Px",
+          "type": "integer"
+        },
+        "height_px": {
+          "minimum": 1080,
+          "title": "Height Px",
+          "type": "integer"
+        },
+        "fps": {
+          "minimum": 60,
+          "title": "Fps",
+          "type": "number"
+        },
+        "intrinsic": {
+          "$ref": "#/$defs/CameraIntrinsicsV1"
+        },
+        "extrinsic": {
+          "$ref": "#/$defs/CameraExtrinsicsV1"
+        }
+      },
+      "required": [
+        "camera_id",
+        "view",
+        "width_px",
+        "height_px",
+        "fps",
+        "intrinsic",
+        "extrinsic"
+      ],
+      "title": "CameraCaptureV1",
+      "type": "object"
+    },
+    "CameraExtrinsicsV1": {
+      "properties": {
+        "capture_from_camera_transform": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Capture From Camera Transform",
+          "type": "array"
+        },
+        "calibration_error_mm": {
+          "minimum": 0,
+          "title": "Calibration Error Mm",
+          "type": "number"
+        }
+      },
+      "required": [
+        "capture_from_camera_transform",
+        "calibration_error_mm"
+      ],
+      "title": "CameraExtrinsicsV1",
+      "type": "object"
+    },
+    "CameraIntrinsicsV1": {
+      "properties": {
+        "matrix": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Matrix",
+          "type": "array"
+        },
+        "distortion_coefficients": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Distortion Coefficients",
+          "type": "array"
+        },
+        "calibration_error_px": {
+          "minimum": 0,
+          "title": "Calibration Error Px",
+          "type": "number"
+        }
+      },
+      "required": [
+        "matrix",
+        "distortion_coefficients",
+        "calibration_error_px"
+      ],
+      "title": "CameraIntrinsicsV1",
+      "type": "object"
+    },
+    "CaptureVolumeValidationV1": {
+      "properties": {
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "rms_error_mm": {
+          "minimum": 0,
+          "title": "Rms Error Mm",
+          "type": "number"
+        },
+        "validated_at": {
+          "format": "date-time",
+          "title": "Validated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "rms_error_mm",
+        "validated_at"
+      ],
+      "title": "CaptureVolumeValidationV1",
+      "type": "object"
+    },
+    "ImportQualitySignal": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "explanation"
+      ],
+      "title": "ImportQualitySignal",
+      "type": "object"
+    },
+    "SynchronizationEventV1": {
+      "properties": {
+        "method": {
+          "const": "visible-event",
+          "title": "Method",
+          "type": "string"
+        },
+        "event_description": {
+          "minLength": 1,
+          "title": "Event Description",
+          "type": "string"
+        },
+        "maximum_offset_ms": {
+          "minimum": 0,
+          "title": "Maximum Offset Ms",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "event_description",
+        "maximum_offset_ms"
+      ],
+      "title": "SynchronizationEventV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "captured_at": {
+      "format": "date-time",
+      "title": "Captured At",
+      "type": "string"
+    },
+    "cameras": {
+      "items": {
+        "$ref": "#/$defs/CameraCaptureV1"
+      },
+      "title": "Cameras",
+      "type": "array"
+    },
+    "synchronization": {
+      "$ref": "#/$defs/SynchronizationEventV1"
+    },
+    "capture_volume": {
+      "$ref": "#/$defs/CaptureVolumeValidationV1"
+    },
+    "anatomical_calibration_pose": {
+      "$ref": "#/$defs/AnatomicalCalibrationPoseV1"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "protocol": {
+      "const": "calibrated-four-camera-rgb-v1",
+      "default": "calibrated-four-camera-rgb-v1",
+      "title": "Protocol",
+      "type": "string"
+    },
+    "coordinate_system": {
+      "const": "capture-volume-right-handed-mm",
+      "default": "capture-volume-right-handed-mm",
+      "title": "Coordinate System",
+      "type": "string"
+    },
+    "source_artifacts": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Source Artifacts",
+      "type": "object"
+    },
+    "quality_signals": {
+      "items": {
+        "$ref": "#/$defs/ImportQualitySignal"
+      },
+      "title": "Quality Signals",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "captured_at",
+    "cameras",
+    "synchronization",
+    "capture_volume",
+    "anatomical_calibration_pose",
+    "source_artifacts",
+    "quality_signals",
+    "status"
+  ],
+  "title": "MultiViewCaptureManifestV1",
+  "type": "object"
+}
