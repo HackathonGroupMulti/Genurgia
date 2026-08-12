@@ -179,7 +179,7 @@ def test_repository_migrates_existing_v1_database_without_losing_sessions(
         versions = [row[0] for row in connection.execute(
             "SELECT version FROM schema_migrations ORDER BY version"
         )]
-    assert versions == [1, 2, 3, 4]
+    assert versions == [1, 2, 3, 4, 5]
 
 
 def test_repository_upgrades_a_migration_v2_database(tmp_path: Path) -> None:
@@ -220,7 +220,7 @@ def test_repository_upgrades_a_migration_v2_database(tmp_path: Path) -> None:
                 "SELECT version FROM schema_migrations ORDER BY version"
             )
         ]
-    assert versions == [1, 2, 3, 4]
+    assert versions == [1, 2, 3, 4, 5]
 
 
 def test_selected_comparison_enforces_capture_and_analysis_compatibility(

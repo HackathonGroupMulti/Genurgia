@@ -18,12 +18,14 @@ from app.schemas.evidence import (
     TimepointList,
     VirtualExperimentList,
 )
+from app.schemas.experiments import ExperimentDefinitionV1, MotionReplayResultV1
 from app.schemas.imports import (
     ArthroscopyManifestV1,
     DicomSeriesManifestV1,
     MultiViewCaptureManifestV1,
     ObservationImportResultV1,
 )
+from app.schemas.jobs import JobListV1
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
@@ -98,6 +100,9 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
         ("arthroscopy-overlay-result-v1.schema.json", ArthroscopyOverlayResultV1),
         ("arthroscopy-refinement-gate-v1.schema.json", ArthroscopyRefinementGateV1),
         ("tissue-score-annotation-v1.schema.json", TissueScoreAnnotationV1),
+        ("experiment-definition-v1.schema.json", ExperimentDefinitionV1),
+        ("motion-replay-result-v1.schema.json", MotionReplayResultV1),
+        ("job-list-v1.schema.json", JobListV1),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

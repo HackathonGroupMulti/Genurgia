@@ -68,6 +68,12 @@ Framework-independent registration functions own DLT triangulation, rigid landma
 
 Arthroscopy overlay, geometry refinement, and tissue scoring are separate layers. Refinement can only create a new reconstruction after its evidence gate; scoring remains an annotation. Neither changes source observations or the MRI reconstruction.
 
+## Milestone 13 job and experiment boundary
+
+Migration 5 adds durable local jobs. `SQLiteJobRunner` is the sole claim boundary, uses a SQLite immediate transaction to serialize claims, recovers interrupted running jobs, and publishes one SHA-256-verified result bundle before marking success. The API exposes queue, state, cancellation, retry, and explicit local worker execution without Redis or distributed infrastructure.
+
+`ExperimentDefinitionV1` is canonical and solver-neutral. Adapters consume it; solver-native structures cannot replace its sourced properties, loading/boundary conditions, coordinates, versions, hashes, outputs, sensitivity, or validation tier.
+
 The local filesystem implementation of the artifact-storage boundary stores each extraction bundle: original recording, versioned raw pose-sequence JSON, annotated MP4, and separate derived JSON artifacts. SQLite stores structured session, source, analysis-version, and compact metric metadata with references to those artifacts.
 
 Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.

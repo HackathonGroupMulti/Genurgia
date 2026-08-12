@@ -6,7 +6,7 @@ Last updated: 2026-08-12
 
 Knee Twin is an offline, expert-facing research platform intended to create a longitudinal, patient-specific knee twin from immutable evidence, reviewed anatomy, functional registration, and reproducible virtual experiments. It is not a diagnostic medical device.
 
-Engineering Milestones 0–12 are technically complete. The repository implements movement evidence, a canonical knee graph, multimodal imports, complete-anatomy review packages, and synthetic functional/arthroscopy registration primitives and contracts. Existing squat sessions and endpoints remain operational.
+Engineering Milestones 0–13 are technically complete. The repository implements movement evidence, a canonical knee graph, multimodal imports, anatomy review packages, synthetic registration, durable local jobs, solver-neutral experiments, and reproducible synthetic motion-replay summaries. Existing squat sessions remain operational.
 
 The current “digital twin” is still an evidence/review system, not a validated or simulated patient knee. Synthetic packages demonstrate complete structure handling but not anatomical accuracy. No human patient-specific segmentation, arthroscopy-to-MRI registration, calibrated motion replay, or mechanical experiment has been validated. Milestones 6, 10, and 11 retain external evidence gates.
 
@@ -58,6 +58,13 @@ The current “digital twin” is still an evidence/review system, not a validat
 * Functional frames preserve coverage, confidence, exclusions, residuals, uncertainty, and validation tier.
 * Arthroscopy refinement is refused without calibration, parallax, coverage, and residual evidence; research tissue scoring requires independent raters and is non-diagnostic.
 
+### Durable jobs and replay
+
+* Migration 5 stores queued/running/succeeded/failed/cancelled state, progress, request, result, logs, attempts, cancellation, timestamps, and failure detail.
+* A single immediate-transaction claimant, interruption recovery, cancellation/retry, and SHA-256-verified atomic result publication are tested.
+* `ExperimentDefinitionV1` requires immutable hashes, coordinates/transforms, sourced units/assumptions, software/container versions, outputs, sensitivity, and validation tier.
+* Synthetic replay records residual RMS, exclusions, transform uncertainty, anatomical constraint violations, and registration sensitivity plus a canonical definition hash.
+
 ## Open evidence and product gaps
 
 * Participant-diverse squat fixtures and approved paired MRI/arthroscopy/multi-view cases are absent.
@@ -65,7 +72,7 @@ The current “digital twin” is still an evidence/review system, not a validat
 * MRI import preserves original DICOM but does not yet create a separately versioned computational volume.
 * The current reconstruction, registration, experiment, and result records are contracts, not demonstrated scientific outputs.
 * The package validates synthetic/review artifacts but does not generate segmentation or meshes; no domain-approved human reference workflow, taxonomy/landmark protocol, or structure thresholds exist.
-* Numerical registration exists only for synthetic known transforms; no approved human overlay/refinement, registered motion artifact, motion replay, durable job execution, or solver adapter exists.
+* Numerical registration/replay exists only for synthetic evidence; no approved human overlay/refinement or animated anatomical replay and no mechanical solver adapter exists.
 * Authentication, roles, connected clinical systems, identifiable-data handling, and clinical use remain unauthorized.
 
 ## API surface
@@ -84,11 +91,11 @@ Reviewed reconstruction packages use `/reconstructions/imports/manual`.
 
 ## Verification baseline
 
-Milestone 12 verification: 120 backend tests, Ruff, JSON Schema parity, Markdown lint, 33 frontend tests, ESLint, TypeScript, production build, and `git diff --check` pass locally. New tests cover known camera/rigid/arthroscopy transforms, residuals, uncertainty reproducibility, degeneracy, refinement refusal, tissue raters, and cross-language evidence tiers.
+Milestone 13 verification: 125 backend tests, Ruff, JSON Schema parity, Markdown lint, 34 frontend tests, ESLint, TypeScript, production build, and `git diff --check` pass locally. New tests cover migration upgrade, queue/claim/cancel/retry/recovery/failure, result integrity, replay evidence, definition hashes, and evidence-tier contracts.
 
 ## Current priority
 
-Milestone 13: implement a durable SQLite single-worker job runner plus solver-independent experiment definition and a reproducible synthetic anatomical motion replay with residual, uncertainty, exclusion, constraint, sensitivity, and immutable-hash evidence.
+Milestone 14: add solver-neutral kinematic, musculoskeletal, contact-hypothesis, finite-element, and intervention adapter contracts in increasing claim order, with strict input capability/refusal checks and no silent population constants.
 
 ## Preserve
 

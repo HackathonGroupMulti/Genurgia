@@ -1,0 +1,231 @@
+{
+  "$defs": {
+    "SensitivityConfigurationV1": {
+      "properties": {
+        "parameters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Parameters",
+          "type": "array"
+        },
+        "method": {
+          "enum": [
+            "one-at-a-time",
+            "monte-carlo",
+            "none"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "samples": {
+          "minimum": 0,
+          "title": "Samples",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "parameters",
+        "method",
+        "samples"
+      ],
+      "title": "SensitivityConfigurationV1",
+      "type": "object"
+    },
+    "SourcedValueV1": {
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Range"
+        },
+        "individual_measurement": {
+          "title": "Individual Measurement",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "unit",
+        "source",
+        "individual_measurement"
+      ],
+      "title": "SourcedValueV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_type": {
+      "const": "anatomical-motion-replay",
+      "title": "Experiment Type",
+      "type": "string"
+    },
+    "anatomy_reconstruction_id": {
+      "minLength": 1,
+      "title": "Anatomy Reconstruction Id",
+      "type": "string"
+    },
+    "motion_registration_id": {
+      "minLength": 1,
+      "title": "Motion Registration Id",
+      "type": "string"
+    },
+    "immutable_input_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Immutable Input Hashes",
+      "type": "object"
+    },
+    "coordinate_systems": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Coordinate Systems",
+      "type": "object"
+    },
+    "transforms": {
+      "additionalProperties": {
+        "items": {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "type": "array"
+      },
+      "title": "Transforms",
+      "type": "object"
+    },
+    "properties": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SourcedValueV1"
+      },
+      "title": "Properties"
+    },
+    "loading_conditions": {
+      "items": {
+        "$ref": "#/$defs/SourcedValueV1"
+      },
+      "title": "Loading Conditions",
+      "type": "array"
+    },
+    "boundary_conditions": {
+      "items": {
+        "$ref": "#/$defs/SourcedValueV1"
+      },
+      "title": "Boundary Conditions",
+      "type": "array"
+    },
+    "software_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Software Versions",
+      "type": "object"
+    },
+    "container_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Container Versions",
+      "type": "object"
+    },
+    "requested_outputs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requested Outputs",
+      "type": "array"
+    },
+    "sensitivity": {
+      "$ref": "#/$defs/SensitivityConfigurationV1"
+    },
+    "validation_tier": {
+      "enum": [
+        "synthetic",
+        "integration",
+        "research",
+        "independent"
+      ],
+      "title": "Validation Tier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_type",
+    "anatomy_reconstruction_id",
+    "motion_registration_id",
+    "immutable_input_hashes",
+    "coordinate_systems",
+    "transforms",
+    "properties",
+    "loading_conditions",
+    "boundary_conditions",
+    "software_versions",
+    "container_versions",
+    "requested_outputs",
+    "sensitivity",
+    "validation_tier"
+  ],
+  "title": "ExperimentDefinitionV1",
+  "type": "object"
+}

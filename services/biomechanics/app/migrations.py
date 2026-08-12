@@ -282,6 +282,28 @@ MIGRATIONS = (
             "CREATE INDEX idx_derivations_created ON derivations(created_at)",
         ),
     ),
+    Migration(
+        version=5,
+        name="durable_local_jobs",
+        statements=(
+            """CREATE TABLE jobs (
+                id TEXT PRIMARY KEY,
+                job_type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                progress REAL NOT NULL,
+                request_json TEXT NOT NULL,
+                result_artifact_reference TEXT,
+                logs_json TEXT NOT NULL,
+                attempts INTEGER NOT NULL,
+                cancel_requested INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL,
+                started_at TEXT,
+                completed_at TEXT,
+                error_detail TEXT
+            )""",
+            "CREATE INDEX idx_jobs_status_created ON jobs(status, created_at)",
+        ),
+    ),
 )
 
 

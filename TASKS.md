@@ -146,10 +146,14 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 13 — Solver-independent experiment contracts
 
-* [ ] Define anatomy, properties, loading, boundary conditions, solver, output, validation-tier, and reproducibility contracts.
-* [ ] Require every assumed property and load to state its source; prohibit silent population defaults.
-* [ ] Preserve complete experiment inputs and outputs as a derivation graph.
-* [ ] Add sensitivity and uncertainty analysis as first-class outputs.
+* [x] Add checksummed migration 5 and a durable SQLite queued/running/succeeded/failed/cancelled job model.
+* [x] Implement one-at-a-time claiming, progress, cancellation, retry, attempts, logs, interruption recovery, and atomic verified result publication.
+* [x] Define solver-neutral `ExperimentDefinitionV1` with anatomy/motion versions, hashes, coordinates/transforms, sourced properties/loads/boundaries, software/container versions, outputs, sensitivity, and validation tier.
+* [x] Require every property/load/boundary value to include source, units, individual-measurement state, and optional range.
+* [x] Implement synthetic anatomical motion replay results with residual RMS, transform uncertainty, excluded intervals, constraint violations, and registration sensitivity.
+* [x] Make replay reproducible from canonical definition JSON and immutable input SHA-256 values.
+* [ ] Animate a reviewed human anatomical twin only after compatible human anatomy and motion registration pass their gates.
+* [ ] Benchmark and cancellation-test production-size imaging/reconstruction/registration jobs before routing them to the worker.
 
 ### Milestone 14 — First validated simulation adapter
 

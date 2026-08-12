@@ -1,0 +1,85 @@
+{
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_definition_sha256": {
+      "title": "Experiment Definition Sha256",
+      "type": "string"
+    },
+    "frame_count": {
+      "exclusiveMinimum": 0,
+      "title": "Frame Count",
+      "type": "integer"
+    },
+    "included_frame_count": {
+      "minimum": 0,
+      "title": "Included Frame Count",
+      "type": "integer"
+    },
+    "excluded_intervals": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Excluded Intervals",
+      "type": "array"
+    },
+    "residual_rms_mm": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Residual Rms Mm"
+    },
+    "maximum_transform_uncertainty_mm": {
+      "minimum": 0,
+      "title": "Maximum Transform Uncertainty Mm",
+      "type": "number"
+    },
+    "anatomical_constraint_violations": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Anatomical Constraint Violations",
+      "type": "array"
+    },
+    "registration_sensitivity": {
+      "additionalProperties": true,
+      "title": "Registration Sensitivity",
+      "type": "object"
+    },
+    "validation_tier": {
+      "enum": [
+        "synthetic",
+        "integration",
+        "research",
+        "independent"
+      ],
+      "title": "Validation Tier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_definition_sha256",
+    "frame_count",
+    "included_frame_count",
+    "excluded_intervals",
+    "maximum_transform_uncertainty_mm",
+    "anatomical_constraint_violations",
+    "registration_sensitivity",
+    "validation_tier"
+  ],
+  "title": "MotionReplayResultV1",
+  "type": "object"
+}

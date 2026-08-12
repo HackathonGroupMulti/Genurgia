@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 13 — durable jobs and first anatomical motion-replay experiment.
+Milestone 14 — solver-neutral mechanical simulation adapters.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Implement the single-worker SQLite job runner and solver-independent ExperimentDefinitionV1, then publish a reproducible synthetic anatomical motion replay with residual, exclusion, constraint, uncertainty, and sensitivity evidence.
+Implement adapters in claim order: kinematic constraints first, then musculoskeletal and finite-element manifests that refuse missing force, anthropometric, material, attachment, load, and boundary evidence. Keep solver-native types outside canonical records.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

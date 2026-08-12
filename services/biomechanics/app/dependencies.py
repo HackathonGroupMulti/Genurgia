@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Request, status
 
 from app.evidence_repository import SQLiteEvidenceRepository
+from app.job_runner import SQLiteJobRunner
 from app.persistence import SQLiteSessionRepository
 from app.services.imports import ObservationImportService
 from app.services.kinematics import KinematicsService
@@ -53,6 +54,10 @@ def get_reconstruction_import_service(request: Request) -> ReconstructionImportS
     return request.app.state.reconstruction_import_service
 
 
+def get_job_runner(request: Request) -> SQLiteJobRunner:
+    return request.app.state.job_runner
+
+
 PoseServiceDependency = Annotated[PoseAnalysisService, Depends(get_pose_analysis_service)]
 ArtifactStoreDependency = Annotated[LocalArtifactStore, Depends(get_artifact_store)]
 KinematicsServiceDependency = Annotated[KinematicsService, Depends(get_kinematics_service)]
@@ -76,3 +81,4 @@ ReconstructionImportServiceDependency = Annotated[
     ReconstructionImportService,
     Depends(get_reconstruction_import_service),
 ]
+JobRunnerDependency = Annotated[SQLiteJobRunner, Depends(get_job_runner)]

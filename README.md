@@ -118,6 +118,6 @@ GitHub Actions runs the same backend, frontend, production-build, and Chromium s
 
 ## Current status
 
-Engineering Milestones 0–12 are technically complete. The reliable movement slice, multimodal imports, complete-anatomy review package, and synthetic registration primitives attach to an additive canonical evidence graph. This remains a technical prototype: anatomy and registration stay below independent validation until expert thresholds, paired cases, and laboratory/biplanar references pass. Reported values are research estimates, not clinical measurements.
+Engineering Milestones 0–13 are technically complete. The platform now includes durable local jobs, solver-neutral experiment definitions, and reproducible synthetic motion-replay summaries alongside movement, multimodal, anatomy-review, and registration foundations. This remains a technical prototype: human anatomy, registration, replay, and mechanics stay below independent validation. Reported values are research estimates, not clinical measurements.
 
-Milestones 6 and 10–12 retain external scientific gates. Milestone 13 adds durable jobs and reproducible anatomical motion replay next. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/REGISTRATION.md](docs/REGISTRATION.md), [docs/ANATOMICAL_RECONSTRUCTION.md](docs/ANATOMICAL_RECONSTRUCTION.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
+Milestones 6 and 10–13 retain external scientific gates. Milestone 14 adds evidence-refusing mechanical adapters next. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md), [docs/REGISTRATION.md](docs/REGISTRATION.md), and [docs/ROADMAP.md](docs/ROADMAP.md).

@@ -396,3 +396,22 @@ Native sources have different observability and error modes. A generic scale/ali
 Operational boundary:
 
 Only known synthetic transforms are tested. Human paired-reference and independent laboratory/biplanar validation remain required before a research evidence gate can close.
+
+---
+
+## ADR-020 — Durable local jobs use SQLite and one claimant
+
+Status:
+Accepted
+
+Decision:
+
+Use the existing local SQLite database for durable job state and one immediate-transaction claimant. Publish results through the existing atomic artifact boundary, verify hashes, then mark success. Recover interrupted running jobs to queued state. Keep experiment definitions solver-neutral and require hashes and sourced assumptions.
+
+Reason:
+
+Reconstruction and simulation need cancellation, retry, recovery, and reproducibility, but the authorized deployment remains one offline workstation. Redis, brokers, and distributed services would add failure/security surface without a current need.
+
+Operational boundary:
+
+The worker endpoint is explicit in v1. Production-size performance and cancellation checkpoints must be measured before long imaging or external-solver handlers are added.
