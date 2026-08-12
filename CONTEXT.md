@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 12 — arthroscopy and functional multimodal registration.
+Milestone 13 — durable jobs and first anatomical motion-replay experiment.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Implement evidence-gated arthroscopy overlay/refinement contracts plus synthetic calibrated multi-view triangulation and anatomical registration. Keep human acquisition, expert threshold approval, and independent validation gates open in parallel.
+Implement the single-worker SQLite job runner and solver-independent ExperimentDefinitionV1, then publish a reproducible synthetic anatomical motion replay with residual, exclusion, constraint, uncertainty, and sensitivity evidence.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

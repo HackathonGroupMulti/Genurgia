@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "FunctionalMotionFrameV1": {
+      "properties": {
+        "timestamp_ms": {
+          "minimum": 0,
+          "title": "Timestamp Ms",
+          "type": "number"
+        },
+        "anatomy_from_capture_transform": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Anatomy From Capture Transform",
+          "type": "array"
+        },
+        "landmark_residual_rms_mm": {
+          "minimum": 0,
+          "title": "Landmark Residual Rms Mm",
+          "type": "number"
+        },
+        "triangulated_landmark_count": {
+          "minimum": 3,
+          "title": "Triangulated Landmark Count",
+          "type": "integer"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "excluded": {
+          "default": false,
+          "title": "Excluded",
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exclusion Reason"
+        }
+      },
+      "required": [
+        "timestamp_ms",
+        "anatomy_from_capture_transform",
+        "landmark_residual_rms_mm",
+        "triangulated_landmark_count",
+        "confidence"
+      ],
+      "title": "FunctionalMotionFrameV1",
+      "type": "object"
+    },
+    "RegistrationUncertaintyV1": {
+      "properties": {
+        "method": {
+          "enum": [
+            "synthetic-perturbation",
+            "bootstrap",
+            "not-evaluated"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "translation_95_mm": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Translation 95 Mm"
+        },
+        "rotation_95_degrees": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rotation 95 Degrees"
+        },
+        "explanation": {
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "explanation"
+      ],
+      "title": "RegistrationUncertaintyV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "method": {
+      "const": "calibrated-dlt-kabsch-v1",
+      "default": "calibrated-dlt-kabsch-v1",
+      "title": "Method",
+      "type": "string"
+    },
+    "source_coordinate_system": {
+      "const": "capture-volume-right-handed-mm",
+      "title": "Source Coordinate System",
+      "type": "string"
+    },
+    "target_coordinate_system": {
+      "const": "dicom-patient-lps-mm",
+      "title": "Target Coordinate System",
+      "type": "string"
+    },
+    "calibration_transform": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Calibration Transform",
+      "type": "array"
+    },
+    "frames": {
+      "items": {
+        "$ref": "#/$defs/FunctionalMotionFrameV1"
+      },
+      "title": "Frames",
+      "type": "array"
+    },
+    "projected_landmark_residual_rms_mm": {
+      "minimum": 0,
+      "title": "Projected Landmark Residual Rms Mm",
+      "type": "number"
+    },
+    "coverage_ratio": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Coverage Ratio",
+      "type": "number"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/RegistrationUncertaintyV1"
+    },
+    "validation_tier": {
+      "enum": [
+        "synthetic",
+        "paired-laboratory",
+        "independent"
+      ],
+      "title": "Validation Tier",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_coordinate_system",
+    "target_coordinate_system",
+    "calibration_transform",
+    "frames",
+    "projected_landmark_residual_rms_mm",
+    "coverage_ratio",
+    "uncertainty",
+    "validation_tier"
+  ],
+  "title": "FunctionalRegistrationResultV1",
+  "type": "object"
+}

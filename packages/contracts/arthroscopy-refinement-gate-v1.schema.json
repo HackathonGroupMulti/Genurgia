@@ -1,0 +1,58 @@
+{
+  "properties": {
+    "overlay_registration_id": {
+      "minLength": 1,
+      "title": "Overlay Registration Id",
+      "type": "string"
+    },
+    "calibrated": {
+      "title": "Calibrated",
+      "type": "boolean"
+    },
+    "parallax_sufficient": {
+      "title": "Parallax Sufficient",
+      "type": "boolean"
+    },
+    "coverage_ratio": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Coverage Ratio",
+      "type": "number"
+    },
+    "residual_rms_px": {
+      "minimum": 0,
+      "title": "Residual Rms Px",
+      "type": "number"
+    },
+    "residual_threshold_px": {
+      "exclusiveMinimum": 0,
+      "title": "Residual Threshold Px",
+      "type": "number"
+    },
+    "output_reconstruction_version": {
+      "minLength": 1,
+      "title": "Output Reconstruction Version",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "create-new-reconstruction",
+        "refuse"
+      ],
+      "title": "Decision",
+      "type": "string"
+    }
+  },
+  "required": [
+    "overlay_registration_id",
+    "calibrated",
+    "parallax_sufficient",
+    "coverage_ratio",
+    "residual_rms_px",
+    "residual_threshold_px",
+    "output_reconstruction_version",
+    "decision"
+  ],
+  "title": "ArthroscopyRefinementGateV1",
+  "type": "object"
+}

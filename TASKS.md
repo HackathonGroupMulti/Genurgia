@@ -131,11 +131,16 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 12 — Functional multimodal registration
 
-* [ ] Add calibrated multi-view motion and selected sensor inputs.
-* [ ] Define transforms from capture coordinates to anatomical coordinates with error estimates.
-* [ ] Register compatible movement timepoints to versioned anatomical twins.
-* [ ] Define supported joint coordinate systems and test every transformation/calculation.
-* [ ] Report uncertainty and refuse unsupported registration rather than inventing alignment.
+* [x] Implement calibrated linear multi-view triangulation with finite 3×4 camera matrices and explicit capture coordinates.
+* [x] Implement rigid landmark registration from capture millimetres to anatomical patient-LPS millimetres with per-landmark and RMS residuals.
+* [x] Add deterministic perturbation uncertainty with 95% translation-millimetre and rotation-degree envelopes.
+* [x] Implement expert-seeded calibrated arthroscopy PnP pose and image-space reprojection errors.
+* [x] Define time-varying functional-frame, arthroscopy overlay, geometry-refinement gate, and independent tissue-score contracts.
+* [x] Refuse insufficient/degenerate views, landmarks, transforms, refinement evidence, and single-rater tissue scoring.
+* [ ] Run the contracts over approved paired human MRI/arthroscopy/multi-view cases and inspect failure coverage.
+* [ ] Compare functional registration with an independent laboratory or biplanar reference.
+* [ ] Validate arthroscopy overlay coverage/error, geometry refinement, and research tissue taxonomy/inter-rater thresholds with experts.
+* [ ] Add a selected sensor adapter only after its coordinate, synchronization, and scientific-use protocol is approved.
 
 ## Program D — virtual knee experiments
 

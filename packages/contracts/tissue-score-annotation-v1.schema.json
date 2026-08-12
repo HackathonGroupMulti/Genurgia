@@ -1,0 +1,56 @@
+{
+  "properties": {
+    "taxonomy_version": {
+      "minLength": 1,
+      "title": "Taxonomy Version",
+      "type": "string"
+    },
+    "expert_labels": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Expert Labels",
+      "type": "object"
+    },
+    "adjudicated_labels": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Adjudicated Labels"
+    },
+    "inter_rater_result": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Inter Rater Result",
+      "type": "object"
+    },
+    "automated": {
+      "default": false,
+      "title": "Automated",
+      "type": "boolean"
+    },
+    "diagnostic_claim": {
+      "const": false,
+      "default": false,
+      "title": "Diagnostic Claim",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "taxonomy_version",
+    "expert_labels",
+    "inter_rater_result"
+  ],
+  "title": "TissueScoreAnnotationV1",
+  "type": "object"
+}

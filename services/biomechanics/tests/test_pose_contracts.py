@@ -29,6 +29,12 @@ from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
 from app.schemas.quality import CaptureQualityReport
 from app.schemas.reconstruction import ReconstructionImportResultV1
+from app.schemas.registration import (
+    ArthroscopyOverlayResultV1,
+    ArthroscopyRefinementGateV1,
+    FunctionalRegistrationResultV1,
+    TissueScoreAnnotationV1,
+)
 from app.schemas.repetitions import SquatRepetitionAnalysis
 from app.schemas.sessions import (
     ReanalysisResponse,
@@ -88,6 +94,10 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
         ("multi-view-capture-manifest-v1.schema.json", MultiViewCaptureManifestV1),
         ("observation-import-result-v1.schema.json", ObservationImportResultV1),
         ("reconstruction-import-result-v1.schema.json", ReconstructionImportResultV1),
+        ("functional-registration-result-v1.schema.json", FunctionalRegistrationResultV1),
+        ("arthroscopy-overlay-result-v1.schema.json", ArthroscopyOverlayResultV1),
+        ("arthroscopy-refinement-gate-v1.schema.json", ArthroscopyRefinementGateV1),
+        ("tissue-score-annotation-v1.schema.json", TissueScoreAnnotationV1),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

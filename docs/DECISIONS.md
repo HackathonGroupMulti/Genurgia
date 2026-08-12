@@ -377,3 +377,22 @@ Call a synthetic or machine-produced mesh patient-specific because it was derive
 Why rejected:
 
 Patient identity of the source does not establish segmentation accuracy, surface quality, landmark validity, or independent agreement. The evidence class must reflect review and validation state rather than aspiration.
+
+---
+
+## ADR-019 — Registration fails closed across native coordinate systems
+
+Status:
+Accepted
+
+Decision:
+
+Use calibrated multi-view DLT plus rigid landmark fitting for the first functional registration and expert-seeded calibrated PnP for the first arthroscopy overlay. Preserve transform direction, native coordinate names, units, residuals, coverage, excluded intervals, uncertainty method, and validation tier. Gate arthroscopy refinement separately and create a new reconstruction rather than editing MRI geometry.
+
+Reason:
+
+Native sources have different observability and error modes. A generic scale/alignment shortcut would hide insufficient camera geometry, correspondence quality, coverage, and uncertainty and would make replay irreproducible.
+
+Operational boundary:
+
+Only known synthetic transforms are tested. Human paired-reference and independent laboratory/biplanar validation remain required before a research evidence gate can close.

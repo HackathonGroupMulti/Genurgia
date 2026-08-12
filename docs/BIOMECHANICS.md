@@ -215,6 +215,12 @@ Any later conversion among these conventions must be a versioned registration wi
 
 These metrics measure agreement between two label maps; they do not establish anatomical truth or clinical validity. Structure-specific acceptance thresholds remain an expert-approved input. Draft thresholds always yield `not-evaluated` acceptance.
 
+## Registration calculations
+
+`calibrated-dlt-kabsch-v1` triangulates capture landmarks using homogeneous linear equations from at least two calibrated 3×4 projection matrices, then estimates a proper rigid transform between non-collinear capture/anatomical landmark sets using SVD. Residual Euclidean distances and RMS are millimetres in the target anatomical convention. Reflection correction enforces determinant +1.
+
+`expert-seed-pnp-v1` estimates arthroscope camera pose from at least four expert 3D-to-2D correspondences and calibrated intrinsics/distortion. Residuals are Euclidean image-pixel reprojection errors. Registration uncertainty uses configured synthetic perturbations and reports 95th-percentile translation in millimetres and rotation in degrees; it is sensitivity to the assumed perturbation, not validated clinical confidence.
+
 ## Known limitations
 
 * monocular depth uncertainty;

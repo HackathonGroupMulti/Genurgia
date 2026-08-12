@@ -1,0 +1,171 @@
+{
+  "$defs": {
+    "ArthroscopyCorrespondenceV1": {
+      "properties": {
+        "anatomy_landmark": {
+          "minLength": 1,
+          "title": "Anatomy Landmark",
+          "type": "string"
+        },
+        "anatomy_position_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Anatomy Position Mm",
+          "type": "array"
+        },
+        "image_position_px": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Image Position Px",
+          "type": "array"
+        },
+        "author": {
+          "minLength": 1,
+          "title": "Author",
+          "type": "string"
+        }
+      },
+      "required": [
+        "anatomy_landmark",
+        "anatomy_position_mm",
+        "image_position_px",
+        "author"
+      ],
+      "title": "ArthroscopyCorrespondenceV1",
+      "type": "object"
+    },
+    "RegistrationUncertaintyV1": {
+      "properties": {
+        "method": {
+          "enum": [
+            "synthetic-perturbation",
+            "bootstrap",
+            "not-evaluated"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "translation_95_mm": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Translation 95 Mm"
+        },
+        "rotation_95_degrees": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rotation 95 Degrees"
+        },
+        "explanation": {
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "explanation"
+      ],
+      "title": "RegistrationUncertaintyV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "method": {
+      "const": "expert-seed-pnp-v1",
+      "default": "expert-seed-pnp-v1",
+      "title": "Method",
+      "type": "string"
+    },
+    "correspondences": {
+      "items": {
+        "$ref": "#/$defs/ArthroscopyCorrespondenceV1"
+      },
+      "minItems": 4,
+      "title": "Correspondences",
+      "type": "array"
+    },
+    "anatomy_from_camera_transform": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Anatomy From Camera Transform",
+      "type": "array"
+    },
+    "rms_reprojection_error_px": {
+      "minimum": 0,
+      "title": "Rms Reprojection Error Px",
+      "type": "number"
+    },
+    "visible_coverage_ratio": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Visible Coverage Ratio",
+      "type": "number"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/RegistrationUncertaintyV1"
+    },
+    "gate_status": {
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "title": "Gate Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "correspondences",
+    "anatomy_from_camera_transform",
+    "rms_reprojection_error_px",
+    "visible_coverage_ratio",
+    "uncertainty",
+    "gate_status"
+  ],
+  "title": "ArthroscopyOverlayResultV1",
+  "type": "object"
+}

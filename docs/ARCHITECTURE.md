@@ -62,6 +62,12 @@ Imports are synchronous for the current single-user synthetic-fixture scale. The
 
 Scientific meshes, web meshes, label maps, computational volume, landmarks, review history, and quality remain distinct artifacts or typed metadata. Arthroscopy evidence cannot refine this MRI reconstruction in place; a supported refinement creates a later reconstruction through Milestone 12.
 
+## Milestone 12 registration boundary
+
+Framework-independent registration functions own DLT triangulation, rigid landmark fitting, perturbation uncertainty, and calibrated arthroscopy PnP. Versioned schemas carry coordinate systems, transforms, residuals, coverage, uncertainty, exclusions, and validation tier into the existing canonical `/registrations` boundary. HTTP/UI code must not reproduce these calculations.
+
+Arthroscopy overlay, geometry refinement, and tissue scoring are separate layers. Refinement can only create a new reconstruction after its evidence gate; scoring remains an annotation. Neither changes source observations or the MRI reconstruction.
+
 The local filesystem implementation of the artifact-storage boundary stores each extraction bundle: original recording, versioned raw pose-sequence JSON, annotated MP4, and separate derived JSON artifacts. SQLite stores structured session, source, analysis-version, and compact metric metadata with references to those artifacts.
 
 Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.

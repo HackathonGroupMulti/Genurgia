@@ -6,7 +6,7 @@ Last updated: 2026-08-12
 
 Knee Twin is an offline, expert-facing research platform intended to create a longitudinal, patient-specific knee twin from immutable evidence, reviewed anatomy, functional registration, and reproducible virtual experiments. It is not a diagnostic medical device.
 
-Engineering Milestones 0–11 are technically complete. The repository implements a reliable squat evidence workflow, a canonical subject/knee evidence graph, controlled multimodal imports, and a synthetic complete-anatomy manual-review package with independent-reference agreement metrics. Existing squat sessions and endpoints remain operational.
+Engineering Milestones 0–12 are technically complete. The repository implements movement evidence, a canonical knee graph, multimodal imports, complete-anatomy review packages, and synthetic functional/arthroscopy registration primitives and contracts. Existing squat sessions and endpoints remain operational.
 
 The current “digital twin” is still an evidence/review system, not a validated or simulated patient knee. Synthetic packages demonstrate complete structure handling but not anatomical accuracy. No human patient-specific segmentation, arthroscopy-to-MRI registration, calibrated motion replay, or mechanical experiment has been validated. Milestones 6, 10, and 11 retain external evidence gates.
 
@@ -50,6 +50,14 @@ The current “digital twin” is still an evidence/review system, not a validat
 * Pure Dice, average symmetric surface distance, and Hausdorff-95 calculations preserve physical millimetre units and refuse missing structures.
 * Draft structure thresholds force `thresholds-unapproved`, `expert-reviewed`, and `in_review` even for a perfect synthetic fixture.
 
+### Synthetic registration core
+
+* Calibrated DLT triangulation recovers capture-space points and refuses insufficient/degenerate camera evidence.
+* Proper rigid landmark fitting records anatomy-from-capture transforms and residuals in millimetres; deterministic perturbation reports 95% translation/rotation sensitivity.
+* Calibrated expert-seeded arthroscopy PnP reports anatomy-from-camera transforms and reprojection errors in pixels.
+* Functional frames preserve coverage, confidence, exclusions, residuals, uncertainty, and validation tier.
+* Arthroscopy refinement is refused without calibration, parallax, coverage, and residual evidence; research tissue scoring requires independent raters and is non-diagnostic.
+
 ## Open evidence and product gaps
 
 * Participant-diverse squat fixtures and approved paired MRI/arthroscopy/multi-view cases are absent.
@@ -57,7 +65,7 @@ The current “digital twin” is still an evidence/review system, not a validat
 * MRI import preserves original DICOM but does not yet create a separately versioned computational volume.
 * The current reconstruction, registration, experiment, and result records are contracts, not demonstrated scientific outputs.
 * The package validates synthetic/review artifacts but does not generate segmentation or meshes; no domain-approved human reference workflow, taxonomy/landmark protocol, or structure thresholds exist.
-* Arthroscopy overlay/refinement/scoring, calibrated triangulation/anatomical registration, motion replay, durable jobs, and solver adapters remain unimplemented.
+* Numerical registration exists only for synthetic known transforms; no approved human overlay/refinement, registered motion artifact, motion replay, durable job execution, or solver adapter exists.
 * Authentication, roles, connected clinical systems, identifiable-data handling, and clinical use remain unauthorized.
 
 ## API surface
@@ -76,11 +84,11 @@ Reviewed reconstruction packages use `/reconstructions/imports/manual`.
 
 ## Verification baseline
 
-Milestone 11 verification: 110 backend tests, Ruff, JSON Schema parity, Markdown lint, 32 frontend tests, ESLint, TypeScript, production build, one Playwright Chromium smoke test, and `git diff --check` pass locally. New tests cover pure physical-space metrics, complete/incomplete packages, reviewer independence, structure coverage, provenance, and evidence-class distinctions.
+Milestone 12 verification: 120 backend tests, Ruff, JSON Schema parity, Markdown lint, 33 frontend tests, ESLint, TypeScript, production build, and `git diff --check` pass locally. New tests cover known camera/rigid/arthroscopy transforms, residuals, uncertainty reproducibility, degeneracy, refinement refusal, tissue raters, and cross-language evidence tiers.
 
 ## Current priority
 
-Milestone 12: add evidence-gated arthroscopy overlay/refinement contracts, calibrated multi-view triangulation, motion-to-anatomy registration, residuals, coverage, and uncertainty with synthetic known-transform validation. Paired-data acquisition and expert threshold approval proceed as external evidence tracks.
+Milestone 13: implement a durable SQLite single-worker job runner plus solver-independent experiment definition and a reproducible synthetic anatomical motion replay with residual, uncertainty, exclusion, constraint, sensitivity, and immutable-hash evidence.
 
 ## Preserve
 
