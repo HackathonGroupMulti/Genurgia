@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
+from app.api.operations import router as operations_router
 from app.api.pose_sequences import router as pose_sequences_router
 from app.api.sessions import router as sessions_router
 from app.persistence import SQLiteSessionRepository
@@ -41,10 +42,11 @@ def create_app(
         CORSMiddleware,
         allow_origins=allowed_origins(),
         allow_credentials=False,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["*"],
     )
     store = artifact_store or LocalArtifactStore(artifact_root())
+    store.cleanup_abandoned_work()
     sessions = session_repository or SQLiteSessionRepository(
         session_database_path() if artifact_store is None else store.root / "knee_twin.sqlite3"
     )
@@ -73,6 +75,7 @@ def create_app(
         kinematics,
     )
     application.include_router(health_router)
+    application.include_router(operations_router)
     application.include_router(pose_sequences_router)
     application.include_router(sessions_router)
     return application

@@ -108,19 +108,19 @@ The current request path is synchronous:
 ```text
 browser upload
 → Next.js proxy
-→ FastAPI buffers the bounded upload
+→ FastAPI streams bounded chunks to hidden temporary storage
 → MediaPipe decodes and extracts all frames
-→ artifacts and session metadata are written
+→ an atomically published, hash-manifested bundle and session metadata are written
 → browser requests knee-flexion and repetition derivations
 ```
 
-This is acceptable for a local single-user prototype, but it creates three explicit limits:
+This is acceptable for a local single-user prototype, but it creates these explicit limits:
 
-* the full upload is retained in request memory before analysis;
 * the client coordinates multiple sequential analysis requests;
-* there is no job identity, progress, cancellation, retry, or worker isolation.
+* processing has an operation identity and provenance but no progress, user cancellation, retry, or worker isolation;
+* MediaPipe extraction remains synchronous after the bounded temporary upload completes.
 
-Background jobs are not automatically required. First measure supported duration, resolution, memory, latency, failure recovery, and concurrency. Introduce an asynchronous job boundary only when those measurements justify it.
+The measured short-video workload supports retaining this boundary. Reassess supported duration, resolution, memory, latency, failure recovery, and concurrency before introducing an asynchronous job boundary.
 
 ## Milestone 6 evidence-quality boundaries
 
@@ -140,7 +140,7 @@ Additional movement protocols should use a strategy boundary for protocol-specif
 * `/sessions/selected-comparison` accepts explicit baseline and current identifiers and returns either comparable server-derived metrics or named incompatibilities.
 * Until Milestone 9 introduces canonical subjects and knees, comparison uses the declared `local-single-subject-v1` scope and refuses unknown view, orientation, or laterality context. It also requires matching protocol, pose model, coordinate convention, and repetition-analysis meaning.
 * `/sessions/{id}/reanalysis` derives only missing current algorithm versions. Existing derived artifacts and analysis-version rows remain available.
-* `/sessions/{id}/export-manifest` enumerates source and derived artifacts with existence, size, SHA-256 digest, role, and analysis version. Milestone 8 will turn these on-demand checks into durable bundle manifests and recovery controls.
+* `/sessions/{id}/export-manifest` enumerates source and derived artifacts with existence, size, expected/actual SHA-256 digest, role, and analysis version. Milestone 8 added the durable bundle manifest and recovery controls behind this view.
 
 ## Target knee-twin boundaries
 
@@ -167,3 +167,13 @@ immutable multimodal evidence
 ## Persistence evolution
 
 SQLite now applies ordered, checksummed migrations recorded in `schema_migrations`. Migration 1 adopts the pre-existing session schema without destroying data; migration 2 adds capture metadata and capture-quality status. Upgrade tests begin from the legacy schema. Artifact schemas and analysis meanings remain separately versioned and are not conflated with database migration versions.
+
+## Milestone 8 workstation reliability
+
+The upload route streams bounded chunks to `LocalArtifactStore` temporary storage. `PoseAnalysisService` extracts into a hidden staging directory and publishes a complete source/overlay/raw bundle using one atomic directory rename. Derived artifacts use atomic file replacement. A per-bundle SHA-256 manifest refreshes after each successful derived write.
+
+SQLite migration 3 adds operation provenance without turning synchronous extraction into a queue. Startup reconciliation marks abandoned running records as interrupted and clears unpublished upload/staging work for the declared single-worker deployment. `GET /operations` exposes sanitized operational provenance; session export verifies durable expected hashes against current bytes.
+
+Deletion stages the bundle outside the published namespace before deleting relational metadata. Metadata failure restores the bundle; success finalizes deletion. Live deletion does not alter separately governed encrypted backups.
+
+Both application tiers enforce loopback configuration. The encrypted-volume, backup, recovery, retention, de-identification, and incident operating rules are defined in `docs/OFFLINE_SECURITY.md`.

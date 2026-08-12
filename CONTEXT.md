@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 8 — reliable offline research workstation.
+Milestone 9 — canonical knee evidence graph.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Stream bounded uploads through temporary storage and publish complete artifact bundles atomically, then define verified retention, backup, and recovery behavior.
+Add canonical subject, knee, episode, timepoint, observation, annotation, reconstruction, registration, derivation, and experiment records without breaking existing squat sessions.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

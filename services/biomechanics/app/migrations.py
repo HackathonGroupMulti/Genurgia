@@ -93,6 +93,29 @@ MIGRATIONS = (
             "ALTER TABLE sessions ADD COLUMN capture_quality_status TEXT",
         ),
     ),
+    Migration(
+        version=3,
+        name="processing_operation_provenance",
+        statements=(
+            """CREATE TABLE processing_operations (
+                id TEXT PRIMARY KEY,
+                operation_type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                stage TEXT NOT NULL,
+                input_bytes INTEGER NOT NULL,
+                pose_sequence_id TEXT,
+                started_at TEXT NOT NULL,
+                completed_at TEXT,
+                duration_ms INTEGER,
+                error_code TEXT,
+                error_detail TEXT
+            )""",
+            (
+                "CREATE INDEX idx_processing_operations_started_at "
+                "ON processing_operations(started_at DESC)"
+            ),
+        ),
+    ),
 )
 
 

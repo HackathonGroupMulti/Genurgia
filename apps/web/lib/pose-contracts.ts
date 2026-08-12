@@ -42,6 +42,13 @@ export type PoseSequenceSummary = {
 export type PoseAnalysisResponse = {
   recording: Recording;
   pose_sequence: PoseSequenceSummary;
+  processing: {
+    operation_id: string;
+    upload_bytes: number;
+    processing_duration_ms: number;
+    processed_frames: number;
+    average_frames_per_second: number | null;
+  };
 };
 
 export type Landmark = {
@@ -119,12 +126,18 @@ function isPoseFrame(value: unknown): value is PoseFrame {
 }
 
 export function parsePoseAnalysisResponse(value: unknown): PoseAnalysisResponse | null {
-  if (!isRecord(value) || !isRecord(value.recording) || !isRecord(value.pose_sequence)) {
+  if (
+    !isRecord(value) ||
+    !isRecord(value.recording) ||
+    !isRecord(value.pose_sequence) ||
+    !isRecord(value.processing)
+  ) {
     return null;
   }
 
   const recording = value.recording;
   const sequence = value.pose_sequence;
+  const processing = value.processing;
   if (
     !["1.0.0", "1.1.0"].includes(String(recording.schema_version)) ||
     typeof recording.id !== "string" ||
@@ -145,7 +158,12 @@ export function parsePoseAnalysisResponse(value: unknown): PoseAnalysisResponse 
     typeof sequence.detected_frame_count !== "number" ||
     typeof sequence.raw_landmarks_reference !== "string" ||
     typeof sequence.annotated_video_reference !== "string" ||
-    !isRecord(sequence.coordinate_convention)
+    !isRecord(sequence.coordinate_convention) ||
+    typeof processing.operation_id !== "string" ||
+    typeof processing.upload_bytes !== "number" ||
+    typeof processing.processing_duration_ms !== "number" ||
+    typeof processing.processed_frames !== "number" ||
+    !isNullableNumber(processing.average_frames_per_second)
   ) {
     return null;
   }

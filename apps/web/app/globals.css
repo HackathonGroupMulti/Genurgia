@@ -555,6 +555,37 @@ button,
   margin: 0;
 }
 
+.operation-history {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.operation-history ul {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.operation-history li {
+  display: grid;
+  gap: 0.2rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--line);
+}
+
+.operation-history .operation-failed {
+  border-left-color: #b42318;
+}
+
+.operation-history code {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+
 .capture-metadata div {
   padding: 0.75rem;
   border-radius: 0.75rem;

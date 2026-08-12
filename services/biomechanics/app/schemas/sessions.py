@@ -148,11 +148,19 @@ class ExportArtifact(BaseModel):
     exists: bool
     size_bytes: int | None
     sha256: str | None
-    integrity: Literal["verified", "missing"]
+    expected_sha256: str | None = None
+    integrity: Literal["verified", "missing", "checksum_mismatch", "untracked"]
 
 
 class SessionExportManifest(BaseModel):
-    schema_version: Literal["1.0.0"] = "1.0.0"
+    schema_version: Literal["2.0.0"] = "2.0.0"
     generated_at: datetime
     session: SessionSummary
     artifacts: list[ExportArtifact]
+
+
+class SessionDeletionResponse(BaseModel):
+    session_id: UUID
+    pose_sequence_id: UUID
+    deleted: Literal[True] = True
+    recovery: Literal["restore an encrypted backup"] = "restore an encrypted backup"

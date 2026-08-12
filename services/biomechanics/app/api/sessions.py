@@ -10,6 +10,7 @@ from app.schemas.sessions import (
     ReanalysisResponse,
     SelectedSessionComparison,
     SessionComparisonResponse,
+    SessionDeletionResponse,
     SessionExportManifest,
     SessionListResponse,
     SessionSummary,
@@ -76,5 +77,22 @@ def export_session_manifest(
 ) -> SessionExportManifest:
     try:
         return service.export_manifest(session_id)
+    except SessionNotFound as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+
+
+@router.delete("/{session_id}", response_model=SessionDeletionResponse)
+def delete_session(
+    session_id: UUID,
+    service: SessionWorkflowDependency,
+    confirm: Annotated[bool, Query()] = False,
+) -> SessionDeletionResponse:
+    if not confirm:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Deletion requires confirm=true and is recoverable only from backup.",
+        )
+    try:
+        return service.delete_session(session_id)
     except SessionNotFound as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error

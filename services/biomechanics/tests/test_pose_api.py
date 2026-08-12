@@ -59,6 +59,10 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     assert payload["pose_sequence"]["detected_frame_count"] == 1
     assert payload["recording"]["captured_at"] == "2026-02-14T10:30:00Z"
     assert payload["recording"]["camera_view"] == "left_side"
+    assert payload["processing"]["upload_bytes"] == FIXTURE_VIDEO.stat().st_size
+    assert payload["processing"]["processed_frames"] == 1
+    assert not list((tmp_path / ".uploads").iterdir())
+    assert not list((tmp_path / ".staging").iterdir())
 
     raw_response = request(
         app,
@@ -144,10 +148,18 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     export_response = request(app, "GET", f"/sessions/{session_id}/export-manifest")
     assert export_response.status_code == 200
     export = export_response.json()
-    assert export["schema_version"] == "1.0.0"
+    assert export["schema_version"] == "2.0.0"
     assert len(export["artifacts"]) == 6
     assert all(item["integrity"] == "verified" for item in export["artifacts"])
     assert all(len(item["sha256"]) == 64 for item in export["artifacts"])
+    assert all(item["expected_sha256"] == item["sha256"] for item in export["artifacts"])
+
+    operations_response = request(app, "GET", "/operations")
+    assert operations_response.status_code == 200
+    operation = operations_response.json()["operations"][0]
+    assert operation["id"] == payload["processing"]["operation_id"]
+    assert operation["status"] == "complete"
+    assert operation["stage"] == "published"
 
     reanalysis_response = request(
         app,
@@ -162,6 +174,13 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     comparison_response = request(app, "GET", "/sessions/comparison")
     assert comparison_response.status_code == 200
     assert comparison_response.json()["sessions"][0]["repetition_count"] == 0
+
+    assert request(app, "DELETE", f"/sessions/{session_id}").status_code == 409
+    deletion_response = request(app, "DELETE", f"/sessions/{session_id}?confirm=true")
+    assert deletion_response.status_code == 200
+    assert deletion_response.json()["deleted"] is True
+    assert request(app, "GET", f"/sessions/{session_id}").status_code == 404
+    assert request(app, "GET", payload["recording"]["storage_reference"]).status_code == 404
 
 
 def test_upload_rejects_unsupported_extension(tmp_path: Path) -> None:
@@ -190,3 +209,20 @@ def test_upload_reports_missing_pose_model(tmp_path: Path) -> None:
     )
 
     assert response.status_code == 503
+
+
+def test_oversized_stream_is_removed_without_publishing_artifacts(tmp_path: Path) -> None:
+    store = LocalArtifactStore(tmp_path)
+    service = PoseAnalysisService(store, FakePoseProvider(), max_upload_bytes=3)
+    app = create_app(pose_analysis_service=service, artifact_store=store)
+
+    response = request(
+        app,
+        "POST",
+        "/pose-sequences",
+        files={"video": ("fixture.mp4", b"four", "video/mp4")},
+    )
+
+    assert response.status_code == 413
+    assert not list((tmp_path / ".uploads").iterdir())
+    assert not list((tmp_path / ".staging").iterdir())

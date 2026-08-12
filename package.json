@@ -10,6 +10,7 @@
     "build:web": "npm run build --workspace @knee-twin/web",
     "lint:web": "npm run lint --workspace @knee-twin/web",
     "test:web": "npm run test --workspace @knee-twin/web",
+    "test:browser": "npm run test:browser --workspace @knee-twin/web",
     "typecheck:web": "npm run typecheck --workspace @knee-twin/web"
   },
   "engines": {

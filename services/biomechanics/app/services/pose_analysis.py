@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+from time import monotonic
 from uuid import UUID, uuid4
 
 from analysis.pose import PoseProvider
@@ -12,6 +13,7 @@ from app.schemas.pose import (
     PoseSequence,
     PoseSequenceArtifact,
     PoseSequenceSummary,
+    ProcessingMetrics,
     Recording,
 )
 from app.storage import LocalArtifactStore
@@ -44,6 +46,12 @@ class PoseAnalysisService:
     def max_upload_bytes(self) -> int:
         return self._max_upload_bytes
 
+    def create_temporary_upload(self, extension: str = ".upload") -> Path:
+        return self._artifacts.create_temporary_upload(extension)
+
+    def delete_temporary_upload(self, path: Path) -> None:
+        self._artifacts.delete_temporary_upload(path)
+
     def analyze(
         self,
         filename: str | None,
@@ -56,28 +64,70 @@ class PoseAnalysisService:
         laterality_context: str = "bilateral",
         capture_notes: str | None = None,
     ) -> PoseAnalysisResponse:
-        extension, normalized_content_type = self._validate_upload(filename, content_type, content)
+        temporary = self._artifacts.create_temporary_upload(Path(filename or "").suffix)
+        try:
+            temporary.write_bytes(content)
+            return self.analyze_file(
+                filename,
+                content_type,
+                temporary,
+                len(content),
+                captured_at=captured_at,
+                camera_view=camera_view,
+                orientation=orientation,
+                laterality_context=laterality_context,
+                capture_notes=capture_notes,
+            )
+        finally:
+            self._artifacts.delete_temporary_upload(temporary)
+
+    def analyze_file(
+        self,
+        filename: str | None,
+        content_type: str | None,
+        upload_path: Path,
+        size_bytes: int,
+        *,
+        captured_at: datetime | None = None,
+        camera_view: str = "unknown",
+        orientation: str = "unknown",
+        laterality_context: str = "bilateral",
+        capture_notes: str | None = None,
+    ) -> PoseAnalysisResponse:
+        started = monotonic()
+        operation_id = uuid4()
+        extension, normalized_content_type = self._validate_upload(
+            filename,
+            content_type,
+            size_bytes,
+        )
         if captured_at is not None and captured_at.tzinfo is None:
             raise InvalidVideoUpload("Capture time must include a UTC offset.")
         recording_id = uuid4()
         pose_sequence_id = uuid4()
-        self._artifacts.create_bundle(pose_sequence_id)
+        if self._sessions is not None:
+            self._sessions.start_processing_operation(operation_id, size_bytes)
+        staging: Path | None = None
+        published = False
+        stage = "artifact_staging"
         try:
+            staging = self._artifacts.begin_bundle(pose_sequence_id)
             recording_filename = f"recording{extension}"
-            recording_path = self._artifacts.write_bytes(
-                pose_sequence_id,
+            recording_path = self._artifacts.copy_to_staging(
+                staging,
                 recording_filename,
-                content,
+                upload_path,
             )
             annotated_filename = "annotated.mp4"
-            annotated_path = self._artifacts.path_for(pose_sequence_id, annotated_filename)
+            annotated_path = self._artifacts.staging_path(staging, annotated_filename)
+            stage = "pose_extraction"
             extraction = self._pose_provider.extract(recording_path, annotated_path)
 
             recording = Recording(
                 id=recording_id,
                 original_filename=filename or recording_filename,
                 content_type=normalized_content_type,
-                size_bytes=len(content),
+                size_bytes=size_bytes,
                 duration_ms=extraction.video.duration_ms,
                 fps=extraction.video.fps,
                 width=extraction.video.width,
@@ -122,8 +172,8 @@ class PoseAnalysisService:
             )
             artifact = PoseSequenceArtifact(recording=recording, pose_sequence=pose_sequence)
             raw_filename = "pose_sequence.json"
-            self._artifacts.write_json(
-                pose_sequence_id,
+            self._artifacts.write_staged_json(
+                staging,
                 raw_filename,
                 artifact.model_dump(mode="json"),
             )
@@ -136,11 +186,44 @@ class PoseAnalysisService:
                     annotated_filename,
                 ),
             )
+            stage = "artifact_publication"
+            self._artifacts.publish_bundle(pose_sequence_id, staging)
+            published = True
+            duration_ms = max(0, round((monotonic() - started) * 1000))
             if self._sessions is not None:
-                self._sessions.record_pose_extraction(recording, summary)
-            return PoseAnalysisResponse(recording=recording, pose_sequence=summary)
-        except Exception:
-            self._artifacts.delete_bundle(pose_sequence_id)
+                stage = "metadata_publication"
+                self._sessions.record_pose_extraction(
+                    recording,
+                    summary,
+                    processing_operation_id=operation_id,
+                    processing_duration_ms=duration_ms,
+                )
+            return PoseAnalysisResponse(
+                recording=recording,
+                pose_sequence=summary,
+                processing=ProcessingMetrics(
+                    operation_id=operation_id,
+                    upload_bytes=size_bytes,
+                    processing_duration_ms=duration_ms,
+                    processed_frames=len(frames),
+                    average_frames_per_second=(
+                        len(frames) / (duration_ms / 1000) if duration_ms > 0 else None
+                    ),
+                ),
+            )
+        except Exception as error:
+            if published:
+                self._artifacts.delete_bundle(pose_sequence_id)
+            else:
+                if staging is not None:
+                    self._artifacts.abort_bundle(staging)
+            if self._sessions is not None:
+                self._sessions.fail_processing_operation(
+                    operation_id,
+                    stage,
+                    max(0, round((monotonic() - started) * 1000)),
+                    error,
+                )
             raise
 
     def artifact_path(self, pose_sequence_id: UUID, filename: str) -> Path:
@@ -150,11 +233,11 @@ class PoseAnalysisService:
         self,
         filename: str | None,
         content_type: str | None,
-        content: bytes,
+        size_bytes: int,
     ) -> tuple[str, str]:
-        if not content:
+        if size_bytes <= 0:
             raise InvalidVideoUpload("The uploaded video is empty.")
-        if len(content) > self._max_upload_bytes:
+        if size_bytes > self._max_upload_bytes:
             raise InvalidVideoUpload(
                 f"The uploaded video exceeds the {self._max_upload_bytes}-byte limit."
             )

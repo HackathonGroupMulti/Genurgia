@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.kinematics import KneeFlexionAnalysis
+from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
 from app.schemas.quality import CaptureQualityReport
 from app.schemas.repetitions import SquatRepetitionAnalysis
@@ -13,6 +14,7 @@ from app.schemas.sessions import (
     ReanalysisResponse,
     SelectedSessionComparison,
     SessionComparisonResponse,
+    SessionDeletionResponse,
     SessionExportManifest,
     SessionListResponse,
     SessionSummary,
@@ -37,7 +39,7 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
 @pytest.mark.parametrize(
     ("filename", "model"),
     [
-        ("pose-analysis-response-v2.schema.json", PoseAnalysisResponse),
+        ("pose-analysis-response-v3.schema.json", PoseAnalysisResponse),
         ("pose-sequence-artifact-v2.schema.json", PoseSequenceArtifact),
         ("knee-flexion-analysis-v1.schema.json", KneeFlexionAnalysis),
         ("squat-repetition-analysis-v2.schema.json", SquatRepetitionAnalysis),
@@ -47,7 +49,9 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
         ("session-detail-v1.schema.json", SessionSummary),
         ("selected-session-comparison-v1.schema.json", SelectedSessionComparison),
         ("session-reanalysis-response-v1.schema.json", ReanalysisResponse),
-        ("session-export-manifest-v1.schema.json", SessionExportManifest),
+        ("session-export-manifest-v2.schema.json", SessionExportManifest),
+        ("processing-operation-list-v1.schema.json", ProcessingOperationList),
+        ("session-deletion-response-v1.schema.json", SessionDeletionResponse),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

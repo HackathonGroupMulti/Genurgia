@@ -1,0 +1,32 @@
+{
+  "properties": {
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "pose_sequence_id": {
+      "format": "uuid",
+      "title": "Pose Sequence Id",
+      "type": "string"
+    },
+    "deleted": {
+      "const": true,
+      "default": true,
+      "title": "Deleted",
+      "type": "boolean"
+    },
+    "recovery": {
+      "const": "restore an encrypted backup",
+      "default": "restore an encrypted backup",
+      "title": "Recovery",
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_id",
+    "pose_sequence_id"
+  ],
+  "title": "SessionDeletionResponse",
+  "type": "object"
+}

@@ -8,6 +8,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from app.migrations import migrate
+from app.schemas.operations import ProcessingOperation
 from app.schemas.pose import PoseSequenceSummary, Recording
 from app.schemas.sessions import (
     AnalysisMetadata,
@@ -31,11 +32,21 @@ class SQLiteSessionRepository:
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
             migrate(connection)
+            connection.execute(
+                """UPDATE processing_operations
+                SET status = 'failed', stage = 'interrupted', completed_at = ?,
+                    error_code = 'InterruptedOperation',
+                    error_detail = 'The workstation stopped before the operation completed.'
+                WHERE status = 'running'""",
+                (_utc_now(),),
+            )
 
     def record_pose_extraction(
         self,
         recording: Recording,
         pose_sequence: PoseSequenceSummary,
+        processing_operation_id: UUID | None = None,
+        processing_duration_ms: int | None = None,
     ) -> UUID:
         session_id = uuid4()
         now = _utc_now()
@@ -97,7 +108,60 @@ class SQLiteSessionRepository:
                     pose_sequence.detected_frame_count,
                 ),
             )
+            if processing_operation_id is not None and processing_duration_ms is not None:
+                connection.execute(
+                    """UPDATE processing_operations
+                    SET status = 'complete', stage = 'published', pose_sequence_id = ?,
+                        completed_at = ?, duration_ms = ?
+                    WHERE id = ?""",
+                    (
+                        str(pose_sequence.id),
+                        _utc_now(),
+                        processing_duration_ms,
+                        str(processing_operation_id),
+                    ),
+                )
         return session_id
+
+    def start_processing_operation(self, operation_id: UUID, input_bytes: int) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """INSERT INTO processing_operations
+                (id, operation_type, status, stage, input_bytes, started_at)
+                VALUES (?, 'pose_extraction', 'running', 'artifact_staging', ?, ?)""",
+                (str(operation_id), input_bytes, _utc_now()),
+            )
+
+    def fail_processing_operation(
+        self,
+        operation_id: UUID,
+        stage: str,
+        duration_ms: int,
+        error: Exception,
+    ) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """UPDATE processing_operations
+                SET status = 'failed', stage = ?, completed_at = ?, duration_ms = ?,
+                    error_code = ?, error_detail = ?
+                WHERE id = ?""",
+                (
+                    stage,
+                    _utc_now(),
+                    duration_ms,
+                    type(error).__name__,
+                    str(error)[:500],
+                    str(operation_id),
+                ),
+            )
+
+    def list_processing_operations(self, limit: int = 50) -> list[ProcessingOperation]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM processing_operations ORDER BY started_at DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+        return [ProcessingOperation.model_validate(dict(row)) for row in rows]
 
     def record_analysis(
         self,
@@ -183,6 +247,15 @@ class SQLiteSessionRepository:
     def get_session(self, session_id: UUID) -> SessionSummary:
         with self._connect() as connection:
             return self._session(connection, session_id)
+
+    def delete_session(self, session_id: UUID) -> None:
+        with self._connect() as connection:
+            deleted = connection.execute(
+                "DELETE FROM sessions WHERE id = ?",
+                (str(session_id),),
+            ).rowcount
+        if deleted == 0:
+            raise SessionNotFound(f"Session {session_id} was not found.")
 
     def compare_sessions(self, limit: int = 10) -> list[SessionComparisonEntry]:
         sessions = list(reversed(self.list_sessions(limit)))

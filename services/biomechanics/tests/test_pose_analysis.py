@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from analysis.pose import PoseExtractionError
+from app.persistence import SQLiteSessionRepository
 from app.schemas.pose import PoseSequenceArtifact
 from app.services.pose_analysis import InvalidVideoUpload, PoseAnalysisService
 from app.storage import LocalArtifactStore
@@ -85,4 +86,28 @@ def test_failed_extraction_removes_partial_artifacts(tmp_path: Path) -> None:
     with pytest.raises(PoseExtractionError, match="expected failure"):
         service.analyze("recording.mp4", "video/mp4", b"video")
 
-    assert list(tmp_path.iterdir()) == []
+    assert not [path for path in tmp_path.iterdir() if not path.name.startswith(".")]
+    assert all(not list(path.iterdir()) for path in tmp_path.iterdir())
+
+
+def test_failed_extraction_persists_structured_provenance(tmp_path: Path) -> None:
+    class FailingProvider(FakePoseProvider):
+        def extract(self, video_path: Path, annotated_video_path: Path):
+            raise PoseExtractionError("fixture decode failed")
+
+    repository = SQLiteSessionRepository(tmp_path / "sessions.sqlite3")
+    service = PoseAnalysisService(
+        artifact_store=LocalArtifactStore(tmp_path / "artifacts"),
+        pose_provider=FailingProvider(),
+        max_upload_bytes=1024,
+        session_repository=repository,
+    )
+
+    with pytest.raises(PoseExtractionError, match="fixture decode failed"):
+        service.analyze("recording.mp4", "video/mp4", b"video")
+
+    operation = repository.list_processing_operations()[0]
+    assert operation.status == "failed"
+    assert operation.stage == "pose_extraction"
+    assert operation.error_code == "PoseExtractionError"
+    assert operation.error_detail == "fixture decode failed"

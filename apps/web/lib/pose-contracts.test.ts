@@ -31,6 +31,13 @@ const validResponse = {
     raw_landmarks_reference: "/artifacts/id/pose_sequence.json",
     annotated_video_reference: "/artifacts/id/annotated.mp4",
   },
+  processing: {
+    operation_id: "operation-id",
+    upload_bytes: 100,
+    processing_duration_ms: 250,
+    processed_frames: 30,
+    average_frames_per_second: 120,
+  },
 };
 
 describe("pose analysis contract", () => {

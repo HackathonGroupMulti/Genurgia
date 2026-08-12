@@ -92,6 +92,15 @@ class PoseSequenceSummary(BaseModel):
     annotated_video_reference: str
 
 
+class ProcessingMetrics(BaseModel):
+    operation_id: UUID
+    upload_bytes: int = Field(gt=0)
+    processing_duration_ms: int = Field(ge=0)
+    processed_frames: int = Field(gt=0)
+    average_frames_per_second: float | None = Field(default=None, gt=0)
+
+
 class PoseAnalysisResponse(BaseModel):
     recording: Recording
     pose_sequence: PoseSequenceSummary
+    processing: ProcessingMetrics

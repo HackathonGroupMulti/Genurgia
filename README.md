@@ -10,7 +10,7 @@ This repository contains the first external-observation slice: a working local s
 Next.js UI → FastAPI → application services → analysis/domain modules
 ```
 
-Python owns numerical and biomechanics logic. Raw pose observations are preserved independently from derived metrics so historical sessions can be reanalyzed. Videos and large artifacts use a replaceable local storage boundary; SQLite stores structured session and analysis metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/DECISIONS.md](docs/DECISIONS.md).
+Python owns numerical and biomechanics logic. Raw pose observations are preserved independently from derived metrics so historical sessions can be reanalyzed. Videos and large artifacts use an atomic, SHA-256-manifested local storage boundary; SQLite stores structured session, analysis, migration, and processing-operation metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Repository layout
 
@@ -81,6 +81,8 @@ npm run dev:web
 
 Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful analysis displays the annotated video, a seekable synchronized knee-flexion graph, current measurements, repetition metrics, a rotatable model-relative skeleton, session history, and links to preserved raw artifacts.
 
+Keep both processes bound to loopback. Do not add `--host 0.0.0.0`. Research evidence must reside on an approved encrypted workstation volume; follow [docs/OFFLINE_SECURITY.md](docs/OFFLINE_SECURITY.md) before using local cases.
+
 ## Environment variables
 
 | Variable | Default | Purpose |
@@ -101,6 +103,7 @@ npm run test:web
 npm run lint:web
 npm run typecheck:web
 npm run build:web
+npm run test:browser
 ```
 
 From `services/biomechanics`:
@@ -110,10 +113,10 @@ From `services/biomechanics`:
 ..\..\.venv\Scripts\python -m ruff check . ..\..\scripts
 ```
 
-GitHub Actions runs the same test, lint, type-check, and frontend build validations on pushes to `main` and pull requests.
+GitHub Actions runs the same backend, frontend, production-build, and Chromium smoke validations on pushes to `main` and pull requests.
 
 ## Current status
 
-Engineering Milestones 0–7 are technically complete, proving a quality-aware and version-preserving local longitudinal pipeline. This is a technical prototype rather than a completed product. Pose extraction and analysis remain synchronous; SQLite and local artifacts assume one local user. Historical sessions can be replayed and compatibility-checked, but real-video validation is not participant-diverse. Reported values are monocular model estimates, not clinical measurements.
+Engineering Milestones 0–8 are technically complete, proving a quality-aware, version-preserving, integrity-checked local longitudinal pipeline. This is a technical prototype rather than a completed product. Pose extraction remains synchronous; SQLite and local artifacts assume one local user on an encrypted offline volume. Historical sessions can be replayed and compatibility-checked, but real-video validation is not participant-diverse. Reported values are monocular model estimates, not clinical measurements.
 
-Milestone 6's participant-diversity evidence gate remains open. Milestone 8 now hardens the offline workstation before the broader roadmap establishes the canonical knee evidence model, multimodal ingestion, patient-specific 3D anatomy, functional registration, and validated simulation. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/SQUAT_ACCEPTANCE.md](docs/SQUAT_ACCEPTANCE.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
+Milestone 6's participant-diversity evidence gate remains open. Milestone 9 now establishes the canonical knee evidence model before multimodal ingestion, patient-specific 3D anatomy, functional registration, and validated simulation. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/OFFLINE_SECURITY.md](docs/OFFLINE_SECURITY.md), [docs/PROCESSING_EVIDENCE.md](docs/PROCESSING_EVIDENCE.md), and [docs/ROADMAP.md](docs/ROADMAP.md).

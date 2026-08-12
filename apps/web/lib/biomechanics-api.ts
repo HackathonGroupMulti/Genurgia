@@ -10,7 +10,12 @@ export type HealthResult =
 const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
 
 export function getBackendBaseUrl(): string {
-  return process.env.BIOMECHANICS_API_URL ?? DEFAULT_BACKEND_URL;
+  const configured = process.env.BIOMECHANICS_API_URL ?? DEFAULT_BACKEND_URL;
+  const hostname = new URL(configured).hostname;
+  if (!["localhost", "127.0.0.1", "[::1]"].includes(hostname)) {
+    throw new Error("BIOMECHANICS_API_URL must use a loopback host for the offline workstation.");
+  }
+  return configured;
 }
 
 export function parseHealthResponse(value: unknown): HealthResponse | null {

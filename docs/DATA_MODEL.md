@@ -2,7 +2,7 @@
 
 The following entities describe the current movement-analysis slice and the target knee-evidence domain. The first implementation does not need every conceptual entity represented as a separate SQL table. Persistence choices should follow practical access patterns while keeping source observations distinct from annotations, derived results, reconstructions, and simulations.
 
-Implementation status as of 2026-08-11:
+Implementation status as of 2026-08-12:
 
 | Concept | Current representation |
 | --- | --- |
@@ -16,6 +16,8 @@ Implementation status as of 2026-08-11:
 | SessionMetric | SQLite rows sourced from a named analysis version. |
 | CalibrationProfile | Not implemented. |
 | CaptureQualityReport | Versioned JSON artifact plus session status and compact numeric signals. |
+| ProcessingOperation | SQLite operation status, stage, timing, input size, output identity, and sanitized failure provenance. |
+| ArtifactManifest | Per-bundle JSON containing SHA-256 and size for every published artifact. |
 
 ## Target identity and evidence graph
 
@@ -205,3 +207,9 @@ Recording schema `1.1.0` distinguishes:
 ### Schema evolution
 
 SQLite uses ordered, checksummed migrations with an upgrade regression from the legacy schema. Existing recording rows receive explicit `unknown`/`bilateral` defaults without modifying their raw artifacts.
+
+## Milestone 8 additions
+
+`processing_operations` records synchronous extraction runs independently from completed sessions. Failed or interrupted work therefore remains inspectable even when no session or artifact bundle is published. Operation records store no raw media or exception traceback.
+
+Every artifact bundle contains `artifact_manifest_v1.json`. It inventories source and derived filenames, byte sizes, and SHA-256 digests; the manifest itself is excluded to avoid recursive hashing. Session export compares expected hashes with current files and reports verified, missing, checksum-mismatch, or untracked states.

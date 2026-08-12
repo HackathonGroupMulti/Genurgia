@@ -285,3 +285,22 @@ Longitudinal changes are interpretable only when the compared evidence and algor
 Temporary boundary:
 
 The current repository has one local research-subject scope rather than canonical subject and knee records. Unknown capture context therefore fails compatibility. Milestone 9 replaces this temporary identity basis with explicit subject, knee, episode, and timepoint relationships.
+
+---
+
+## ADR-015 — Publish local artifact bundles atomically with durable hashes
+
+Status:
+Accepted
+
+Decision:
+
+Stream uploads into bounded hidden temporary files, build initial evidence bundles in hidden staging directories, write `artifact_manifest_v1.json`, and expose the bundle with one atomic rename. Atomically replace later derived artifacts and refresh the manifest. Persist processing-operation status and sanitized failure stage in SQLite. Keep short squat extraction synchronous until measurements justify a durable job boundary.
+
+Reason:
+
+An interrupted request must not expose a bundle that looks complete, and silent file corruption must be distinguishable from a missing or untracked artifact. The measured short-fixture workload does not justify a queue, broker, or distributed worker for this local single-user stage.
+
+Operational boundary:
+
+Startup cleanup assumes one local worker. Long anatomical, registration, and simulation work requires the durable job runner planned for Milestone 13 rather than extending this synchronous mechanism.

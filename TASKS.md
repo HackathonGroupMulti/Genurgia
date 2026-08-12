@@ -82,13 +82,13 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 8 — Reliable local research product
 
-* [ ] Stream uploads to bounded temporary storage.
+* [x] Stream uploads to bounded temporary storage.
 * [x] Add a SQLite schema-migration mechanism before changing persisted schemas. (Delivered early in Milestone 6.)
-* [ ] Define artifact deletion, retention, cleanup, backup, and recovery behavior.
-* [ ] Add frontend component and browser tests for critical happy and degraded paths.
-* [ ] Add structured logging and visible analysis-failure provenance.
-* [ ] Measure processing cost; introduce background jobs only if justified.
-* [ ] Complete a privacy/security review before storing identifiable or medical data.
+* [x] Define artifact deletion, retention, cleanup, backup, and recovery behavior.
+* [x] Add frontend component and browser tests for critical presentation and degraded-workstation paths.
+* [x] Add structured and visible analysis-operation failure provenance.
+* [x] Measure processing cost; retain synchronous processing while current measurements support it.
+* [x] Document the offline privacy/security baseline and keep identifiable/medical ingestion prohibited.
 * [ ] Add authentication and production persistence only when a connected or multi-user deployment is authorized.
 
 ## Program B — knee evidence foundation

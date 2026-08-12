@@ -12,6 +12,7 @@ from app.schemas.repetitions import REPETITION_ANALYSIS_VERSION
 from app.schemas.sessions import (
     ExportArtifact,
     ReanalysisResponse,
+    SessionDeletionResponse,
     SessionExportManifest,
 )
 from app.services.kinematics import KinematicsService
@@ -55,6 +56,10 @@ class SessionWorkflowService:
 
     def export_manifest(self, session_id: UUID) -> SessionExportManifest:
         session = self._repository.get_session(session_id)
+        durable = {
+            item["filename"]: item
+            for item in self._artifacts.verify_bundle(session.pose_sequence.id)
+        }
         references: list[tuple[str, str, str | None, str | None]] = [
             ("original_recording", session.recording.storage_reference, None, None),
             (
@@ -89,9 +94,24 @@ class SessionWorkflowService:
                     reference,
                     analysis_type,
                     analysis_version,
+                    durable,
                 )
                 for role, reference, analysis_type, analysis_version in references
             ],
+        )
+
+    def delete_session(self, session_id: UUID) -> SessionDeletionResponse:
+        session = self._repository.get_session(session_id)
+        staged = self._artifacts.stage_bundle_deletion(session.pose_sequence.id)
+        try:
+            self._repository.delete_session(session_id)
+        except Exception:
+            self._artifacts.restore_staged_deletion(session.pose_sequence.id, staged)
+            raise
+        self._artifacts.finalize_staged_deletion(staged)
+        return SessionDeletionResponse(
+            session_id=session.id,
+            pose_sequence_id=session.pose_sequence.id,
         )
 
     def _inspect_reference(
@@ -101,6 +121,7 @@ class SessionWorkflowService:
         reference: str,
         analysis_type: str | None,
         analysis_version: str | None,
+        durable: dict[str, dict],
     ) -> ExportArtifact:
         filename = Path(reference).name
         expected_prefix = f"/artifacts/{pose_sequence_id}/"
@@ -110,6 +131,8 @@ class SessionWorkflowService:
             else None
         )
         exists = path is not None and path.is_file()
+        tracked = durable.get(filename)
+        actual_sha256 = _sha256(path) if exists and path is not None else None
         return ExportArtifact(
             role=role,
             artifact_reference=reference,
@@ -117,8 +140,15 @@ class SessionWorkflowService:
             analysis_version=analysis_version,
             exists=exists,
             size_bytes=path.stat().st_size if exists and path is not None else None,
-            sha256=_sha256(path) if exists and path is not None else None,
-            integrity="verified" if exists else "missing",
+            sha256=actual_sha256,
+            expected_sha256=tracked["sha256"] if tracked is not None else None,
+            integrity=(
+                tracked["integrity"]
+                if tracked is not None
+                else "untracked"
+                if exists
+                else "missing"
+            ),
         )
 
 

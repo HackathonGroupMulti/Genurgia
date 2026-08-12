@@ -4,6 +4,7 @@ import { FormEvent, useRef, useState } from "react";
 import { CaptureQualitySummary } from "@/components/capture-quality-summary";
 import { CurrentFrameMetrics } from "@/components/current-frame-metrics";
 import { KneeFlexionChart } from "@/components/knee-flexion-chart";
+import { OperationHistory } from "@/components/operation-history";
 import { RepetitionSummary } from "@/components/repetition-summary";
 import { SessionHistory } from "@/components/session-history";
 import { SkeletonReplay } from "@/components/skeleton-replay";
@@ -221,6 +222,7 @@ export function VideoUpload() {
       <SessionHistory
         refreshKey={state.status === "complete" ? state.result.pose_sequence.id : "initial"}
       />
+      <OperationHistory refreshKey={state.status} />
     </section>
   );
 }
@@ -261,6 +263,13 @@ function AnalysisResult({
           {sequence.detected_frame_count} / {sequence.frame_count} frames detected
         </p>
       </div>
+      <p className="chart-note">
+        Processing operation {result.processing.operation_id} completed in{" "}
+        {result.processing.processing_duration_ms} ms
+        {result.processing.average_frames_per_second === null
+          ? "."
+          : ` (${result.processing.average_frames_per_second.toFixed(1)} frames/s).`}
+      </p>
       <p className="section-label">Annotated pose overlay · synchronized playback source</p>
       <video
         ref={videoRef}

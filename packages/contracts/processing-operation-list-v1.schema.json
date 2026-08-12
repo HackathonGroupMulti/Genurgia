@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "ProcessingOperation": {
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "operation_type": {
+          "const": "pose_extraction",
+          "title": "Operation Type",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "running",
+            "complete",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "input_bytes": {
+          "minimum": 0,
+          "title": "Input Bytes",
+          "type": "integer"
+        },
+        "pose_sequence_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pose Sequence Id"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "completed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Completed At"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Ms"
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error Code"
+        },
+        "error_detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error Detail"
+        }
+      },
+      "required": [
+        "id",
+        "operation_type",
+        "status",
+        "stage",
+        "input_bytes",
+        "pose_sequence_id",
+        "started_at",
+        "completed_at",
+        "error_code",
+        "error_detail"
+      ],
+      "title": "ProcessingOperation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "operations": {
+      "items": {
+        "$ref": "#/$defs/ProcessingOperation"
+      },
+      "title": "Operations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "operations"
+  ],
+  "title": "ProcessingOperationList",
+  "type": "object"
+}

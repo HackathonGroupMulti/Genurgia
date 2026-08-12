@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 DEFAULT_ALLOWED_ORIGINS = ("http://localhost:3000",)
 DEFAULT_MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024
@@ -22,7 +23,11 @@ def allowed_origins() -> list[str]:
     if configured is None:
         return list(DEFAULT_ALLOWED_ORIGINS)
 
-    return [origin.strip() for origin in configured.split(",") if origin.strip()]
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    for origin in origins:
+        if urlparse(origin).hostname not in {"localhost", "127.0.0.1", "::1"}:
+            raise ValueError("CORS_ALLOWED_ORIGINS must contain only loopback origins.")
+    return origins
 
 
 def artifact_root() -> Path:

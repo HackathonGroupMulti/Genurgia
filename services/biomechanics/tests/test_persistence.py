@@ -179,7 +179,48 @@ def test_repository_migrates_existing_v1_database_without_losing_sessions(
         versions = [row[0] for row in connection.execute(
             "SELECT version FROM schema_migrations ORDER BY version"
         )]
-    assert versions == [1, 2]
+    assert versions == [1, 2, 3]
+
+
+def test_repository_upgrades_a_migration_v2_database(tmp_path: Path) -> None:
+    import sqlite3
+    from datetime import UTC, datetime
+
+    database_path = tmp_path / "v2.sqlite3"
+    with sqlite3.connect(database_path) as connection:
+        connection.row_factory = sqlite3.Row
+        connection.execute(
+            """CREATE TABLE schema_migrations (
+                version INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                checksum TEXT NOT NULL,
+                applied_at TEXT NOT NULL
+            )"""
+        )
+        for migration in MIGRATIONS[:2]:
+            for statement in migration.statements:
+                connection.execute(statement)
+            connection.execute(
+                "INSERT INTO schema_migrations VALUES (?, ?, ?, ?)",
+                (
+                    migration.version,
+                    migration.name,
+                    migration.checksum,
+                    datetime.now(UTC).isoformat(),
+                ),
+            )
+
+    sessions = SQLiteSessionRepository(database_path)
+
+    assert sessions.list_processing_operations() == []
+    with sqlite3.connect(database_path) as connection:
+        versions = [
+            row[0]
+            for row in connection.execute(
+                "SELECT version FROM schema_migrations ORDER BY version"
+            )
+        ]
+    assert versions == [1, 2, 3]
 
 
 def test_selected_comparison_enforces_capture_and_analysis_compatibility(

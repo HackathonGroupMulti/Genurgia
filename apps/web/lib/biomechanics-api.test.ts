@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseHealthResponse } from "./biomechanics-api";
+import { getBackendBaseUrl, parseHealthResponse } from "./biomechanics-api";
 
 describe("parseHealthResponse", () => {
   it("accepts the biomechanics health contract", () => {
@@ -16,5 +16,16 @@ describe("parseHealthResponse", () => {
     { status: "ok", service: "unknown" },
   ])("rejects an invalid response: %j", (response) => {
     expect(parseHealthResponse(response)).toBeNull();
+  });
+
+  it("rejects a non-loopback backend", () => {
+    const original = process.env.BIOMECHANICS_API_URL;
+    process.env.BIOMECHANICS_API_URL = "https://example.test";
+    try {
+      expect(() => getBackendBaseUrl()).toThrow("loopback");
+    } finally {
+      if (original === undefined) delete process.env.BIOMECHANICS_API_URL;
+      else process.env.BIOMECHANICS_API_URL = original;
+    }
   });
 });
