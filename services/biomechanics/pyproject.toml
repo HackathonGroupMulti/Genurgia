@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.141,<0.142",
   "mediapipe>=1.0,<1.1",
+  "numpy>=2,<3",
   "opencv-contrib-python>=5,<6",
   "pydicom>=3,<4",
   "python-multipart>=0.0.22,<1",

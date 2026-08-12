@@ -209,6 +209,12 @@ Milestone 10 adds acquisition coordinates but no new biomechanical calculation:
 
 Any later conversion among these conventions must be a versioned registration with method, residual error, coverage, and uncertainty. No identity, scale, or laterality transform is implicit.
 
+## Reconstruction agreement metrics
+
+`label-map-surface-agreement-v1` compares reviewed and independent-reference binary masks per named structure. Dice is unitless. Average symmetric surface distance and bidirectional Hausdorff-95 are reported in millimetres after scaling voxel indices by explicit three-axis voxel spacing. Empty structures and shape/spacing mismatches are unavailable failures, never zero-distance matches.
+
+These metrics measure agreement between two label maps; they do not establish anatomical truth or clinical validity. Structure-specific acceptance thresholds remain an expert-approved input. Draft thresholds always yield `not-evaluated` acceptance.
+
 ## Known limitations
 
 * monocular depth uncertainty;

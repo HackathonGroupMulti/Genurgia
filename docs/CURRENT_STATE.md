@@ -6,9 +6,9 @@ Last updated: 2026-08-12
 
 Knee Twin is an offline, expert-facing research platform intended to create a longitudinal, patient-specific knee twin from immutable evidence, reviewed anatomy, functional registration, and reproducible virtual experiments. It is not a diagnostic medical device.
 
-Engineering Milestones 0–10 are technically complete. The repository now implements a reliable squat evidence workflow, an additive canonical subject/knee evidence graph, and controlled imports for pre-de-identified MRI DICOM series, authorized arthroscopy video, and standardized calibrated four-camera RGB captures. Existing squat sessions and endpoints remain operational.
+Engineering Milestones 0–11 are technically complete. The repository implements a reliable squat evidence workflow, a canonical subject/knee evidence graph, controlled multimodal imports, and a synthetic complete-anatomy manual-review package with independent-reference agreement metrics. Existing squat sessions and endpoints remain operational.
 
-The current “digital twin” is still an evidence system, not a reconstructed or simulated patient knee. No complete patient-specific segmentation, anatomical surface set, arthroscopy-to-MRI registration, calibrated motion replay on anatomy, or mechanical experiment has been validated. Milestone 6's participant-diversity gate and Milestone 10's paired-human-data gate remain open.
+The current “digital twin” is still an evidence/review system, not a validated or simulated patient knee. Synthetic packages demonstrate complete structure handling but not anatomical accuracy. No human patient-specific segmentation, arthroscopy-to-MRI registration, calibrated motion replay, or mechanical experiment has been validated. Milestones 6, 10, and 11 retain external evidence gates.
 
 ## Working and verified
 
@@ -43,13 +43,20 @@ The current “digital twin” is still an evidence system, not a reconstructed 
 * SQLite owns canonical/operation metadata, migrations are checksummed, and recovery/deletion behavior is tested.
 * Both tiers reject non-loopback service configuration; sensitive research data requires an approved encrypted volume.
 
+### Complete-anatomy review package
+
+* `POST /reconstructions/imports/manual` requires all 22 v1 bone, cartilage, meniscus, ligament, tendon, and major knee-crossing musculotendon structures.
+* It preserves reviewed/reference label maps, computational volume, per-structure PLY/GLB meshes, approved landmarks, corrections, and different primary/independent reviewers.
+* Pure Dice, average symmetric surface distance, and Hausdorff-95 calculations preserve physical millimetre units and refuse missing structures.
+* Draft structure thresholds force `thresholds-unapproved`, `expert-reviewed`, and `in_review` even for a perfect synthetic fixture.
+
 ## Open evidence and product gaps
 
 * Participant-diverse squat fixtures and approved paired MRI/arthroscopy/multi-view cases are absent.
 * The identifier-tag screen does not detect private-tag, pixel, filename, structured-content, or indirect identifiers; upstream governed de-identification remains mandatory.
 * MRI import preserves original DICOM but does not yet create a separately versioned computational volume.
 * The current reconstruction, registration, experiment, and result records are contracts, not demonstrated scientific outputs.
-* No complete-knee segmentation/reference workflow, scientific/web mesh generation, independent expert review, inter-rater evaluation, or surface-distance acceptance gate exists.
+* The package validates synthetic/review artifacts but does not generate segmentation or meshes; no domain-approved human reference workflow, taxonomy/landmark protocol, or structure thresholds exist.
 * Arthroscopy overlay/refinement/scoring, calibrated triangulation/anatomical registration, motion replay, durable jobs, and solver adapters remain unimplemented.
 * Authentication, roles, connected clinical systems, identifiable-data handling, and clinical use remain unauthorized.
 
@@ -65,13 +72,15 @@ Multimodal imports are:
 
 They currently execute synchronously and explicitly report that the durable job runner is deferred to Milestone 13.
 
+Reviewed reconstruction packages use `/reconstructions/imports/manual`.
+
 ## Verification baseline
 
-Milestone 10 verification: 104 backend tests, Ruff, JSON Schema parity, Markdown lint, 30 frontend tests, ESLint, TypeScript, production build, one Playwright Chromium smoke test, and `git diff --check` pass locally. Generated fixtures cover spatial conventions, byte/hash preservation, identifiers, laterality, wrong modality, corrupt/inconsistent sources, timing bounds, calibration contracts, and API authorization.
+Milestone 11 verification: 110 backend tests, Ruff, JSON Schema parity, Markdown lint, 32 frontend tests, ESLint, TypeScript, production build, one Playwright Chromium smoke test, and `git diff --check` pass locally. New tests cover pure physical-space metrics, complete/incomplete packages, reviewer independence, structure coverage, provenance, and evidence-class distinctions.
 
 ## Current priority
 
-Milestone 11: implement a reviewed manual-segmentation reference workflow, structure-complete reconstruction contracts, distinct label-map/scientific-mesh/web-mesh artifacts, anatomical landmarks/coordinates, correction provenance, independent review, and structure-specific evaluation gates. Paired-data acquisition proceeds as an external evidence track.
+Milestone 12: add evidence-gated arthroscopy overlay/refinement contracts, calibrated multi-view triangulation, motion-to-anatomy registration, residuals, coverage, and uncertainty with synthetic known-transform validation. Paired-data acquisition and expert threshold approval proceed as external evidence tracks.
 
 ## Preserve
 

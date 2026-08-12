@@ -354,3 +354,26 @@ That would couple ingestion to immature segmentation/registration algorithms, hi
 Operational boundary:
 
 Synthetic tests close the software gate only. Approved paired human-data acquisition, governed de-identification review, and modality-specific scientific validation remain open evidence gates. Imports remain synchronous until the durable local job runner is introduced in Milestone 13.
+
+---
+
+## ADR-018 — Manual independent review is the first anatomy authority
+
+Status:
+Accepted
+
+Decision:
+
+Use a complete manual-segmentation package with distinct reviewed/reference label maps, computational volume, scientific/web meshes, landmarks, correction history, and independent review as the first reconstruction boundary. Calculate per-structure overlap and surface distances, but keep geometry `expert-reviewed` and `in_review` whenever the threshold profile lacks named expert approval. Add machine assistance only through a later replaceable adapter.
+
+Reason:
+
+No approved training corpus or human reference set exists. Automatic segmentation would add capability claims without evidence, while a strict review package makes completeness, corrections, coordinate meaning, and inter-rater evidence inspectable now.
+
+Rejected alternative:
+
+Call a synthetic or machine-produced mesh patient-specific because it was derived from one MRI.
+
+Why rejected:
+
+Patient identity of the source does not establish segmentation accuracy, surface quality, landmark validity, or independent agreement. The evidence class must reflect review and validation state rather than aspiration.

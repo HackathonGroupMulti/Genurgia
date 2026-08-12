@@ -1,0 +1,701 @@
+{
+  "$defs": {
+    "AnatomicalLandmarkV1": {
+      "properties": {
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "structure": {
+          "enum": [
+            "femur",
+            "tibia",
+            "fibula",
+            "patella",
+            "femoral_cartilage",
+            "medial_tibial_cartilage",
+            "lateral_tibial_cartilage",
+            "patellar_cartilage",
+            "medial_meniscus",
+            "lateral_meniscus",
+            "acl",
+            "pcl",
+            "mcl",
+            "lcl",
+            "quadriceps_tendon",
+            "patellar_tendon",
+            "quadriceps_musculotendon",
+            "medial_hamstrings_musculotendon",
+            "lateral_hamstrings_musculotendon",
+            "medial_gastrocnemius_musculotendon",
+            "lateral_gastrocnemius_musculotendon",
+            "popliteus_musculotendon"
+          ],
+          "title": "Structure",
+          "type": "string"
+        },
+        "position_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position Mm",
+          "type": "array"
+        },
+        "author": {
+          "minLength": 1,
+          "title": "Author",
+          "type": "string"
+        },
+        "review_state": {
+          "const": "approved",
+          "title": "Review State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "structure",
+        "position_mm",
+        "author",
+        "review_state"
+      ],
+      "title": "AnatomicalLandmarkV1",
+      "type": "object"
+    },
+    "CorrectionEventV1": {
+      "properties": {
+        "sequence": {
+          "exclusiveMinimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "author": {
+          "minLength": 1,
+          "title": "Author",
+          "type": "string"
+        },
+        "structures": {
+          "items": {
+            "enum": [
+              "femur",
+              "tibia",
+              "fibula",
+              "patella",
+              "femoral_cartilage",
+              "medial_tibial_cartilage",
+              "lateral_tibial_cartilage",
+              "patellar_cartilage",
+              "medial_meniscus",
+              "lateral_meniscus",
+              "acl",
+              "pcl",
+              "mcl",
+              "lcl",
+              "quadriceps_tendon",
+              "patellar_tendon",
+              "quadriceps_musculotendon",
+              "medial_hamstrings_musculotendon",
+              "lateral_hamstrings_musculotendon",
+              "medial_gastrocnemius_musculotendon",
+              "lateral_gastrocnemius_musculotendon",
+              "popliteus_musculotendon"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Structures",
+          "type": "array"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "source_version": {
+          "minLength": 1,
+          "title": "Source Version",
+          "type": "string"
+        },
+        "result_version": {
+          "minLength": 1,
+          "title": "Result Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "author",
+        "structures",
+        "description",
+        "source_version",
+        "result_version"
+      ],
+      "title": "CorrectionEventV1",
+      "type": "object"
+    },
+    "IndependentReviewV1": {
+      "properties": {
+        "primary_reviewer": {
+          "minLength": 1,
+          "title": "Primary Reviewer",
+          "type": "string"
+        },
+        "independent_reviewer": {
+          "minLength": 1,
+          "title": "Independent Reviewer",
+          "type": "string"
+        },
+        "review_protocol": {
+          "const": "manual-segmentation-independent-review-v1",
+          "title": "Review Protocol",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "approved",
+            "changes_requested"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "notes": {
+          "minLength": 1,
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary_reviewer",
+        "independent_reviewer",
+        "review_protocol",
+        "decision",
+        "notes"
+      ],
+      "title": "IndependentReviewV1",
+      "type": "object"
+    },
+    "ManualReconstructionPackageV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_mri_observation_id": {
+          "format": "uuid",
+          "title": "Source Mri Observation Id",
+          "type": "string"
+        },
+        "knee_id": {
+          "format": "uuid",
+          "title": "Knee Id",
+          "type": "string"
+        },
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "geometry_class": {
+          "const": "expert-reviewed",
+          "default": "expert-reviewed",
+          "title": "Geometry Class",
+          "type": "string"
+        },
+        "coordinate_system": {
+          "const": "dicom-patient-lps-mm",
+          "default": "dicom-patient-lps-mm",
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "voxel_spacing_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Voxel Spacing Mm",
+          "type": "array"
+        },
+        "structure_labels": {
+          "items": {
+            "$ref": "#/$defs/StructureLabelV1"
+          },
+          "title": "Structure Labels",
+          "type": "array"
+        },
+        "landmarks": {
+          "items": {
+            "$ref": "#/$defs/AnatomicalLandmarkV1"
+          },
+          "minItems": 1,
+          "title": "Landmarks",
+          "type": "array"
+        },
+        "correction_history": {
+          "items": {
+            "$ref": "#/$defs/CorrectionEventV1"
+          },
+          "title": "Correction History",
+          "type": "array"
+        },
+        "independent_review": {
+          "$ref": "#/$defs/IndependentReviewV1"
+        },
+        "threshold_profile": {
+          "$ref": "#/$defs/ThresholdProfileV1"
+        },
+        "label_map_format": {
+          "const": "numpy-npz-labels-v1",
+          "default": "numpy-npz-labels-v1",
+          "title": "Label Map Format",
+          "type": "string"
+        },
+        "computational_volume_format": {
+          "const": "numpy-npz-volume-v1",
+          "default": "numpy-npz-volume-v1",
+          "title": "Computational Volume Format",
+          "type": "string"
+        },
+        "scientific_mesh_format": {
+          "const": "ply-per-structure-v1",
+          "default": "ply-per-structure-v1",
+          "title": "Scientific Mesh Format",
+          "type": "string"
+        },
+        "web_mesh_format": {
+          "const": "glb-per-structure-v1",
+          "default": "glb-per-structure-v1",
+          "title": "Web Mesh Format",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_mri_observation_id",
+        "knee_id",
+        "timepoint_id",
+        "version",
+        "voxel_spacing_mm",
+        "structure_labels",
+        "landmarks",
+        "correction_history",
+        "independent_review",
+        "threshold_profile"
+      ],
+      "title": "ManualReconstructionPackageV1",
+      "type": "object"
+    },
+    "Reconstruction": {
+      "properties": {
+        "knee_id": {
+          "format": "uuid",
+          "title": "Knee Id",
+          "type": "string"
+        },
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "geometry_class": {
+          "enum": [
+            "generic",
+            "fitted",
+            "machine-segmented",
+            "expert-reviewed",
+            "patient-specific"
+          ],
+          "title": "Geometry Class",
+          "type": "string"
+        },
+        "structures": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Structures",
+          "type": "array"
+        },
+        "artifact_references": {
+          "additionalProperties": true,
+          "title": "Artifact References",
+          "type": "object"
+        },
+        "coordinate_system": {
+          "additionalProperties": true,
+          "title": "Coordinate System",
+          "type": "object"
+        },
+        "review_state": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "in_review",
+            "approved",
+            "rejected"
+          ],
+          "title": "Review State",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "knee_id",
+        "timepoint_id",
+        "version",
+        "geometry_class",
+        "structures",
+        "artifact_references",
+        "coordinate_system",
+        "id",
+        "created_at"
+      ],
+      "title": "Reconstruction",
+      "type": "object"
+    },
+    "ReconstructionQualityReportV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "algorithm_version": {
+          "const": "label-map-surface-agreement-v1",
+          "default": "label-map-surface-agreement-v1",
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "structures": {
+          "items": {
+            "$ref": "#/$defs/StructureQualityV1"
+          },
+          "title": "Structures",
+          "type": "array"
+        },
+        "inter_rater_evaluation_present": {
+          "title": "Inter Rater Evaluation Present",
+          "type": "boolean"
+        },
+        "threshold_profile_id": {
+          "title": "Threshold Profile Id",
+          "type": "string"
+        },
+        "threshold_approval_state": {
+          "enum": [
+            "draft",
+            "approved"
+          ],
+          "title": "Threshold Approval State",
+          "type": "string"
+        },
+        "validation_status": {
+          "enum": [
+            "accepted",
+            "rejected",
+            "thresholds-unapproved"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "structures",
+        "inter_rater_evaluation_present",
+        "threshold_profile_id",
+        "threshold_approval_state",
+        "validation_status"
+      ],
+      "title": "ReconstructionQualityReportV1",
+      "type": "object"
+    },
+    "StructureLabelV1": {
+      "properties": {
+        "structure": {
+          "enum": [
+            "femur",
+            "tibia",
+            "fibula",
+            "patella",
+            "femoral_cartilage",
+            "medial_tibial_cartilage",
+            "lateral_tibial_cartilage",
+            "patellar_cartilage",
+            "medial_meniscus",
+            "lateral_meniscus",
+            "acl",
+            "pcl",
+            "mcl",
+            "lcl",
+            "quadriceps_tendon",
+            "patellar_tendon",
+            "quadriceps_musculotendon",
+            "medial_hamstrings_musculotendon",
+            "lateral_hamstrings_musculotendon",
+            "medial_gastrocnemius_musculotendon",
+            "lateral_gastrocnemius_musculotendon",
+            "popliteus_musculotendon"
+          ],
+          "title": "Structure",
+          "type": "string"
+        },
+        "label_value": {
+          "exclusiveMinimum": 0,
+          "title": "Label Value",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "structure",
+        "label_value"
+      ],
+      "title": "StructureLabelV1",
+      "type": "object"
+    },
+    "StructureQualityV1": {
+      "properties": {
+        "structure": {
+          "enum": [
+            "femur",
+            "tibia",
+            "fibula",
+            "patella",
+            "femoral_cartilage",
+            "medial_tibial_cartilage",
+            "lateral_tibial_cartilage",
+            "patellar_cartilage",
+            "medial_meniscus",
+            "lateral_meniscus",
+            "acl",
+            "pcl",
+            "mcl",
+            "lcl",
+            "quadriceps_tendon",
+            "patellar_tendon",
+            "quadriceps_musculotendon",
+            "medial_hamstrings_musculotendon",
+            "lateral_hamstrings_musculotendon",
+            "medial_gastrocnemius_musculotendon",
+            "lateral_gastrocnemius_musculotendon",
+            "popliteus_musculotendon"
+          ],
+          "title": "Structure",
+          "type": "string"
+        },
+        "dice_coefficient": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Dice Coefficient",
+          "type": "number"
+        },
+        "average_symmetric_surface_distance_mm": {
+          "minimum": 0,
+          "title": "Average Symmetric Surface Distance Mm",
+          "type": "number"
+        },
+        "hausdorff_95_mm": {
+          "minimum": 0,
+          "title": "Hausdorff 95 Mm",
+          "type": "number"
+        },
+        "reference_voxels": {
+          "exclusiveMinimum": 0,
+          "title": "Reference Voxels",
+          "type": "integer"
+        },
+        "candidate_voxels": {
+          "exclusiveMinimum": 0,
+          "title": "Candidate Voxels",
+          "type": "integer"
+        },
+        "acceptance": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-evaluated"
+          ],
+          "title": "Acceptance",
+          "type": "string"
+        }
+      },
+      "required": [
+        "structure",
+        "dice_coefficient",
+        "average_symmetric_surface_distance_mm",
+        "hausdorff_95_mm",
+        "reference_voxels",
+        "candidate_voxels",
+        "acceptance"
+      ],
+      "title": "StructureQualityV1",
+      "type": "object"
+    },
+    "ThresholdProfileV1": {
+      "properties": {
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "approval_state": {
+          "enum": [
+            "draft",
+            "approved"
+          ],
+          "title": "Approval State",
+          "type": "string"
+        },
+        "approving_authority": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approving Authority"
+        },
+        "thresholds_by_structure": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "propertyNames": {
+            "enum": [
+              "femur",
+              "tibia",
+              "fibula",
+              "patella",
+              "femoral_cartilage",
+              "medial_tibial_cartilage",
+              "lateral_tibial_cartilage",
+              "patellar_cartilage",
+              "medial_meniscus",
+              "lateral_meniscus",
+              "acl",
+              "pcl",
+              "mcl",
+              "lcl",
+              "quadriceps_tendon",
+              "patellar_tendon",
+              "quadriceps_musculotendon",
+              "medial_hamstrings_musculotendon",
+              "lateral_hamstrings_musculotendon",
+              "medial_gastrocnemius_musculotendon",
+              "lateral_gastrocnemius_musculotendon",
+              "popliteus_musculotendon"
+            ]
+          },
+          "title": "Thresholds By Structure",
+          "type": "object"
+        }
+      },
+      "required": [
+        "profile_id",
+        "approval_state",
+        "thresholds_by_structure"
+      ],
+      "title": "ThresholdProfileV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "reconstruction": {
+      "$ref": "#/$defs/Reconstruction"
+    },
+    "package": {
+      "$ref": "#/$defs/ManualReconstructionPackageV1"
+    },
+    "quality": {
+      "$ref": "#/$defs/ReconstructionQualityReportV1"
+    },
+    "artifact_integrity": {
+      "items": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "object"
+      },
+      "title": "Artifact Integrity",
+      "type": "array"
+    },
+    "evidence_class": {
+      "const": "expert-reviewed-reconstruction",
+      "default": "expert-reviewed-reconstruction",
+      "title": "Evidence Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reconstruction",
+    "package",
+    "quality",
+    "artifact_integrity"
+  ],
+  "title": "ReconstructionImportResultV1",
+  "type": "object"
+}

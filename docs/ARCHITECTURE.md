@@ -56,6 +56,12 @@ The adapters preserve source-coordinate meaning rather than converting all evide
 
 Imports are synchronous for the current single-user synthetic-fixture scale. The response declares this execution boundary. Durable progress, cancellation, retry, and recovered jobs are introduced once in Milestone 13 rather than through a second temporary queue.
 
+## Milestone 11 reconstruction boundary
+
+`ReconstructionImportService` validates a complete manual-review package independently from HTTP and from registration. It verifies MRI/knee/timepoint ownership, complete label and mesh coverage, review provenance, coordinate units, and reference agreement before atomically publishing artifacts and the canonical reconstruction/derivation records. It does not perform segmentation or rewrite the MRI observation.
+
+Scientific meshes, web meshes, label maps, computational volume, landmarks, review history, and quality remain distinct artifacts or typed metadata. Arthroscopy evidence cannot refine this MRI reconstruction in place; a supported refinement creates a later reconstruction through Milestone 12.
+
 The local filesystem implementation of the artifact-storage boundary stores each extraction bundle: original recording, versioned raw pose-sequence JSON, annotated MP4, and separate derived JSON artifacts. SQLite stores structured session, source, analysis-version, and compact metric metadata with references to those artifacts.
 
 Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.

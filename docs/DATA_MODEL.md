@@ -48,6 +48,8 @@ Observation creation requires a source reference, explicit SHA-256 state, acquis
 
 Milestone 10 import observations use their observation UUID as the immutable artifact-bundle UUID. `source_artifact_reference` identifies the primary exact source (or the multi-view acquisition manifest), `source_sha256` records its durable hash, and the complete per-file hashes remain in `artifact_manifest_v1.json`. `acquisition_manifest` is one of the versioned MRI, arthroscopy, or calibrated multi-view contracts; `quality` repeats its status/signals for modality-neutral querying.
 
+Milestone 11 reconstruction imports likewise share a reconstruction/artifact-bundle UUID. The canonical row preserves knee, timepoint, version, `expert-reviewed` geometry class, complete structure list, coordinate system, review state, and typed references to distinct label maps, computational volume, scientific meshes, web meshes, and quality report. Package review/correction/landmark and threshold metadata remain in the immutable source package and derivation configuration.
+
 ## User
 
 The person whose movement history is being tracked.

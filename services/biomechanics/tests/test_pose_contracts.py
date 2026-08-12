@@ -28,6 +28,7 @@ from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
 from app.schemas.quality import CaptureQualityReport
+from app.schemas.reconstruction import ReconstructionImportResultV1
 from app.schemas.repetitions import SquatRepetitionAnalysis
 from app.schemas.sessions import (
     ReanalysisResponse,
@@ -86,6 +87,7 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
         ("arthroscopy-manifest-v1.schema.json", ArthroscopyManifestV1),
         ("multi-view-capture-manifest-v1.schema.json", MultiViewCaptureManifestV1),
         ("observation-import-result-v1.schema.json", ObservationImportResultV1),
+        ("reconstruction-import-result-v1.schema.json", ReconstructionImportResultV1),
     ],
 )
 def test_exported_contract_is_current(filename: str, model: type) -> None:

@@ -281,7 +281,12 @@ class SQLiteEvidenceRepository:
             (str(observation_id),) if observation_id else (),
         )
 
-    def create_reconstruction(self, request: ReconstructionCreate) -> Reconstruction:
+    def create_reconstruction(
+        self,
+        request: ReconstructionCreate,
+        *,
+        reconstruction_id: UUID | None = None,
+    ) -> Reconstruction:
         self._ensure_knee_timepoint_subject(request.knee_id, request.timepoint_id)
         identifier, now = self._json_create(
             """INSERT INTO reconstructions
@@ -298,6 +303,7 @@ class SQLiteEvidenceRepository:
                 _json(request.coordinate_system),
                 request.review_state,
             ),
+            identifier=reconstruction_id,
         )
         return Reconstruction(id=identifier, created_at=now, **request.model_dump())
 
@@ -495,8 +501,10 @@ class SQLiteEvidenceRepository:
         self,
         sql: str,
         values_without_id_and_created: tuple[Any, ...],
+        *,
+        identifier: UUID | None = None,
     ) -> tuple[UUID, str]:
-        identifier = uuid4()
+        identifier = identifier or uuid4()
         now = _now()
         self._execute_create(
             sql,

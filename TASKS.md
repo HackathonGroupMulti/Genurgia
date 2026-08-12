@@ -118,12 +118,16 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 11 — Reviewed 3D anatomical reconstruction
 
-* [ ] Select the first supported imaging protocol and anatomical structures with domain-expert input.
-* [ ] Implement or integrate versioned segmentation with manual review/correction provenance.
-* [ ] Generate patient-specific surfaces/volumes with anatomical landmarks and explicit coordinate systems.
-* [ ] Quantify reconstruction quality against appropriate reference data.
-* [ ] Label generic, fitted, reconstructed, and directly observed geometry distinctly in the UI.
-* [ ] Register partial internal imagery to anatomy only when evidence supports the transform and coverage is visible.
+* [x] Define the complete 22-structure target for bones, cartilage, menisci, cruciate/collateral ligaments, tendons, and approved major knee-crossing musculotendon groups.
+* [x] Implement a versioned manual-segmentation package with correction history and independent reviewer provenance.
+* [x] Preserve reviewed and independent label maps, computational volume, scientific PLY meshes, web GLB meshes, landmarks, and DICOM patient-LPS coordinates separately.
+* [x] Implement pure Dice, average symmetric surface distance, and Hausdorff-95 evaluation in physical millimetres against a reference label map.
+* [x] Require complete structure coverage and attribute generic, fitted, machine-segmented, expert-reviewed, and patient-specific geometry distinctly in TypeScript contracts.
+* [x] Keep arthroscopy registration/refinement outside anatomy import; it remains a separate Milestone 12 reconstruction/registration layer.
+* [ ] Obtain domain-expert approval for the exact structure taxonomy, landmark protocol, and per-structure acceptance thresholds.
+* [ ] Evaluate independent experts and inter-rater variation on approved human reference cases.
+* [ ] Add a replaceable machine-assisted segmentation adapter only after training/reference data and validation exist.
+* [ ] Close the patient-specific validation gate; draft thresholds keep imported geometry `expert-reviewed` and `in_review`.
 
 ### Milestone 12 — Functional multimodal registration
 

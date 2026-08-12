@@ -7,12 +7,14 @@ from app.api.health import router as health_router
 from app.api.imports import router as imports_router
 from app.api.operations import router as operations_router
 from app.api.pose_sequences import router as pose_sequences_router
+from app.api.reconstructions import router as reconstruction_imports_router
 from app.api.sessions import router as sessions_router
 from app.evidence_repository import EvidenceConflict, EvidenceNotFound, SQLiteEvidenceRepository
 from app.persistence import SQLiteSessionRepository
 from app.services.imports import ObservationImportService
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
+from app.services.reconstructions import ReconstructionImportService
 from app.services.sessions import SessionWorkflowService
 from app.settings import (
     allowed_origins,
@@ -83,6 +85,11 @@ def create_app(
         evidence,
         max_observation_upload_bytes(),
     )
+    application.state.reconstruction_import_service = ReconstructionImportService(
+        store,
+        evidence,
+        max_observation_upload_bytes(),
+    )
     application.state.session_workflow_service = SessionWorkflowService(
         sessions,
         store,
@@ -93,6 +100,7 @@ def create_app(
     application.include_router(evidence_router)
     application.include_router(operations_router)
     application.include_router(pose_sequences_router)
+    application.include_router(reconstruction_imports_router)
     application.include_router(sessions_router)
     application.add_exception_handler(
         EvidenceNotFound,
