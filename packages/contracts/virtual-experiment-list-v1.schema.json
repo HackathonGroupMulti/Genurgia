@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "VirtualExperiment": {
+      "properties": {
+        "knee_id": {
+          "format": "uuid",
+          "title": "Knee Id",
+          "type": "string"
+        },
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "definition_version": {
+          "minLength": 1,
+          "title": "Definition Version",
+          "type": "string"
+        },
+        "definition": {
+          "additionalProperties": true,
+          "title": "Definition",
+          "type": "object"
+        },
+        "validation_tier": {
+          "enum": [
+            "synthetic",
+            "integration",
+            "research",
+            "independent"
+          ],
+          "title": "Validation Tier",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "knee_id",
+        "timepoint_id",
+        "definition_version",
+        "definition",
+        "validation_tier",
+        "id",
+        "created_at"
+      ],
+      "title": "VirtualExperiment",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "experiments": {
+      "items": {
+        "$ref": "#/$defs/VirtualExperiment"
+      },
+      "title": "Experiments",
+      "type": "array"
+    }
+  },
+  "required": [
+    "experiments"
+  ],
+  "title": "VirtualExperimentList",
+  "type": "object"
+}

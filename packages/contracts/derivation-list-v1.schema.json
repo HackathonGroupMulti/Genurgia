@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "Derivation": {
+      "properties": {
+        "derivation_type": {
+          "minLength": 1,
+          "title": "Derivation Type",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Inputs",
+          "type": "array"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Outputs",
+          "type": "array"
+        },
+        "algorithm": {
+          "minLength": 1,
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "algorithm_version": {
+          "minLength": 1,
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "configuration": {
+          "additionalProperties": true,
+          "title": "Configuration",
+          "type": "object"
+        },
+        "code_revision": {
+          "minLength": 1,
+          "title": "Code Revision",
+          "type": "string"
+        },
+        "environment": {
+          "additionalProperties": true,
+          "title": "Environment",
+          "type": "object"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "derivation_type",
+        "inputs",
+        "outputs",
+        "algorithm",
+        "algorithm_version",
+        "configuration",
+        "code_revision",
+        "environment",
+        "id",
+        "created_at"
+      ],
+      "title": "Derivation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "derivations": {
+      "items": {
+        "$ref": "#/$defs/Derivation"
+      },
+      "title": "Derivations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "derivations"
+  ],
+  "title": "DerivationList",
+  "type": "object"
+}

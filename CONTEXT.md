@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 9 — canonical knee evidence graph.
+Milestone 10 — multimodal acquisition and ingestion.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Add canonical subject, knee, episode, timepoint, observation, annotation, reconstruction, registration, derivation, and experiment records without breaking existing squat sessions.
+Implement de-identified MRI/DICOM and arthroscopy import manifests plus the calibrated four-camera protocol, beginning with synthetic or appropriately licensed fixtures.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

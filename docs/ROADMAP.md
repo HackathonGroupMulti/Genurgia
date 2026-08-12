@@ -18,7 +18,7 @@ The present repository is a local technical prototype. It demonstrates raw-evide
 | Longitudinal session history | Implemented for local squat sessions | Historical replay, compatibility checks, reanalysis, integrity manifests, and recovery form the timepoint foundation. |
 | Other movement and sensor protocols | Not implemented | Broader functional evidence. |
 | Medical image and internal-imagery ingestion | Not implemented | Preserve authorized anatomical evidence and provenance. |
-| Patient/knee identity and laterality model | Not implemented | Prevent cross-person, cross-knee, and cross-timepoint mixing. |
+| Subject/knee identity and laterality model | Implemented | Canonical graph prevents cross-subject/knee/timepoint mixing and preserves legacy sessions. |
 | Patient-specific segmentation and 3D anatomy | Not implemented | Reconstruct reviewable anatomical geometry. |
 | Multimodal spatial/temporal registration | Not implemented | Align motion and anatomy in explicit coordinate systems. |
 | Musculoskeletal or finite-element simulation | Not implemented | Run named virtual experiments with controlled assumptions. |
@@ -92,4 +92,4 @@ Exit gate: product claims match demonstrated evidence and the approved operating
 
 ## Immediate priority
 
-Introduce the canonical subject, knee/laterality, episode, timepoint, observation, annotation, reconstruction, registration, derivation, and experiment graph without breaking existing squat sessions. Continue participant-diverse squat-fixture acquisition in parallel. Do not add a simulation engine before trustworthy anatomical inputs and validation targets exist.
+Implement modality-specific MRI/DICOM, arthroscopy, and calibrated multi-view acquisition manifests and quality gates using synthetic or appropriately licensed fixtures. Continue participant-diverse squat-fixture and approved paired-case acquisition in parallel. Do not add a simulation engine before trustworthy anatomical inputs and validation targets exist.

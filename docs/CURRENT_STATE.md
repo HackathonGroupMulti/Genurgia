@@ -4,83 +4,86 @@ Last updated: 2026-08-12
 
 ## Product and implementation verdict
 
-Knee Twin is intended to become a complete longitudinal, patient-specific knee twin combining external movement, internal/anatomical evidence, reviewed 3D reconstruction, registration, and validated virtual experiments. The repository currently implements the first external-observation slice: a reliable local, research-only squat movement-analysis workflow.
+Knee Twin is intended to become a complete longitudinal, patient-specific knee twin combining external movement, internal/anatomical evidence, reviewed 3D reconstruction, registration, and validated virtual experiments. The repository implements a reliable local squat evidence workflow plus the additive canonical knee-evidence and derivation graph required to expand beyond movement video.
 
-Engineering Milestones 0–8 are technically complete. A researcher can preserve a recording and raw observations, inspect quality-aware derived metrics, reopen synchronized historical evidence, compare explicitly selected compatible sessions, derive missing current analysis versions without replacing older versions, and export integrity results. Upload, publication, cleanup, operation provenance, backup/recovery, deletion, and loopback-only operating behavior now have explicit controls and tests.
+Engineering Milestones 0–9 are technically complete. Existing squat sessions and artifacts remain operational and now map to explicit de-identified subject, left/right knee, timepoint, and immutable video-observation records. The API can also store separately versioned annotations, reconstructions, registrations, derivations, experiment definitions, and simulation-result records, with subject/knee compatibility checks.
 
-The current “digital twin” is a versioned movement evidence record. It is not yet a patient-specific anatomical model, registered functional twin, medical device, or musculoskeletal/finite-element simulation. Milestone 6's participant-diversity evidence gate remains open.
+The current “digital twin” remains a versioned movement evidence record and empty-capable canonical graph. No patient-specific anatomical reconstruction, arthroscopy evidence, calibrated multi-view registration, or mechanical simulation has been produced or validated. Milestone 6's participant-diversity evidence gate remains open.
 
 ## Working and verified
 
-### Movement evidence
+### Movement and longitudinal evidence
 
-* Preserve original MP4, MOV, or WebM media, timestamped image/world landmarks, confidence, missing frames, and annotated overlay.
-* Calculate versioned bilateral modeled knee flexion, complete repetitions, ROM, exact signed/absolute left-minus-right differences, and capture quality.
-* Preserve source capture time, protocol, camera view/orientation, knee context, notes, coordinate conventions, units, confidence, and unavailable states.
+* Preserve original media, raw image/world landmarks, overlay, quality, confidence, missing states, repetition/ROM metrics, and exact named left-minus-right differences.
+* Reopen synchronized historical evidence and compare explicitly selected compatible sessions.
+* Derive missing current versions without overwriting old artifacts and export expected/actual SHA-256 integrity state.
 
-### Longitudinal workflows
+### Canonical knee evidence graph
 
-* Reopen any stored session with video, overlay, charts, repetition summaries, quality, provenance, and the model-relative skeleton.
-* Compare a selected baseline/current pair only when local subject scope, knee context, protocol, view, orientation, model, coordinate convention, and analysis meaning match.
-* Add missing current derivations without overwriting previous algorithm versions.
-* Export actual/expected SHA-256, sizes, roles, versions, and verified/missing/mismatch/untracked states.
+* `Subject` stores a de-identified research code only and automatically owns one left and one right `Knee`.
+* `Episode` and `Timepoint` enforce subject ownership and timezone-aware observation time.
+* `Observation` is immutable and records modality, source reference/hash state, acquisition manifest, authorization, quality, and explicit knee targets.
+* `Annotation` preserves author class, taxonomy/version payload, review state, and same-observation supersession.
+* `Reconstruction` preserves knee/timepoint, geometry evidence class, structures, artifacts, coordinate system, and review state.
+* `Registration` requires source/target references and coordinate systems, a 4×4 transform, method, coverage, error, and uncertainty.
+* `Derivation` records typed inputs/outputs, algorithm/version, configuration, code revision, and environment.
+* `VirtualExperiment` and `SimulationResult` records preserve definitions, validation tier, outputs, sensitivity, validation evidence, and artifacts without claiming a solver has run.
+* Subject ownership prevents cross-subject knee/timepoint observations, reconstructions, and experiments.
 
-### Offline workstation reliability
+### Legacy migration and compatibility
 
-* Stream request bodies in bounded chunks to hidden temporary files instead of accumulating the video in application memory.
-* Extract into a hidden staging bundle and publish source, overlay, raw observations, and `artifact_manifest_v1.json` with one atomic directory rename.
-* Atomically replace derived JSON and refresh the durable bundle manifest.
-* Remove temporary/staging work on failure and startup; mark abandoned running operations as interrupted.
-* Persist operation identifiers, input size, timing, stage, success/failure, and sanitized failure detail in SQLite; expose them through `GET /operations`.
-* Require explicit confirmation for session deletion and stage filesystem removal around relational deletion.
-* Enforce loopback CORS/frontend backend configuration and document encrypted-volume, de-identification, retention, backup, recovery, and incident requirements.
-* Restore a copied database/artifact set in tests and verify every expected artifact hash.
+* Checksummed migration 4 creates canonical tables without replacing session tables.
+* The default subject code is `LOCAL-RESEARCH-SUBJECT`; its left/right knees have stable UUIDs.
+* Each existing/new squat session reuses its UUID for a canonical timepoint and its recording UUID for a bilateral video observation.
+* Existing IDs, endpoints, artifact references, and replay behavior remain unchanged.
+* Durable bundle hashes populate canonical video-observation source hashes when verifiable; an absent legacy hash remains explicit `null`.
+* Selected comparison now checks canonical subject and knee targets in addition to capture and analysis meaning.
 
-### Contracts and testing
+### Offline reliability and operating controls
 
-* Python/Pydantic remains authoritative for domain contracts and biomechanics; TypeScript validates browser inputs.
-* Versioned JSON Schemas cover pose, kinematics, repetitions, quality, sessions, comparisons, reanalysis, and integrity export.
-* Pure numerical, persistence, migration, API, corruption, cleanup, recovery, component-rendering, and real-Chromium degraded-workstation paths are tested.
-* A measured 7.1-second, 213-frame fixture processed in 4,318 ms (49.3 frames/s) on the local Windows development workstation, supporting the current synchronous decision without establishing a capacity guarantee.
+* Multipart uploads stream through Next.js and FastAPI to bounded hidden temporary storage.
+* Initial bundles and derived artifacts publish atomically with durable SHA-256 manifests.
+* SQLite retains operation timing and sanitized success/failure provenance; interrupted work reconciles on startup.
+* Confirmed deletion, encrypted-volume requirements, retention, whole-set backup, recovery, and incident handling are documented and tested.
+* Both tiers reject non-loopback service configuration.
 
 ## Open evidence and product gaps
 
-* Participant-diverse, consented or redistributable squat fixtures across views, clothing, lighting, and body types are not present.
-* The current component/browser suite covers critical labeling and degraded operation, but not a full MediaPipe upload through a browser.
-* Mid-extraction user cancellation is unavailable; process interruption reconciles on the next startup.
-* Authentication, roles, multi-user isolation, remote access, connected clinical systems, and identifiable medical-data handling are intentionally not implemented or authorized.
-* The canonical subject, knee, episode, timepoint, observation, annotation, reconstruction, registration, derivation, and experiment graph is not implemented.
-* MRI, DICOM, arthroscopy, calibrated multi-view capture, reviewed anatomical reconstruction, functional registration, durable jobs, motion replay on anatomy, solver adapters, and independent scientific validation are not implemented.
+* Participant-diverse squat fixtures and approved paired MRI/arthroscopy/multi-view cases are not present.
+* MRI/DICOM and arthroscopy import validation, de-identification reports, calibration evidence, and modality-specific quality are not implemented.
+* The current canonical reconstruction, registration, experiment, and simulation-result tables contain contract fixtures only in tests; they do not demonstrate scientific capability.
+* No complete knee segmentation, scientific/web mesh workflow, anatomical landmark review, arthroscopy overlay/refinement, calibrated movement registration, anatomical replay, or solver adapter exists.
+* Authentication, roles, multi-user isolation, connected clinical systems, identifiable medical-data handling, and clinical use remain unauthorized.
 
-## Safety and operating boundary
+## API surface
 
-* Run one local worker and bind FastAPI and Next.js to loopback only.
-* Store research cases only on an approved encrypted workstation volume and follow `docs/OFFLINE_SECURITY.md`.
-* Import de-identified authorized research evidence only; this milestone does not approve identifiable or clinical data.
-* Current values are monocular MediaPipe model estimates, not medically validated measurements.
-* Observed, reconstructed, estimated, and simulated values must remain distinct; only observed/estimated movement values exist today.
+Existing `/pose-sequences`, `/artifacts`, `/sessions`, and `/operations` endpoints remain. Canonical endpoints now include:
+
+* `/subjects`, `/knees`, `/episodes`, and `/timepoints`;
+* `/observations` and `/observations/{id}`;
+* `/annotations`, `/reconstructions`, and `/registrations`;
+* `/derivations` and `/derivations/{id}`;
+* `/experiments` and `/simulation-results`.
+
+Milestone 10 adds `/observations/imports` jobs only after modality validation and safe publication exist.
 
 ## Verification baseline
 
 Last verified locally on 2026-08-12:
 
-* backend: 77 tests passed, including migrations, integrity, deletion, and recovery;
-* backend Ruff lint: passed;
-* frontend: 26 unit/component tests passed;
-* frontend ESLint and TypeScript: passed;
-* frontend production build: passed;
-* Playwright Chromium: 1 offline/degraded workstation test passed.
-
-CI downloads and checksum-verifies the pinned MediaPipe model and installs Chromium before executing the complete suites.
+* backend: 90 numerical, migration, canonical API, integrity, deletion, and recovery tests passed;
+* backend Ruff lint and Pydantic/JSON Schema synchronization: passing;
+* frontend: 28 TypeScript contract/unit/component tests, ESLint, and production build passed;
+* Playwright Chromium offline-workstation smoke test: retained from Milestone 8.
 
 ## Current priority
 
-Milestone 9: introduce the additive canonical subject/knee/evidence and derivation graph, migrate every existing squat session into a default de-identified research subject with explicit bilateral observation targets, and retain every existing ID, endpoint, and artifact.
+Milestone 10: implement de-identified MRI/DICOM and arthroscopy imports, calibration/acquisition manifests, modality-specific validation/quality reports, and the standardized calibrated four-camera protocol using synthetic or appropriately licensed fixtures. Approved paired human cases remain an external evidence dependency.
 
 ## Preserve
 
-* Raw observations remain separate from derived measurements and relational metadata.
-* Published evidence is immutable; derived versions are additive and hash-verifiable.
-* Missing measurements remain unavailable rather than silently substituted.
-* Comparison and registration fail closed when compatibility is not established.
+* Raw/source evidence remains immutable and separate from annotations and every derived class.
+* Unknown provenance, hashes, coordinate context, and individual properties remain explicit unknowns.
+* Existing identifiers and artifacts remain stable across canonical migration.
+* Registration and comparison fail closed when compatibility is not established.
 * All outputs remain research-only and non-diagnostic.

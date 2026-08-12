@@ -64,6 +64,13 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     assert not list((tmp_path / ".uploads").iterdir())
     assert not list((tmp_path / ".staging").iterdir())
 
+    canonical_subjects = request(app, "GET", "/subjects").json()["subjects"]
+    assert canonical_subjects[0]["research_code"] == "LOCAL-RESEARCH-SUBJECT"
+    canonical_observation = request(app, "GET", "/observations").json()["observations"][0]
+    assert canonical_observation["id"] == payload["recording"]["id"]
+    assert canonical_observation["source_sha256"] is not None
+    assert len(canonical_observation["knee_target_ids"]) == 2
+
     raw_response = request(
         app,
         "GET",

@@ -179,7 +179,7 @@ def test_repository_migrates_existing_v1_database_without_losing_sessions(
         versions = [row[0] for row in connection.execute(
             "SELECT version FROM schema_migrations ORDER BY version"
         )]
-    assert versions == [1, 2, 3]
+    assert versions == [1, 2, 3, 4]
 
 
 def test_repository_upgrades_a_migration_v2_database(tmp_path: Path) -> None:
@@ -220,7 +220,7 @@ def test_repository_upgrades_a_migration_v2_database(tmp_path: Path) -> None:
                 "SELECT version FROM schema_migrations ORDER BY version"
             )
         ]
-    assert versions == [1, 2, 3]
+    assert versions == [1, 2, 3, 4]
 
 
 def test_selected_comparison_enforces_capture_and_analysis_compatibility(
@@ -250,6 +250,7 @@ def test_selected_comparison_enforces_capture_and_analysis_compatibility(
     comparison = sessions.compare_selected_sessions(ids[0], ids[1])
 
     assert comparison.compatible is True
+    assert comparison.compatibility_basis == "canonical-evidence-v1"
     assert comparison.analysis_version == "squat-repetition-analysis-v2"
     assert comparison.metrics[0].name == "mean_rom_degrees"
     assert comparison.metrics[0].change == 5

@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "Registration": {
+      "properties": {
+        "source_reference": {
+          "minLength": 1,
+          "title": "Source Reference",
+          "type": "string"
+        },
+        "target_reference": {
+          "minLength": 1,
+          "title": "Target Reference",
+          "type": "string"
+        },
+        "source_coordinate_system": {
+          "additionalProperties": true,
+          "title": "Source Coordinate System",
+          "type": "object"
+        },
+        "target_coordinate_system": {
+          "additionalProperties": true,
+          "title": "Target Coordinate System",
+          "type": "object"
+        },
+        "transform": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Transform",
+          "type": "array"
+        },
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "coverage": {
+          "additionalProperties": true,
+          "title": "Coverage",
+          "type": "object"
+        },
+        "error": {
+          "additionalProperties": true,
+          "title": "Error",
+          "type": "object"
+        },
+        "uncertainty": {
+          "additionalProperties": true,
+          "title": "Uncertainty",
+          "type": "object"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_reference",
+        "target_reference",
+        "source_coordinate_system",
+        "target_coordinate_system",
+        "transform",
+        "method",
+        "coverage",
+        "error",
+        "uncertainty",
+        "id",
+        "created_at"
+      ],
+      "title": "Registration",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "registrations": {
+      "items": {
+        "$ref": "#/$defs/Registration"
+      },
+      "title": "Registrations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "registrations"
+  ],
+  "title": "RegistrationList",
+  "type": "object"
+}

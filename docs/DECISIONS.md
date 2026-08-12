@@ -304,3 +304,26 @@ An interrupted request must not expose a bundle that looks complete, and silent 
 Operational boundary:
 
 Startup cleanup assumes one local worker. Long anatomical, registration, and simulation work requires the durable job runner planned for Milestone 13 rather than extending this synchronous mechanism.
+
+---
+
+## ADR-016 — Add the canonical graph without replacing legacy sessions
+
+Status:
+Accepted
+
+Decision:
+
+Add canonical `Subject`, `Knee`, `Episode`, `Timepoint`, `Observation`, `Annotation`, `Reconstruction`, `Registration`, `Derivation`, `VirtualExperiment`, and `SimulationResult` records alongside the existing squat-session model. Reuse legacy session and recording UUIDs for migrated timepoints and observations, target both default knees explicitly, and keep existing endpoints and artifacts operational.
+
+Reason:
+
+The movement slice is useful evidence and must remain available while the domain expands. An additive migration avoids a high-risk rewrite, preserves reproducibility, and provides explicit identity/laterality/provenance constraints for every future modality.
+
+Rejected alternative:
+
+Replace sessions with the new graph and regenerate identifiers.
+
+Why rejected:
+
+That would break stored URLs, artifact references, comparisons, and external records while providing no scientific benefit. Canonical relationships can mature independently and legacy adapters can be removed only after a separately tested compatibility plan.

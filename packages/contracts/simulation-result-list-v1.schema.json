@@ -1,0 +1,78 @@
+{
+  "$defs": {
+    "SimulationResult": {
+      "properties": {
+        "experiment_id": {
+          "format": "uuid",
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "failed",
+            "cancelled"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "outputs": {
+          "additionalProperties": true,
+          "title": "Outputs",
+          "type": "object"
+        },
+        "sensitivity": {
+          "additionalProperties": true,
+          "title": "Sensitivity",
+          "type": "object"
+        },
+        "validation_evidence": {
+          "additionalProperties": true,
+          "title": "Validation Evidence",
+          "type": "object"
+        },
+        "artifact_references": {
+          "additionalProperties": true,
+          "title": "Artifact References",
+          "type": "object"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "experiment_id",
+        "status",
+        "outputs",
+        "sensitivity",
+        "validation_evidence",
+        "artifact_references",
+        "id",
+        "created_at"
+      ],
+      "title": "SimulationResult",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "results": {
+      "items": {
+        "$ref": "#/$defs/SimulationResult"
+      },
+      "title": "Results",
+      "type": "array"
+    }
+  },
+  "required": [
+    "results"
+  ],
+  "title": "SimulationResultList",
+  "type": "object"
+}

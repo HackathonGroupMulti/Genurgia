@@ -3,6 +3,19 @@
 import json
 from pathlib import Path
 
+from app.schemas.evidence import (
+    AnnotationList,
+    DerivationList,
+    EpisodeList,
+    KneeList,
+    ObservationList,
+    ReconstructionList,
+    RegistrationList,
+    SimulationResultList,
+    SubjectList,
+    TimepointList,
+    VirtualExperimentList,
+)
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.operations import ProcessingOperationList
 from app.schemas.pose import PoseAnalysisResponse, PoseSequenceArtifact
@@ -29,11 +42,22 @@ CONTRACTS = {
     "session-list-v3.schema.json": SessionListResponse,
     "session-comparison-v1.schema.json": SessionComparisonResponse,
     "session-detail-v1.schema.json": SessionSummary,
-    "selected-session-comparison-v1.schema.json": SelectedSessionComparison,
+    "selected-session-comparison-v2.schema.json": SelectedSessionComparison,
     "session-reanalysis-response-v1.schema.json": ReanalysisResponse,
     "session-export-manifest-v2.schema.json": SessionExportManifest,
     "processing-operation-list-v1.schema.json": ProcessingOperationList,
     "session-deletion-response-v1.schema.json": SessionDeletionResponse,
+    "subject-list-v1.schema.json": SubjectList,
+    "knee-list-v1.schema.json": KneeList,
+    "episode-list-v1.schema.json": EpisodeList,
+    "timepoint-list-v1.schema.json": TimepointList,
+    "observation-list-v1.schema.json": ObservationList,
+    "annotation-list-v1.schema.json": AnnotationList,
+    "reconstruction-list-v1.schema.json": ReconstructionList,
+    "registration-list-v1.schema.json": RegistrationList,
+    "derivation-list-v1.schema.json": DerivationList,
+    "virtual-experiment-list-v1.schema.json": VirtualExperimentList,
+    "simulation-result-list-v1.schema.json": SimulationResultList,
 }
 
 

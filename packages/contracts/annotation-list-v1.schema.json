@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "Annotation": {
+      "properties": {
+        "observation_id": {
+          "format": "uuid",
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "annotation_type": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Annotation Type",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "author_type": {
+          "enum": [
+            "machine",
+            "expert",
+            "adjudicated"
+          ],
+          "title": "Author Type",
+          "type": "string"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "review_state": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "in_review",
+            "approved",
+            "rejected"
+          ],
+          "title": "Review State",
+          "type": "string"
+        },
+        "supersedes_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes Id"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id",
+        "annotation_type",
+        "version",
+        "author_type",
+        "payload",
+        "id",
+        "created_at"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "annotations": {
+      "items": {
+        "$ref": "#/$defs/Annotation"
+      },
+      "title": "Annotations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "annotations"
+  ],
+  "title": "AnnotationList",
+  "type": "object"
+}

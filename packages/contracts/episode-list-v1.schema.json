@@ -1,0 +1,89 @@
+{
+  "$defs": {
+    "Episode": {
+      "properties": {
+        "subject_id": {
+          "format": "uuid",
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "episode_type": {
+          "enum": [
+            "injury",
+            "procedure",
+            "study",
+            "recovery",
+            "other"
+          ],
+          "title": "Episode Type",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_id",
+        "episode_type",
+        "label",
+        "id",
+        "created_at"
+      ],
+      "title": "Episode",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "episodes": {
+      "items": {
+        "$ref": "#/$defs/Episode"
+      },
+      "title": "Episodes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "episodes"
+  ],
+  "title": "EpisodeList",
+  "type": "object"
+}

@@ -5,6 +5,10 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+DEFAULT_RESEARCH_SUBJECT_ID = "00000000-0000-0000-0000-000000000001"
+DEFAULT_LEFT_KNEE_ID = "00000000-0000-0000-0000-000000000002"
+DEFAULT_RIGHT_KNEE_ID = "00000000-0000-0000-0000-000000000003"
+
 
 @dataclass(frozen=True, slots=True)
 class Migration:
@@ -114,6 +118,168 @@ MIGRATIONS = (
                 "CREATE INDEX idx_processing_operations_started_at "
                 "ON processing_operations(started_at DESC)"
             ),
+        ),
+    ),
+    Migration(
+        version=4,
+        name="canonical_knee_evidence_graph",
+        statements=(
+            """CREATE TABLE subjects (
+                id TEXT PRIMARY KEY,
+                research_code TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE knees (
+                id TEXT PRIMARY KEY,
+                subject_id TEXT NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+                laterality TEXT NOT NULL CHECK (laterality IN ('left', 'right')),
+                created_at TEXT NOT NULL,
+                UNIQUE (subject_id, laterality)
+            )""",
+            """CREATE TABLE episodes (
+                id TEXT PRIMARY KEY,
+                subject_id TEXT NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+                episode_type TEXT NOT NULL,
+                label TEXT NOT NULL,
+                started_at TEXT,
+                ended_at TEXT,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE timepoints (
+                id TEXT PRIMARY KEY,
+                subject_id TEXT NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+                episode_id TEXT REFERENCES episodes(id),
+                observed_at TEXT NOT NULL,
+                label TEXT NOT NULL,
+                legacy_session_id TEXT UNIQUE REFERENCES sessions(id) ON DELETE CASCADE,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE observations (
+                id TEXT PRIMARY KEY,
+                timepoint_id TEXT NOT NULL REFERENCES timepoints(id) ON DELETE CASCADE,
+                modality TEXT NOT NULL,
+                source_artifact_reference TEXT NOT NULL,
+                source_sha256 TEXT,
+                acquisition_manifest_json TEXT NOT NULL,
+                authorization_json TEXT NOT NULL,
+                quality_json TEXT NOT NULL,
+                immutable INTEGER NOT NULL CHECK (immutable = 1),
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE observation_knees (
+                observation_id TEXT NOT NULL REFERENCES observations(id) ON DELETE CASCADE,
+                knee_id TEXT NOT NULL REFERENCES knees(id),
+                PRIMARY KEY (observation_id, knee_id)
+            )""",
+            """CREATE TABLE annotations (
+                id TEXT PRIMARY KEY,
+                observation_id TEXT NOT NULL REFERENCES observations(id),
+                annotation_type TEXT NOT NULL,
+                version TEXT NOT NULL,
+                author_type TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                review_state TEXT NOT NULL,
+                supersedes_id TEXT REFERENCES annotations(id),
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE reconstructions (
+                id TEXT PRIMARY KEY,
+                knee_id TEXT NOT NULL REFERENCES knees(id),
+                timepoint_id TEXT NOT NULL REFERENCES timepoints(id),
+                version TEXT NOT NULL,
+                geometry_class TEXT NOT NULL,
+                structures_json TEXT NOT NULL,
+                artifact_references_json TEXT NOT NULL,
+                coordinate_system_json TEXT NOT NULL,
+                review_state TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE registrations (
+                id TEXT PRIMARY KEY,
+                source_reference TEXT NOT NULL,
+                target_reference TEXT NOT NULL,
+                source_coordinate_system_json TEXT NOT NULL,
+                target_coordinate_system_json TEXT NOT NULL,
+                transform_json TEXT NOT NULL,
+                method TEXT NOT NULL,
+                coverage_json TEXT NOT NULL,
+                error_json TEXT NOT NULL,
+                uncertainty_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE derivations (
+                id TEXT PRIMARY KEY,
+                derivation_type TEXT NOT NULL,
+                inputs_json TEXT NOT NULL,
+                outputs_json TEXT NOT NULL,
+                algorithm TEXT NOT NULL,
+                algorithm_version TEXT NOT NULL,
+                configuration_json TEXT NOT NULL,
+                code_revision TEXT NOT NULL,
+                environment_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE virtual_experiments (
+                id TEXT PRIMARY KEY,
+                knee_id TEXT NOT NULL REFERENCES knees(id),
+                timepoint_id TEXT NOT NULL REFERENCES timepoints(id),
+                definition_version TEXT NOT NULL,
+                definition_json TEXT NOT NULL,
+                validation_tier TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            """CREATE TABLE simulation_results (
+                id TEXT PRIMARY KEY,
+                experiment_id TEXT NOT NULL REFERENCES virtual_experiments(id),
+                status TEXT NOT NULL,
+                outputs_json TEXT NOT NULL,
+                sensitivity_json TEXT NOT NULL,
+                validation_evidence_json TEXT NOT NULL,
+                artifact_references_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            (
+                "INSERT INTO subjects (id, research_code, created_at) "
+                f"VALUES ('{DEFAULT_RESEARCH_SUBJECT_ID}', 'LOCAL-RESEARCH-SUBJECT', "
+                "CURRENT_TIMESTAMP)"
+            ),
+            (
+                "INSERT INTO knees (id, subject_id, laterality, created_at) "
+                f"VALUES ('{DEFAULT_LEFT_KNEE_ID}', '{DEFAULT_RESEARCH_SUBJECT_ID}', "
+                "'left', CURRENT_TIMESTAMP)"
+            ),
+            (
+                "INSERT INTO knees (id, subject_id, laterality, created_at) "
+                f"VALUES ('{DEFAULT_RIGHT_KNEE_ID}', '{DEFAULT_RESEARCH_SUBJECT_ID}', "
+                "'right', CURRENT_TIMESTAMP)"
+            ),
+            (
+                "INSERT INTO timepoints "
+                "(id, subject_id, episode_id, observed_at, label, legacy_session_id, created_at) "
+                f"SELECT id, '{DEFAULT_RESEARCH_SUBJECT_ID}', NULL, recorded_at, "
+                "'Migrated squat session', id, created_at FROM sessions"
+            ),
+            """INSERT INTO observations
+                (id, timepoint_id, modality, source_artifact_reference, source_sha256,
+                 acquisition_manifest_json, authorization_json, quality_json,
+                 immutable, created_at)
+                SELECT recordings.id, sessions.id, 'video', recordings.storage_reference, NULL,
+                       '{"migration":"legacy-session-v1","protocol":"squat"}',
+                       '{"status":"not-recorded","restriction":"research-only"}',
+                       '{"status":"legacy-or-derived"}', 1, sessions.created_at
+                FROM sessions JOIN recordings ON recordings.session_id = sessions.id""",
+            (
+                "INSERT INTO observation_knees (observation_id, knee_id) "
+                f"SELECT id, '{DEFAULT_LEFT_KNEE_ID}' FROM observations"
+            ),
+            (
+                "INSERT INTO observation_knees (observation_id, knee_id) "
+                f"SELECT id, '{DEFAULT_RIGHT_KNEE_ID}' FROM observations"
+            ),
+            "CREATE INDEX idx_timepoints_subject_observed ON timepoints(subject_id, observed_at)",
+            "CREATE INDEX idx_observations_timepoint ON observations(timepoint_id)",
+            "CREATE INDEX idx_annotations_observation ON annotations(observation_id, created_at)",
+            "CREATE INDEX idx_derivations_created ON derivations(created_at)",
         ),
     ),
 )

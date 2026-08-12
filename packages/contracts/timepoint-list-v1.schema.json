@@ -1,0 +1,83 @@
+{
+  "$defs": {
+    "Timepoint": {
+      "properties": {
+        "subject_id": {
+          "format": "uuid",
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "episode_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Episode Id"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "legacy_session_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legacy Session Id"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_id",
+        "observed_at",
+        "label",
+        "id",
+        "created_at"
+      ],
+      "title": "Timepoint",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "timepoints": {
+      "items": {
+        "$ref": "#/$defs/Timepoint"
+      },
+      "title": "Timepoints",
+      "type": "array"
+    }
+  },
+  "required": [
+    "timepoints"
+  ],
+  "title": "TimepointList",
+  "type": "object"
+}

@@ -1,0 +1,53 @@
+{
+  "$defs": {
+    "Knee": {
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "subject_id": {
+          "format": "uuid",
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "laterality": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "title": "Laterality",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "subject_id",
+        "laterality",
+        "created_at"
+      ],
+      "title": "Knee",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "knees": {
+      "items": {
+        "$ref": "#/$defs/Knee"
+      },
+      "title": "Knees",
+      "type": "array"
+    }
+  },
+  "required": [
+    "knees"
+  ],
+  "title": "KneeList",
+  "type": "object"
+}

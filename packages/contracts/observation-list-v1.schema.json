@@ -1,0 +1,109 @@
+{
+  "$defs": {
+    "Observation": {
+      "properties": {
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "modality": {
+          "enum": [
+            "video",
+            "mri",
+            "arthroscopy",
+            "sensor",
+            "other"
+          ],
+          "title": "Modality",
+          "type": "string"
+        },
+        "source_artifact_reference": {
+          "minLength": 1,
+          "title": "Source Artifact Reference",
+          "type": "string"
+        },
+        "source_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Sha256"
+        },
+        "acquisition_manifest": {
+          "additionalProperties": true,
+          "title": "Acquisition Manifest",
+          "type": "object"
+        },
+        "authorization": {
+          "additionalProperties": true,
+          "title": "Authorization",
+          "type": "object"
+        },
+        "quality": {
+          "additionalProperties": true,
+          "title": "Quality",
+          "type": "object"
+        },
+        "knee_target_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Knee Target Ids",
+          "type": "array"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "immutable": {
+          "const": true,
+          "default": true,
+          "title": "Immutable",
+          "type": "boolean"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timepoint_id",
+        "modality",
+        "source_artifact_reference",
+        "source_sha256",
+        "acquisition_manifest",
+        "authorization",
+        "quality",
+        "knee_target_ids",
+        "id",
+        "created_at"
+      ],
+      "title": "Observation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Observation"
+      },
+      "title": "Observations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "observations"
+  ],
+  "title": "ObservationList",
+  "type": "object"
+}

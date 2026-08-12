@@ -1,0 +1,43 @@
+{
+  "$defs": {
+    "Subject": {
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "research_code": {
+          "title": "Research Code",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "research_code",
+        "created_at"
+      ],
+      "title": "Subject",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "subjects": {
+      "items": {
+        "$ref": "#/$defs/Subject"
+      },
+      "title": "Subjects",
+      "type": "array"
+    }
+  },
+  "required": [
+    "subjects"
+  ],
+  "title": "SubjectList",
+  "type": "object"
+}

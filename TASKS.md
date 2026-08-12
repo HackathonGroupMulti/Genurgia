@@ -95,12 +95,12 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 ### Milestone 9 — Canonical knee and evidence model
 
-* [ ] Model person, knee/laterality, episode, timepoint, observation, protocol, modality, and derivation relationships.
-* [ ] Require source provenance, authorization/consent context, capture time, coordinate system, units, and quality status where applicable.
-* [ ] Distinguish immutable source evidence from annotations, reviewed corrections, derived measurements, reconstructions, and simulations.
-* [ ] Prevent incompatible identity, laterality, timepoint, modality, or coordinate data from being silently combined.
-* [ ] Define de-identification and research-import rules before accepting medical evidence.
-* [ ] Write ADRs and migrations for the canonical model before implementation.
+* [x] Model subject, knee/laterality, episode, timepoint, observation, annotation, reconstruction, registration, derivation, experiment, and result relationships.
+* [x] Require source provenance, authorization context, capture time, coordinate context, units/quality metadata where applicable, and explicit unknown legacy hashes.
+* [x] Distinguish immutable source evidence from annotations, reviewed corrections, derived measurements, reconstructions, registrations, and simulations.
+* [x] Prevent incompatible subject, knee, episode/timepoint, and registration data from being silently combined.
+* [x] Define and enforce the de-identified research-code/import boundary before medical evidence ingestion.
+* [x] Add checksummed migration 4 and ADR-016 for the canonical graph.
 
 ### Milestone 10 — Multimodal observation ingestion
 

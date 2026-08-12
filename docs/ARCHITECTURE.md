@@ -177,3 +177,11 @@ SQLite migration 3 adds operation provenance without turning synchronous extract
 Deletion stages the bundle outside the published namespace before deleting relational metadata. Metadata failure restores the bundle; success finalizes deletion. Live deletion does not alter separately governed encrypted backups.
 
 Both application tiers enforce loopback configuration. The encrypted-volume, backup, recovery, retention, de-identification, and incident operating rules are defined in `docs/OFFLINE_SECURITY.md`.
+
+## Milestone 9 canonical evidence graph
+
+SQLite migration 4 adds subjects, knees, episodes, timepoints, immutable observations, versioned annotations, reconstructions, registrations, derivations, virtual experiments, and simulation results alongside the preserved session schema. Domain-specific JSON fields retain acquisition, authorization, quality, coordinate, transform, uncertainty, configuration, environment, sensitivity, and validation evidence without making solver- or modality-native formats canonical.
+
+Every existing and newly created squat session maps to the default `LOCAL-RESEARCH-SUBJECT`, reuses the session UUID as its canonical timepoint UUID, reuses the recording UUID as its video-observation UUID, and explicitly targets the default left and right knees. Legacy source hashes remain `null` only when the old bundle has no verifiable manifest; application startup reconciles hashes from durable manifests when possible.
+
+Canonical creation checks subject ownership across episode/timepoint, timepoint/knee observation targets, and knee/timepoint reconstructions and experiments. Registration requires explicit source/target coordinate descriptions, a 4×4 transform, method, coverage, error, and uncertainty. Selected longitudinal comparison now uses canonical subject and knee targets instead of the temporary local-single-subject assumption.

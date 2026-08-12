@@ -189,6 +189,14 @@ class PoseAnalysisService:
             stage = "artifact_publication"
             self._artifacts.publish_bundle(pose_sequence_id, staging)
             published = True
+            source_hash = next(
+                (
+                    item["sha256"]
+                    for item in self._artifacts.verify_bundle(pose_sequence_id)
+                    if item["filename"] == recording_filename and item["integrity"] == "verified"
+                ),
+                None,
+            )
             duration_ms = max(0, round((monotonic() - started) * 1000))
             if self._sessions is not None:
                 stage = "metadata_publication"
@@ -197,6 +205,7 @@ class PoseAnalysisService:
                     summary,
                     processing_operation_id=operation_id,
                     processing_duration_ms=duration_ms,
+                    source_sha256=source_hash,
                 )
             return PoseAnalysisResponse(
                 recording=recording,

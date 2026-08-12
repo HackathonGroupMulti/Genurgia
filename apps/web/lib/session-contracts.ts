@@ -74,11 +74,11 @@ export type SessionComparisonResponse = {
 };
 
 export type SelectedSessionComparison = {
-  schema_version: "1.0.0";
+  schema_version: "2.0.0";
   baseline_session_id: string;
   current_session_id: string;
   compatible: boolean;
-  compatibility_basis: "local-single-subject-v1";
+  compatibility_basis: "canonical-evidence-v1";
   incompatibilities: string[];
   analysis_version: string | null;
   metrics: {
@@ -169,11 +169,11 @@ export function parseSelectedSessionComparison(
 ): SelectedSessionComparison | null {
   if (
     !isRecord(value) ||
-    value.schema_version !== "1.0.0" ||
+    value.schema_version !== "2.0.0" ||
     typeof value.baseline_session_id !== "string" ||
     typeof value.current_session_id !== "string" ||
     typeof value.compatible !== "boolean" ||
-    value.compatibility_basis !== "local-single-subject-v1" ||
+    value.compatibility_basis !== "canonical-evidence-v1" ||
     !Array.isArray(value.incompatibilities) ||
     !value.incompatibilities.every((item) => typeof item === "string") ||
     !(value.analysis_version === null || typeof value.analysis_version === "string") ||

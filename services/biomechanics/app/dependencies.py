@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
 
+from app.evidence_repository import SQLiteEvidenceRepository
 from app.persistence import SQLiteSessionRepository
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
@@ -38,6 +39,10 @@ def get_session_workflow_service(request: Request) -> SessionWorkflowService:
     return request.app.state.session_workflow_service
 
 
+def get_evidence_repository(request: Request) -> SQLiteEvidenceRepository:
+    return request.app.state.evidence_repository
+
+
 PoseServiceDependency = Annotated[PoseAnalysisService, Depends(get_pose_analysis_service)]
 ArtifactStoreDependency = Annotated[LocalArtifactStore, Depends(get_artifact_store)]
 KinematicsServiceDependency = Annotated[KinematicsService, Depends(get_kinematics_service)]
@@ -48,4 +53,8 @@ SessionRepositoryDependency = Annotated[
 SessionWorkflowDependency = Annotated[
     SessionWorkflowService,
     Depends(get_session_workflow_service),
+]
+EvidenceRepositoryDependency = Annotated[
+    SQLiteEvidenceRepository,
+    Depends(get_evidence_repository),
 ]

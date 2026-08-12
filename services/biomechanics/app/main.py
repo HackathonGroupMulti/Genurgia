@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
+from app.api.evidence import router as evidence_router
 from app.api.health import router as health_router
 from app.api.operations import router as operations_router
 from app.api.pose_sequences import router as pose_sequences_router
 from app.api.sessions import router as sessions_router
+from app.evidence_repository import EvidenceConflict, EvidenceNotFound, SQLiteEvidenceRepository
 from app.persistence import SQLiteSessionRepository
 from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
@@ -50,6 +53,8 @@ def create_app(
     sessions = session_repository or SQLiteSessionRepository(
         session_database_path() if artifact_store is None else store.root / "knee_twin.sqlite3"
     )
+    evidence = SQLiteEvidenceRepository(sessions.database_path)
+    evidence.reconcile_legacy_source_hashes(store)
     if isinstance(pose_analysis_service, _AutoConfigurePoseService):
         if pose_model_path().is_file():
             from analysis.mediapipe_pose import MediaPipePoseProvider
@@ -69,15 +74,31 @@ def create_app(
     kinematics = KinematicsService(store, sessions)
     application.state.kinematics_service = kinematics
     application.state.session_repository = sessions
+    application.state.evidence_repository = evidence
     application.state.session_workflow_service = SessionWorkflowService(
         sessions,
         store,
         kinematics,
     )
     application.include_router(health_router)
+    application.include_router(evidence_router)
     application.include_router(operations_router)
     application.include_router(pose_sequences_router)
     application.include_router(sessions_router)
+    application.add_exception_handler(
+        EvidenceNotFound,
+        lambda _request, error: JSONResponse(
+            status_code=404,
+            content={"detail": str(error)},
+        ),
+    )
+    application.add_exception_handler(
+        EvidenceConflict,
+        lambda _request, error: JSONResponse(
+            status_code=409,
+            content={"detail": str(error)},
+        ),
+    )
     return application
 
 

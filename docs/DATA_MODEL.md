@@ -19,11 +19,11 @@ Implementation status as of 2026-08-12:
 | ProcessingOperation | SQLite operation status, stage, timing, input size, output identity, and sanitized failure provenance. |
 | ArtifactManifest | Per-bundle JSON containing SHA-256 and size for every published artifact. |
 
-## Target identity and evidence graph
+## Canonical identity and evidence graph
 
-Before ingesting medical or internal evidence, the domain must explicitly model:
+Migration 4 and the canonical evidence API now explicitly model:
 
-* `Person` — subject identity or de-identified research subject;
+* `Subject` — a de-identified research code only;
 * `Knee` — left/right laterality belonging to one person;
 * `Episode` — injury, procedure, study, or longitudinal context;
 * `Timepoint` — when evidence or a modeled state applies;
@@ -37,6 +37,14 @@ Before ingesting medical or internal evidence, the domain must explicitly model:
 These form a derivation graph rather than one mutable “twin” record. A new segmentation, transform, material assumption, or solver version creates a new derived object and never overwrites its source.
 
 Every object must state whether its values are directly observed, expert-authored, reconstructed, estimated, or simulated. Unknown individual properties remain unknown or assumption ranges; they are never silently populated from a generic template.
+
+## Milestone 9 implementation
+
+The additive canonical tables are `subjects`, `knees`, `episodes`, `timepoints`, `observations`, `observation_knees`, `annotations`, `reconstructions`, `registrations`, `derivations`, `virtual_experiments`, and `simulation_results`.
+
+Legacy squat migration preserves all original tables, IDs, endpoints, and artifacts. It creates one timepoint per session using the session UUID and one immutable video observation per recording using the recording UUID. Both default knees are explicit targets. New squat sessions create the same relationships transactionally. Confirmed session deletion cascades through its migrated timepoint and observation but does not delete the shared default subject or knees.
+
+Observation creation requires a source reference, explicit SHA-256 state, acquisition manifest, authorization, quality, and at least one knee target. Subject ownership constraints prevent a timepoint from targeting another subject's knee. Annotation supersession must remain within one observation. Reconstruction and experiment knee/timepoint subjects must match. Registration stores coordinate descriptions, its 4×4 transform, method, coverage, error, and uncertainty without interpreting those fields as validated alignment.
 
 ## User
 

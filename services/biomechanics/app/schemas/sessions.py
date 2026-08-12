@@ -112,11 +112,11 @@ class ComparisonMetric(BaseModel):
 
 
 class SelectedSessionComparison(BaseModel):
-    schema_version: Literal["1.0.0"] = "1.0.0"
+    schema_version: Literal["2.0.0"] = "2.0.0"
     baseline_session_id: UUID
     current_session_id: UUID
     compatible: bool
-    compatibility_basis: Literal["local-single-subject-v1"] = "local-single-subject-v1"
+    compatibility_basis: Literal["canonical-evidence-v1"] = "canonical-evidence-v1"
     incompatibilities: list[str]
     analysis_version: str | None
     metrics: list[ComparisonMetric]

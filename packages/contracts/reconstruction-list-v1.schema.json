@@ -1,0 +1,100 @@
+{
+  "$defs": {
+    "Reconstruction": {
+      "properties": {
+        "knee_id": {
+          "format": "uuid",
+          "title": "Knee Id",
+          "type": "string"
+        },
+        "timepoint_id": {
+          "format": "uuid",
+          "title": "Timepoint Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "geometry_class": {
+          "enum": [
+            "generic",
+            "fitted",
+            "machine-segmented",
+            "expert-reviewed",
+            "patient-specific"
+          ],
+          "title": "Geometry Class",
+          "type": "string"
+        },
+        "structures": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Structures",
+          "type": "array"
+        },
+        "artifact_references": {
+          "additionalProperties": true,
+          "title": "Artifact References",
+          "type": "object"
+        },
+        "coordinate_system": {
+          "additionalProperties": true,
+          "title": "Coordinate System",
+          "type": "object"
+        },
+        "review_state": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "in_review",
+            "approved",
+            "rejected"
+          ],
+          "title": "Review State",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "knee_id",
+        "timepoint_id",
+        "version",
+        "geometry_class",
+        "structures",
+        "artifact_references",
+        "coordinate_system",
+        "id",
+        "created_at"
+      ],
+      "title": "Reconstruction",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "reconstructions": {
+      "items": {
+        "$ref": "#/$defs/Reconstruction"
+      },
+      "title": "Reconstructions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reconstructions"
+  ],
+  "title": "ReconstructionList",
+  "type": "object"
+}

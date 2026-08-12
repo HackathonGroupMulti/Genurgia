@@ -84,11 +84,11 @@ describe("session contracts", () => {
   it("parses an explicit compatible session comparison", () => {
     expect(
       parseSelectedSessionComparison({
-        schema_version: "1.0.0",
+        schema_version: "2.0.0",
         baseline_session_id: "baseline-id",
         current_session_id: "current-id",
         compatible: true,
-        compatibility_basis: "local-single-subject-v1",
+        compatibility_basis: "canonical-evidence-v1",
         incompatibilities: [],
         analysis_version: "squat-repetition-analysis-v2",
         metrics: [

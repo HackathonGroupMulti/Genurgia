@@ -1,5 +1,6 @@
 """SQLite metadata persistence; large artifacts remain in artifact storage."""
 
+import json
 import sqlite3
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
@@ -7,7 +8,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from app.migrations import migrate
+from app.migrations import (
+    DEFAULT_LEFT_KNEE_ID,
+    DEFAULT_RESEARCH_SUBJECT_ID,
+    DEFAULT_RIGHT_KNEE_ID,
+    migrate,
+)
 from app.schemas.operations import ProcessingOperation
 from app.schemas.pose import PoseSequenceSummary, Recording
 from app.schemas.sessions import (
@@ -47,6 +53,7 @@ class SQLiteSessionRepository:
         pose_sequence: PoseSequenceSummary,
         processing_operation_id: UUID | None = None,
         processing_duration_ms: int | None = None,
+        source_sha256: str | None = None,
     ) -> UUID:
         session_id = uuid4()
         now = _utc_now()
@@ -106,6 +113,36 @@ class SQLiteSessionRepository:
                     pose_sequence.annotated_video_reference,
                     pose_sequence.frame_count,
                     pose_sequence.detected_frame_count,
+                ),
+            )
+            connection.execute(
+                """INSERT INTO timepoints
+                (id, subject_id, episode_id, observed_at, label, legacy_session_id, created_at)
+                VALUES (?, ?, NULL, ?, 'Squat session', ?, ?)""",
+                (str(session_id), DEFAULT_RESEARCH_SUBJECT_ID, recorded_at, str(session_id), now),
+            )
+            connection.execute(
+                """INSERT INTO observations
+                (id, timepoint_id, modality, source_artifact_reference, source_sha256,
+                 acquisition_manifest_json, authorization_json, quality_json,
+                 immutable, created_at)
+                VALUES (?, ?, 'video', ?, ?, ?, ?, ?, 1, ?)""",
+                (
+                    str(recording.id),
+                    str(session_id),
+                    recording.storage_reference,
+                    source_sha256,
+                    '{"protocol":"squat","source":"pose-extraction"}',
+                    '{"status":"not-recorded","restriction":"research-only"}',
+                    '{"status":"pending"}',
+                    now,
+                ),
+            )
+            connection.executemany(
+                "INSERT INTO observation_knees (observation_id, knee_id) VALUES (?, ?)",
+                (
+                    (str(recording.id), DEFAULT_LEFT_KNEE_ID),
+                    (str(recording.id), DEFAULT_RIGHT_KNEE_ID),
                 ),
             )
             if processing_operation_id is not None and processing_duration_ms is not None:
@@ -235,6 +272,18 @@ class SQLiteSessionRepository:
                     "UPDATE sessions SET capture_quality_status = ? WHERE id = ?",
                     (capture_quality_status, session_id),
                 )
+                connection.execute(
+                    "UPDATE observations SET quality_json = ? WHERE timepoint_id = ?",
+                    (
+                        json.dumps(
+                            {
+                                "status": capture_quality_status,
+                                "analysis_version": analysis_version,
+                            }
+                        ),
+                        session_id,
+                    ),
+                )
 
     def list_sessions(self, limit: int = 50) -> list[SessionSummary]:
         with self._connect() as connection:
@@ -293,8 +342,16 @@ class SQLiteSessionRepository:
         baseline = self.get_session(baseline_session_id)
         current = self.get_session(current_session_id)
         incompatibilities: list[str] = []
+        baseline_subject, baseline_knees = self._session_identity(baseline.id)
+        current_subject, current_knees = self._session_identity(current.id)
         if baseline.id == current.id:
             incompatibilities.append("Baseline and current session must be different.")
+        if baseline_subject != current_subject:
+            incompatibilities.append("Subjects differ.")
+        if baseline_knees != current_knees:
+            incompatibilities.append("Knee targets differ.")
+        if not baseline_knees:
+            incompatibilities.append("Knee targets are missing.")
         for label, baseline_value, current_value in (
             ("protocol", baseline.recording.protocol, current.recording.protocol),
             ("camera view", baseline.recording.camera_view, current.recording.camera_view),
@@ -359,6 +416,23 @@ class SQLiteSessionRepository:
             analysis_version=current_version if not incompatibilities else None,
             metrics=metrics,
         )
+
+    def _session_identity(self, session_id: UUID) -> tuple[str | None, frozenset[str]]:
+        with self._connect() as connection:
+            timepoint = connection.execute(
+                "SELECT id, subject_id FROM timepoints WHERE legacy_session_id = ?",
+                (str(session_id),),
+            ).fetchone()
+            if timepoint is None:
+                return None, frozenset()
+            knees = connection.execute(
+                """SELECT DISTINCT observation_knees.knee_id
+                FROM observations
+                JOIN observation_knees ON observation_knees.observation_id = observations.id
+                WHERE observations.timepoint_id = ?""",
+                (timepoint["id"],),
+            ).fetchall()
+        return timepoint["subject_id"], frozenset(row["knee_id"] for row in knees)
 
     def _session(self, connection: sqlite3.Connection, session_id: UUID) -> SessionSummary:
         row = connection.execute(
