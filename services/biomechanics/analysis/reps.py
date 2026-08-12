@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from analysis.kinematics import KneeFlexionSample, KneeFlexionSeries
+from analysis.symmetry import exact_bilateral_differences
 
 SQUAT_REPETITION_ALGORITHM_VERSION = "bilateral-squat-state-machine-v1"
 
@@ -37,6 +38,10 @@ class SquatRepetition:
     left_rom_degrees: float
     right_rom_degrees: float
     mean_rom_degrees: float
+    signed_rom_difference_degrees: float
+    absolute_rom_difference_degrees: float
+    signed_max_flexion_difference_degrees: float
+    absolute_max_flexion_difference_degrees: float
     confidence: float
 
 
@@ -182,6 +187,12 @@ def _complete_candidate(
         return None
     if min(left_rom, right_rom) < config.minimum_side_rom_degrees:
         return None
+    differences = exact_bilateral_differences(
+        left_rom_degrees=left_rom,
+        right_rom_degrees=right_rom,
+        left_max_flexion_degrees=candidate.maximum_left_degrees,
+        right_max_flexion_degrees=candidate.maximum_right_degrees,
+    )
     return {
         "start_timestamp_ms": candidate.start_timestamp_ms,
         "bottom_timestamp_ms": candidate.peak_timestamp_ms,
@@ -192,6 +203,14 @@ def _complete_candidate(
         "left_rom_degrees": left_rom,
         "right_rom_degrees": right_rom,
         "mean_rom_degrees": (left_rom + right_rom) / 2,
+        "signed_rom_difference_degrees": differences.signed_rom_difference_degrees,
+        "absolute_rom_difference_degrees": differences.absolute_rom_difference_degrees,
+        "signed_max_flexion_difference_degrees": (
+            differences.signed_max_flexion_difference_degrees
+        ),
+        "absolute_max_flexion_difference_degrees": (
+            differences.absolute_max_flexion_difference_degrees
+        ),
         "confidence": candidate.minimum_confidence,
     }
 

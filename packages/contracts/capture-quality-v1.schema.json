@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "CaptureQualitySignal": {
+      "properties": {
+        "name": {
+          "enum": [
+            "decode_validity",
+            "pose_detection_coverage",
+            "bilateral_valid_knee_coverage",
+            "maximum_unavailable_bilateral_interval",
+            "required_landmark_framing_coverage",
+            "complete_squat_cycle"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "enum": [
+            "ratio",
+            "millisecond",
+            "count",
+            "boolean"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "criteria": {
+          "title": "Criteria",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "unit",
+        "status",
+        "criteria",
+        "explanation"
+      ],
+      "title": "CaptureQualitySignal",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "analysis_version": {
+      "const": "capture-quality-v1",
+      "default": "capture-quality-v1",
+      "title": "Analysis Version",
+      "type": "string"
+    },
+    "source_pose_sequence_id": {
+      "format": "uuid",
+      "title": "Source Pose Sequence Id",
+      "type": "string"
+    },
+    "source_knee_flexion_analysis_version": {
+      "const": "knee-flexion-analysis-v1",
+      "title": "Source Knee Flexion Analysis Version",
+      "type": "string"
+    },
+    "source_repetition_analysis_version": {
+      "const": "squat-repetition-analysis-v2",
+      "title": "Source Repetition Analysis Version",
+      "type": "string"
+    },
+    "protocol": {
+      "const": "squat",
+      "default": "squat",
+      "title": "Protocol",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/CaptureQualitySignal"
+      },
+      "title": "Signals",
+      "type": "array"
+    },
+    "guidance": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Guidance",
+      "type": "array"
+    },
+    "interpretation": {
+      "default": "Capture status describes whether the recording met versioned input criteria; it is not evidence of clinical accuracy.",
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "artifact_reference": {
+      "title": "Artifact Reference",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_pose_sequence_id",
+    "source_knee_flexion_analysis_version",
+    "source_repetition_analysis_version",
+    "status",
+    "signals",
+    "guidance",
+    "artifact_reference"
+  ],
+  "title": "CaptureQualityReport",
+  "type": "object"
+}

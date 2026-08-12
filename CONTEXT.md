@@ -53,14 +53,14 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 6 — complete the initial squat evidence-analysis slice.
+Milestone 7 — longitudinal movement workflows.
 
-CURRENT BLOCKER:
+PARALLEL EVIDENCE GAP:
 
-None.
+Participant-diverse, redistributable squat fixtures are not yet available. Milestone 6's implementation is complete, but its population/capture-diversity evidence gate remains open.
 
 NEXT ACTION:
 
-Specify a versioned capture-quality report and exact left/right ROM/max-flexion difference metrics before implementing either calculation. Ensure new capture metadata can later attach to a specific person, knee/laterality, episode, timepoint, and observation.
+Implement historical session replay using stored artifact references, followed by selected compatible comparisons and explicit version-preserving reanalysis.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

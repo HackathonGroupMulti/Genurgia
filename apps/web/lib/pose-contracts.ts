@@ -1,5 +1,5 @@
 export type Recording = {
-  schema_version: "1.0.0";
+  schema_version: "1.0.0" | "1.1.0";
   id: string;
   original_filename: string;
   content_type: string;
@@ -9,6 +9,12 @@ export type Recording = {
   width: number;
   height: number;
   storage_reference: string;
+  captured_at?: string | null;
+  protocol?: "squat";
+  camera_view?: "front" | "rear" | "left_side" | "right_side" | "oblique" | "unknown";
+  orientation?: "portrait" | "landscape" | "unknown";
+  laterality_context?: "bilateral" | "left" | "right" | "unknown";
+  capture_notes?: string | null;
 };
 
 export type CoordinateConvention = {
@@ -120,7 +126,7 @@ export function parsePoseAnalysisResponse(value: unknown): PoseAnalysisResponse 
   const recording = value.recording;
   const sequence = value.pose_sequence;
   if (
-    recording.schema_version !== "1.0.0" ||
+    !["1.0.0", "1.1.0"].includes(String(recording.schema_version)) ||
     typeof recording.id !== "string" ||
     typeof recording.original_filename !== "string" ||
     typeof recording.content_type !== "string" ||
@@ -154,7 +160,7 @@ export function parsePoseSequenceArtifact(value: unknown): PoseSequenceArtifact 
   const recording = value.recording;
   const sequence = value.pose_sequence;
   if (
-    recording.schema_version !== "1.0.0" ||
+    !["1.0.0", "1.1.0"].includes(String(recording.schema_version)) ||
     typeof recording.id !== "string" ||
     typeof recording.original_filename !== "string" ||
     typeof recording.content_type !== "string" ||

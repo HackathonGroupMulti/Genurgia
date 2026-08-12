@@ -44,12 +44,21 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
         "POST",
         "/pose-sequences",
         files={"video": ("fixture.mp4", FIXTURE_VIDEO.read_bytes(), "video/mp4")},
+        data={
+            "captured_at": "2026-02-14T10:30:00Z",
+            "camera_view": "left_side",
+            "orientation": "landscape",
+            "laterality_context": "bilateral",
+            "capture_notes": "Standardized research capture",
+        },
     )
 
     assert response.status_code == 201
     payload = response.json()
     assert payload["pose_sequence"]["frame_count"] == 1
     assert payload["pose_sequence"]["detected_frame_count"] == 1
+    assert payload["recording"]["captured_at"] == "2026-02-14T10:30:00Z"
+    assert payload["recording"]["camera_view"] == "left_side"
 
     raw_response = request(
         app,
@@ -94,23 +103,38 @@ def test_upload_returns_pose_summary_and_serves_artifacts(tmp_path: Path) -> Non
     repetition_artifact = request(app, "GET", repetitions["artifact_reference"])
     assert repetition_artifact.status_code == 200
 
+    quality_response = request(
+        app,
+        "POST",
+        f"/pose-sequences/{payload['pose_sequence']['id']}/capture-quality",
+    )
+    assert quality_response.status_code == 200
+    quality = quality_response.json()
+    assert quality["analysis_version"] == "capture-quality-v1"
+    assert quality["status"] == "fail"
+    assert quality["guidance"]
+    assert request(app, "GET", quality["artifact_reference"]).status_code == 200
+
     sessions_response = request(app, "GET", "/sessions")
     assert sessions_response.status_code == 200
     stored_session = sessions_response.json()["sessions"][0]
     assert stored_session["status"] == "complete"
     assert stored_session["pose_sequence"]["id"] == payload["pose_sequence"]["id"]
+    assert stored_session["recording"]["capture_notes"] == "Standardized research capture"
     assert [item["analysis_type"] for item in stored_session["analyses"]] == [
         "knee_flexion",
         "squat_repetitions",
+        "capture_quality",
     ]
-    assert stored_session["metrics"] == [
-        {
-            "name": "repetition_count",
-            "value": 0.0,
-            "unit": "count",
-            "source_analysis_version": "squat-repetition-analysis-v1",
-        }
-    ]
+    assert stored_session["capture_quality_status"] == "fail"
+    metrics = {item["name"]: item for item in stored_session["metrics"]}
+    assert metrics["repetition_count"] == {
+        "name": "repetition_count",
+        "value": 0.0,
+        "unit": "count",
+        "source_analysis_version": "squat-repetition-analysis-v2",
+    }
+    assert metrics["pose_detection_coverage"]["value"] == 1.0
 
     comparison_response = request(app, "GET", "/sessions/comparison")
     assert comparison_response.status_code == 200

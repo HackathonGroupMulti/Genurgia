@@ -78,11 +78,13 @@ The present repository implements most of an initial squat workflow:
 * annotated replay;
 * modeled left/right knee flexion;
 * confidence and unavailable states;
-* repetition boundaries and per-repetition ROM;
+* repetition boundaries, per-repetition ROM, and exact bilateral differences;
+* capture-quality signals and actionable recording guidance;
+* capture time, view/orientation, knee context, and notes;
 * local session persistence and limited comparison;
 * synchronized video, charts, and a model-relative skeleton.
 
-Capture-quality reporting, exact left/right difference metrics, historical replay, and broader validation remain open. Completing this slice establishes engineering patterns for evidence provenance and longitudinal analysis; it does not complete the Knee Twin product.
+Historical replay and participant-diverse validation remain open. The implemented slice establishes engineering patterns for evidence provenance and longitudinal analysis; it does not complete the Knee Twin product.
 
 ## Safety and claims boundary
 

@@ -18,6 +18,12 @@ class RecordingMetadata(BaseModel):
     fps: float = Field(gt=0)
     width: int = Field(gt=0)
     height: int = Field(gt=0)
+    captured_at: datetime | None = None
+    protocol: Literal["squat"] = "squat"
+    camera_view: Literal["front", "rear", "left_side", "right_side", "oblique", "unknown"]
+    orientation: Literal["portrait", "landscape", "unknown"]
+    laterality_context: Literal["bilateral", "left", "right", "unknown"]
+    capture_notes: str | None
 
 
 class PoseSequenceMetadata(BaseModel):
@@ -34,7 +40,7 @@ class PoseSequenceMetadata(BaseModel):
 
 class AnalysisMetadata(BaseModel):
     id: int = Field(gt=0)
-    analysis_type: Literal["knee_flexion", "squat_repetitions"]
+    analysis_type: Literal["knee_flexion", "squat_repetitions", "capture_quality"]
     analysis_version: str
     artifact_reference: str
     created_at: datetime
@@ -48,6 +54,14 @@ class SessionMetric(BaseModel):
         "mean_rom_degrees",
         "mean_duration_ms",
         "mean_confidence",
+        "mean_signed_rom_difference_degrees",
+        "mean_absolute_rom_difference_degrees",
+        "mean_signed_max_flexion_difference_degrees",
+        "mean_absolute_max_flexion_difference_degrees",
+        "pose_detection_coverage",
+        "bilateral_valid_knee_coverage",
+        "maximum_unavailable_bilateral_interval_ms",
+        "required_landmark_framing_coverage",
     ]
     value: float
     unit: Literal["count", "degree", "millisecond", "ratio"]
@@ -60,6 +74,7 @@ class SessionSummary(BaseModel):
     recorded_at: datetime
     created_at: datetime
     status: SessionStatus
+    capture_quality_status: Literal["pass", "warning", "fail"] | None = None
     recording: RecordingMetadata
     pose_sequence: PoseSequenceMetadata
     analyses: list[AnalysisMetadata]

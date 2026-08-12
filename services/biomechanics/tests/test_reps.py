@@ -47,6 +47,10 @@ def test_detects_two_complete_repetitions_and_exact_boundaries() -> None:
     assert repetitions[0].left_rom_degrees == 80
     assert repetitions[0].right_rom_degrees == 82
     assert repetitions[0].mean_rom_degrees == 81
+    assert repetitions[0].signed_rom_difference_degrees == -2
+    assert repetitions[0].absolute_rom_difference_degrees == 2
+    assert repetitions[0].signed_max_flexion_difference_degrees == -4
+    assert repetitions[0].absolute_max_flexion_difference_degrees == 4
     assert repetitions[1].repetition_index == 2
 
 

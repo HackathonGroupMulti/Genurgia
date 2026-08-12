@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from app.schemas.kinematics import KneeFlexionAnalysis
 from app.schemas.pose import Landmark, PoseAnalysisResponse, PoseSequenceArtifact
+from app.schemas.quality import CaptureQualityReport
 from app.schemas.repetitions import SquatRepetitionAnalysis
 from app.schemas.sessions import SessionComparisonResponse, SessionListResponse
 
@@ -29,11 +30,12 @@ def test_landmark_confidence_must_be_in_unit_interval() -> None:
 @pytest.mark.parametrize(
     ("filename", "model"),
     [
-        ("pose-analysis-response-v1.schema.json", PoseAnalysisResponse),
-        ("pose-sequence-artifact-v1.schema.json", PoseSequenceArtifact),
+        ("pose-analysis-response-v2.schema.json", PoseAnalysisResponse),
+        ("pose-sequence-artifact-v2.schema.json", PoseSequenceArtifact),
         ("knee-flexion-analysis-v1.schema.json", KneeFlexionAnalysis),
-        ("squat-repetition-analysis-v1.schema.json", SquatRepetitionAnalysis),
-        ("session-list-v1.schema.json", SessionListResponse),
+        ("squat-repetition-analysis-v2.schema.json", SquatRepetitionAnalysis),
+        ("capture-quality-v1.schema.json", CaptureQualityReport),
+        ("session-list-v2.schema.json", SessionListResponse),
         ("session-comparison-v1.schema.json", SessionComparisonResponse),
     ],
 )

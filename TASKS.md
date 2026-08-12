@@ -47,27 +47,29 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 
 #### Capture quality
 
-* [ ] Define and document a versioned `CaptureQualityReport` contract.
-* [ ] Define tested quality signals: decode validity, pose-detection coverage, bilateral valid-knee coverage, maximum unavailable gap, and body-framing checks.
-* [ ] Separate blocking failures from warnings and informational limitations.
-* [ ] Provide actionable recording guidance in the upload flow.
-* [ ] Persist the quality report and expose it in session detail/history.
+* [x] Define and document a versioned `CaptureQualityReport` contract.
+* [x] Define tested quality signals: decode validity, pose-detection coverage, bilateral valid-knee coverage, maximum unavailable gap, and body-framing checks.
+* [x] Separate blocking failures from warnings and informational limitations.
+* [x] Provide actionable recording guidance in the upload flow.
+* [x] Persist the quality report and expose it in session detail/history.
 
 #### Exact left/right differences
 
-* [ ] Approve exact v1 definitions in `docs/BIOMECHANICS.md` before implementation.
-* [ ] Implement pure, tested per-repetition signed and absolute ROM differences in degrees.
-* [ ] Implement pure, tested maximum-flexion differences in degrees.
-* [ ] Add versioned artifact/API/TypeScript/JSON Schema fields without a generic clinical “score.”
-* [ ] Persist and display session-level summaries with confidence and units.
+* [x] Approve exact v1 definitions in `docs/BIOMECHANICS.md` before implementation.
+* [x] Implement pure, tested per-repetition signed and absolute ROM differences in degrees.
+* [x] Implement pure, tested maximum-flexion differences in degrees.
+* [x] Add versioned artifact/API/TypeScript/JSON Schema fields without a generic clinical “score.”
+* [x] Persist and display session-level summaries with confidence and units.
 
 #### Capture and validation completeness
 
-* [ ] Record source capture time separately from upload time when available.
-* [ ] Record protocol/exercise, camera view/orientation, laterality context, and optional notes.
-* [ ] Expand real fixtures across capture conditions and failure cases with clear licenses/consent.
-* [ ] Run MediaPipe-backed integration tests in CI instead of silently skipping them when the model is absent.
-* [ ] Define and complete an explicit acceptance checklist.
+* [x] Record source capture time separately from upload time when available.
+* [x] Record protocol/exercise, camera view/orientation, laterality context, and optional notes.
+* [x] Add synthetic success/failure coverage and a licensed real-fixture framing failure.
+* [ ] Add participant-diverse licensed real fixtures across views, clothing, lighting, and body types.
+* [x] Run MediaPipe-backed integration tests in CI instead of silently skipping them when the model is absent.
+* [x] Define the explicit acceptance checklist in `docs/SQUAT_ACCEPTANCE.md`.
+* [ ] Complete the participant-diversity evidence gate in that checklist.
 
 ### Milestone 7 — Longitudinal movement workflows
 
@@ -81,7 +83,7 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 ### Milestone 8 — Reliable local research product
 
 * [ ] Stream uploads to bounded temporary storage.
-* [ ] Add a SQLite schema-migration mechanism before changing persisted schemas.
+* [x] Add a SQLite schema-migration mechanism before changing persisted schemas. (Delivered early in Milestone 6.)
 * [ ] Define artifact deletion, retention, cleanup, backup, and recovery behavior.
 * [ ] Add frontend component and browser tests for critical happy and degraded paths.
 * [ ] Add structured logging and visible analysis-failure provenance.

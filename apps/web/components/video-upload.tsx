@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
+import { CaptureQualitySummary } from "@/components/capture-quality-summary";
 import { CurrentFrameMetrics } from "@/components/current-frame-metrics";
 import { KneeFlexionChart } from "@/components/knee-flexion-chart";
 import { RepetitionSummary } from "@/components/repetition-summary";
@@ -21,6 +22,10 @@ import {
   parseSquatRepetitionAnalysis,
   type SquatRepetitionAnalysis,
 } from "@/lib/repetition-contracts";
+import {
+  parseCaptureQualityReport,
+  type CaptureQualityReport,
+} from "@/lib/quality-contracts";
 
 type UploadState =
   | { status: "idle" }
@@ -31,6 +36,7 @@ type UploadState =
       result: PoseAnalysisResponse;
       analysis: KneeFlexionAnalysis | null;
       repetitions: SquatRepetitionAnalysis | null;
+      quality: CaptureQualityReport | null;
       poseArtifact: PoseSequenceArtifact | null;
       analysisError: string | null;
     }
@@ -43,6 +49,12 @@ export function VideoUpload() {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const capturedAt = formData.get("captured_at");
+    if (typeof capturedAt === "string" && capturedAt.length > 0) {
+      formData.set("captured_at", new Date(capturedAt).toISOString());
+    } else {
+      formData.delete("captured_at");
+    }
     setState({ status: "uploading" });
 
     try {
@@ -68,6 +80,7 @@ export function VideoUpload() {
       setState({ status: "analyzing", result });
       let analysis: KneeFlexionAnalysis | null = null;
       let repetitions: SquatRepetitionAnalysis | null = null;
+      let quality: CaptureQualityReport | null = null;
       let poseArtifact: PoseSequenceArtifact | null = null;
       try {
         const analysisResponse = await fetch(
@@ -85,10 +98,19 @@ export function VideoUpload() {
           repetitions = repetitionResponse.ok
             ? parseSquatRepetitionAnalysis(repetitionPayload)
             : null;
+          if (repetitions) {
+            const qualityResponse = await fetch(
+              `/api/pose-sequences/${result.pose_sequence.id}/capture-quality`,
+              { method: "POST" },
+            );
+            const qualityPayload: unknown = await qualityResponse.json();
+            quality = qualityResponse.ok ? parseCaptureQualityReport(qualityPayload) : null;
+          }
         }
       } catch {
         analysis = null;
         repetitions = null;
+        quality = null;
       }
       try {
         const rawResponse = await fetch(artifactProxyUrl(result.pose_sequence.raw_landmarks_reference));
@@ -101,8 +123,9 @@ export function VideoUpload() {
         result,
         analysis,
         repetitions,
+        quality,
         poseArtifact,
-        analysisError: analysis && repetitions
+        analysisError: analysis && repetitions && quality
           ? null
           : "Pose landmarks were preserved, but one or more derived analyses were unavailable.",
       });
@@ -126,6 +149,42 @@ export function VideoUpload() {
         <label className="file-field">
           <span>Movement video</span>
           <input name="video" type="file" accept="video/mp4,video/quicktime,video/webm" required />
+        </label>
+        <label className="metadata-field">
+          <span>Captured at</span>
+          <input name="captured_at" type="datetime-local" />
+        </label>
+        <label className="metadata-field">
+          <span>Camera view</span>
+          <select name="camera_view" defaultValue="unknown">
+            <option value="unknown">Unknown</option>
+            <option value="front">Front</option>
+            <option value="rear">Rear</option>
+            <option value="left_side">Left side</option>
+            <option value="right_side">Right side</option>
+            <option value="oblique">Oblique</option>
+          </select>
+        </label>
+        <label className="metadata-field">
+          <span>Orientation</span>
+          <select name="orientation" defaultValue="unknown">
+            <option value="unknown">Unknown</option>
+            <option value="landscape">Landscape</option>
+            <option value="portrait">Portrait</option>
+          </select>
+        </label>
+        <label className="metadata-field">
+          <span>Knee context</span>
+          <select name="laterality_context" defaultValue="bilateral">
+            <option value="bilateral">Bilateral</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+        <label className="notes-field">
+          <span>Capture notes</span>
+          <input name="capture_notes" type="text" maxLength={1000} />
         </label>
         <button
           type="submit"
@@ -154,6 +213,7 @@ export function VideoUpload() {
           result={state.result}
           analysis={state.analysis}
           repetitions={state.repetitions}
+          quality={state.quality}
           poseArtifact={state.poseArtifact}
           analysisError={state.analysisError}
         />
@@ -169,12 +229,14 @@ function AnalysisResult({
   result,
   analysis,
   repetitions,
+  quality,
   poseArtifact,
   analysisError,
 }: {
   result: PoseAnalysisResponse;
   analysis: KneeFlexionAnalysis | null;
   repetitions: SquatRepetitionAnalysis | null;
+  quality: CaptureQualityReport | null;
   poseArtifact: PoseSequenceArtifact | null;
   analysisError: string | null;
 }) {
@@ -231,6 +293,7 @@ function AnalysisResult({
         <p className="chart-note">The model-relative skeleton replay is unavailable.</p>
       )}
       {repetitions && <RepetitionSummary analysis={repetitions} />}
+      {quality && <CaptureQualitySummary report={quality} />}
       {analysisError && <p className="upload-message error">{analysisError}</p>}
       <a
         className="artifact-link"

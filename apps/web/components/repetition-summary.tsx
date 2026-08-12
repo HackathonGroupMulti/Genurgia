@@ -20,6 +20,8 @@ export function RepetitionSummary({ analysis }: { analysis: SquatRepetitionAnaly
                 <th scope="col">Duration</th>
                 <th scope="col">Left ROM</th>
                 <th scope="col">Right ROM</th>
+                <th scope="col">ROM L−R</th>
+                <th scope="col">Max flexion L−R</th>
                 <th scope="col">Confidence</th>
               </tr>
             </thead>
@@ -34,6 +36,14 @@ export function RepetitionSummary({ analysis }: { analysis: SquatRepetitionAnaly
                   <td>{(repetition.duration_ms / 1000).toFixed(2)} s</td>
                   <td>{repetition.left_rom_degrees.toFixed(1)}°</td>
                   <td>{repetition.right_rom_degrees.toFixed(1)}°</td>
+                  <td>
+                    {signed(repetition.signed_rom_difference_degrees)}°
+                    {` (|${repetition.absolute_rom_difference_degrees.toFixed(1)}|)`}
+                  </td>
+                  <td>
+                    {signed(repetition.signed_max_flexion_difference_degrees)}°
+                    {` (|${repetition.absolute_max_flexion_difference_degrees.toFixed(1)}|)`}
+                  </td>
                   <td>{Math.round(repetition.confidence * 100)}%</td>
                 </tr>
               ))}
@@ -56,4 +66,8 @@ export function RepetitionSummary({ analysis }: { analysis: SquatRepetitionAnaly
 
 function seconds(timestampMs: number): string {
   return `${(timestampMs / 1000).toFixed(2)} s`;
+}
+
+function signed(value: number): string {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
 }

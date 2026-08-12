@@ -73,6 +73,7 @@ export function SessionHistory({ refreshKey }: { refreshKey: string }) {
                 <th scope="col">Mean ROM</th>
                 <th scope="col">Change</th>
                 <th scope="col">Confidence</th>
+                <th scope="col">Quality</th>
               </tr>
             </thead>
             <tbody>
@@ -88,6 +89,7 @@ export function SessionHistory({ refreshKey }: { refreshKey: string }) {
                       {format(comparison?.mean_rom_change_from_previous_degrees ?? null, 1, "°", true)}
                     </td>
                     <td>{formatPercent(metricValue(session, "mean_confidence"))}</td>
+                    <td>{session.capture_quality_status ?? "—"}</td>
                   </tr>
                 );
               })}

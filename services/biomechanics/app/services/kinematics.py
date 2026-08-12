@@ -20,6 +20,7 @@ from analysis.pose import (
     PoseFrameObservation,
     PoseObservation,
 )
+from analysis.quality import assess_capture_quality
 from analysis.reps import (
     DEFAULT_SQUAT_REPETITION_CONFIG,
     SQUAT_REPETITION_ALGORITHM_VERSION,
@@ -33,6 +34,7 @@ from app.schemas.kinematics import (
     KneeFlexionSeries,
 )
 from app.schemas.pose import PoseFrame, PoseSequenceArtifact
+from app.schemas.quality import CaptureQualityReport, CaptureQualitySignal
 from app.schemas.repetitions import (
     SquatPhaseModel,
     SquatRepetition,
@@ -129,7 +131,7 @@ class KinematicsService:
         by_side = {series.side: series for series in domain_series}
         repetitions = detect_squat_repetitions(by_side["left"], by_side["right"])
         config = DEFAULT_SQUAT_REPETITION_CONFIG
-        artifact_filename = "squat_repetitions.json"
+        artifact_filename = "squat_repetitions_v2.json"
         analysis = SquatRepetitionAnalysis(
             source_pose_sequence_id=pose_sequence_id,
             source_knee_flexion_analysis_version=knee_analysis.analysis_version,
@@ -196,6 +198,32 @@ class KinematicsService:
                             fmean(item.confidence for item in repetitions),
                             "ratio",
                         ),
+                        (
+                            "mean_signed_rom_difference_degrees",
+                            fmean(item.signed_rom_difference_degrees for item in repetitions),
+                            "degree",
+                        ),
+                        (
+                            "mean_absolute_rom_difference_degrees",
+                            fmean(item.absolute_rom_difference_degrees for item in repetitions),
+                            "degree",
+                        ),
+                        (
+                            "mean_signed_max_flexion_difference_degrees",
+                            fmean(
+                                item.signed_max_flexion_difference_degrees
+                                for item in repetitions
+                            ),
+                            "degree",
+                        ),
+                        (
+                            "mean_absolute_max_flexion_difference_degrees",
+                            fmean(
+                                item.absolute_max_flexion_difference_degrees
+                                for item in repetitions
+                            ),
+                            "degree",
+                        ),
                     ]
                 )
             self._sessions.record_analysis(
@@ -207,6 +235,85 @@ class KinematicsService:
                 metrics=metrics,
             )
         return analysis
+
+    def analyze_capture_quality(self, pose_sequence_id: UUID) -> CaptureQualityReport:
+        raw_path = self._artifacts.path_for(pose_sequence_id, "pose_sequence.json")
+        if not raw_path.is_file():
+            raise PoseSequenceNotFound(f"Pose sequence {pose_sequence_id} was not found.")
+        artifact = PoseSequenceArtifact.model_validate_json(raw_path.read_text(encoding="utf-8"))
+
+        knee_path = self._artifacts.path_for(pose_sequence_id, "knee_flexion.json")
+        knee_analysis = (
+            KneeFlexionAnalysis.model_validate_json(knee_path.read_text(encoding="utf-8"))
+            if knee_path.is_file()
+            else self.analyze_knee_flexion(pose_sequence_id)
+        )
+        repetition_path = self._artifacts.path_for(
+            pose_sequence_id, "squat_repetitions_v2.json"
+        )
+        repetition_analysis = (
+            SquatRepetitionAnalysis.model_validate_json(
+                repetition_path.read_text(encoding="utf-8")
+            )
+            if repetition_path.is_file()
+            else self.analyze_squat_repetitions(pose_sequence_id)
+        )
+        domain_frames = tuple(
+            self._to_domain_frame(frame) for frame in artifact.pose_sequence.frames
+        )
+        domain_series = [self._to_domain_series(series) for series in knee_analysis.series]
+        by_side = {series.side: series for series in domain_series}
+        result = assess_capture_quality(
+            domain_frames,
+            by_side["left"],
+            by_side["right"],
+            len(repetition_analysis.repetitions),
+        )
+        artifact_filename = "capture_quality.json"
+        report = CaptureQualityReport(
+            source_pose_sequence_id=pose_sequence_id,
+            source_knee_flexion_analysis_version=knee_analysis.analysis_version,
+            source_repetition_analysis_version=repetition_analysis.analysis_version,
+            status=result.status,
+            signals=[
+                CaptureQualitySignal.model_validate(signal, from_attributes=True)
+                for signal in result.signals
+            ],
+            guidance=list(result.guidance),
+            artifact_reference=self._artifacts.reference(pose_sequence_id, artifact_filename),
+        )
+        self._artifacts.write_json(
+            pose_sequence_id,
+            artifact_filename,
+            report.model_dump(mode="json"),
+        )
+        if self._sessions is not None:
+            signals = {signal.name: signal for signal in report.signals}
+            metrics: list[tuple[str, float, str]] = []
+            metric_names = {
+                "pose_detection_coverage": "pose_detection_coverage",
+                "bilateral_valid_knee_coverage": "bilateral_valid_knee_coverage",
+                "maximum_unavailable_bilateral_interval": (
+                    "maximum_unavailable_bilateral_interval_ms"
+                ),
+                "required_landmark_framing_coverage": (
+                    "required_landmark_framing_coverage"
+                ),
+            }
+            for signal_name, metric_name in metric_names.items():
+                value = signals[signal_name].value
+                if isinstance(value, int | float) and not isinstance(value, bool):
+                    metrics.append((metric_name, float(value), signals[signal_name].unit))
+            self._sessions.record_analysis(
+                pose_sequence_id=pose_sequence_id,
+                analysis_type="capture_quality",
+                analysis_version=report.analysis_version,
+                artifact_reference=report.artifact_reference,
+                status="complete",
+                metrics=metrics,
+                capture_quality_status=report.status,
+            )
+        return report
 
     @staticmethod
     def _to_domain_series(series: KneeFlexionSeries) -> DomainKneeFlexionSeries:

@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -48,8 +49,16 @@ class PoseAnalysisService:
         filename: str | None,
         content_type: str | None,
         content: bytes,
+        *,
+        captured_at: datetime | None = None,
+        camera_view: str = "unknown",
+        orientation: str = "unknown",
+        laterality_context: str = "bilateral",
+        capture_notes: str | None = None,
     ) -> PoseAnalysisResponse:
         extension, normalized_content_type = self._validate_upload(filename, content_type, content)
+        if captured_at is not None and captured_at.tzinfo is None:
+            raise InvalidVideoUpload("Capture time must include a UTC offset.")
         recording_id = uuid4()
         pose_sequence_id = uuid4()
         self._artifacts.create_bundle(pose_sequence_id)
@@ -74,6 +83,12 @@ class PoseAnalysisService:
                 width=extraction.video.width,
                 height=extraction.video.height,
                 storage_reference=self._artifacts.reference(pose_sequence_id, recording_filename),
+                captured_at=captured_at,
+                protocol="squat",
+                camera_view=camera_view,
+                orientation=orientation,
+                laterality_context=laterality_context,
+                capture_notes=capture_notes,
             )
             frames = [
                 PoseFrame(

@@ -1,13 +1,13 @@
 # Current State
 
 Last updated:
-2026-08-11
+2026-08-12
 
 ## Product and implementation verdict
 
 Knee Twin's intended scope is a complete longitudinal, patient-specific knee twin combining external movement, internal/anatomical evidence, 3D reconstruction, and validated virtual experiments. The repository currently implements only the first external-observation slice: a working local prototype for longitudinal squat movement analysis.
 
-Engineering Milestones 0–5 are implemented, but the squat slice is not yet feature-complete because explicit capture-quality reporting and named left/right difference metrics are absent. Historical comparison exists, but historical sessions cannot yet be reopened in the UI.
+Engineering Milestones 0–5 and the technical implementation of Milestone 6 are complete. Capture-quality reporting, exact named left/right differences, capture metadata, migrations, and model-backed CI are implemented. The squat evidence gate remains open because validation still relies on one attributed real squat fixture rather than participant-diverse recordings. Historical comparison exists, but historical sessions cannot yet be reopened in the UI.
 
 The current “digital twin” is a versioned movement record and synchronized replay. It is not yet a patient-specific anatomical model, registered functional twin, medical device, or musculoskeletal/finite-element simulation.
 
@@ -28,6 +28,8 @@ The current “digital twin” is a versioned movement record and synchronized r
 * Apply the timestamp-preserving `centered-moving-average-v1` filter without filling unavailable centers.
 * Detect complete bilateral squat cycles with the versioned phase state machine.
 * Report rep start, peak-flexion bottom, end, duration, per-side maximum flexion, and per-side/mean ROM.
+* Report signed and absolute left-minus-right ROM and maximum-flexion differences in degrees.
+* Produce `capture-quality-v1` with observable signals, pass/warning/fail status, and recording guidance.
 
 ### Persistence and API
 
@@ -35,6 +37,8 @@ The current “digital twin” is a versioned movement record and synchronized r
 * Persist local session, recording, pose-sequence, analysis-version, and compact metric metadata in SQLite.
 * Expose health, upload, artifact, knee-flexion, repetition, session-list, session-detail, and comparison endpoints.
 * Preserve analysis provenance in Pydantic, TypeScript, and exported JSON Schema contracts.
+* Apply ordered, checksummed SQLite migrations and preserve existing local sessions.
+* Persist source capture time, protocol, camera view/orientation, knee context, notes, quality, and exact difference summaries.
 
 ### User interface
 
@@ -44,14 +48,13 @@ The current “digital twin” is a versioned movement record and synchronized r
 * Seek with pointer or keyboard on the chart.
 * Display repetition metrics, session history, and mean-ROM change from the preceding stored session.
 * Display a rotatable, presentation-only world-landmark skeleton.
+* Display capture quality/guidance and exact bilateral differences.
 
 ## Initial squat-slice requirements not implemented
 
-* No versioned capture-quality report or actionable capture guidance.
-* No explicit left/right asymmetry metric. `analysis/symmetry.py` remains a TODO placeholder.
 * No historical session-detail/replay UI despite the backend detail endpoint.
 * No user-selected comparison; comparison is fixed to the preceding stored squat session.
-* No source capture timestamp, camera view/orientation, or standardized capture metadata.
+* No participant-diverse licensed fixture set; current real-video evidence is a single attributed squat recording.
 
 ## Major product capabilities not started
 
@@ -66,14 +69,12 @@ The current “digital twin” is a versioned movement record and synchronized r
 ## Prototype constraints and technical debt
 
 * Analysis is synchronous and the upload route accumulates the complete file in memory before processing.
-* SQLite schema creation has no migration/version mechanism.
 * Artifact retention, deletion, integrity checking, backup, and recovery are undefined.
 * Local storage has no authentication, user ownership, privacy controls, or multi-user isolation.
-* The pose model is absent in CI, so MediaPipe-backed tests skip there; local deterministic math and contract tests still run.
-* Real-video validation uses one short attributed squat fixture. It is integration evidence, not accuracy validation or population coverage.
+* Real-video validation uses one short attributed squat fixture. CI now executes it with a checksum-verified MediaPipe model, but it remains integration evidence rather than accuracy or population validation.
 * Frontend tests focus on parsers and timestamp selection; interactive upload/playback/history behavior lacks component and browser-level tests.
 * Fixed repetition thresholds and the `0.5` confidence threshold are initial heuristics, not individualized or clinically validated cutoffs.
-* Session `recorded_at` currently means upload time.
+* Session `recorded_at` uses source capture time when supplied and upload time otherwise.
 
 ## Known failures
 
@@ -81,29 +82,28 @@ No confirmed runtime defect is currently recorded. The items above are scope gap
 
 ## Verification baseline
 
-Last verified locally on 2026-08-11:
+Last verified locally on 2026-08-12:
 
-* backend: 53 tests passed with the MediaPipe model installed;
+* backend: 60 tests passed with the MediaPipe model installed;
 * backend Ruff lint: passed;
-* frontend: 19 tests passed;
+* frontend: 21 tests passed;
 * frontend ESLint: passed with zero warnings;
 * frontend TypeScript check: passed;
 * frontend production build: passed.
 
-CI runs the same lint/build/unit suites, but currently does not download the MediaPipe model, so the model-backed extraction and real-video repetition tests skip in CI.
+CI downloads and checksum-verifies the pinned MediaPipe model before running the complete backend suite, so model-backed extraction, repetition, and capture-quality tests execute there.
 
 ## Current priority
 
-Milestone 6: complete the initial squat evidence pipeline with capture-quality reporting, exact named left/right difference metrics, richer capture metadata, and broader real-video validation. New schemas should anticipate later attachment to a specific knee, timepoint, observation, and coordinate context without prematurely implementing the complete medical-data model.
+Milestone 7: historical replay, selected compatible comparisons, explicit reanalysis, and export/integrity reporting. Participant-diverse fixture acquisition continues as a parallel Milestone 6 evidence gate.
 
 ## Next actions
 
-1. Specify `CaptureQualityReport` signals, thresholds, status semantics, units, and version.
-2. Specify exact signed and absolute ROM/max-flexion difference metrics in `BIOMECHANICS.md`.
-3. Implement those calculations as pure tested backend functions and versioned contracts.
-4. Persist and display quality and left/right difference outputs.
-5. Expand fixtures and make model-backed integration tests execute in CI.
-6. Write the canonical knee/evidence ADR and privacy threat model before accepting internal or medical imagery.
+1. Add a frontend historical session route and load preserved analysis artifacts.
+2. Add explicit compatible-session selection and reanalysis without overwriting prior artifacts.
+3. Add artifact export/integrity reporting.
+4. Acquire redistributable participant-diverse squat fixtures and record provenance/expected outcomes.
+5. Write the canonical knee/evidence privacy threat model before accepting internal or medical imagery.
 
 ## Important files
 
@@ -111,7 +111,8 @@ Milestone 6: complete the initial squat evidence pipeline with capture-quality r
 * `docs/ROADMAP.md` — scope review and phased delivery plan.
 * `analysis/kinematics.py` — knee-flexion series and quality states.
 * `analysis/reps.py` — bilateral squat segmentation and ROM.
-* `analysis/symmetry.py` — unimplemented asymmetry placeholder.
+* `analysis/symmetry.py` — exact named left/right differences.
+* `analysis/quality.py` — capture-level observable quality signals and thresholds.
 * `app/services/pose_analysis.py` — synchronous upload/extraction orchestration.
 * `app/services/kinematics.py` — derived artifact and metric orchestration.
 * `app/persistence.py` — local SQLite metadata repository.

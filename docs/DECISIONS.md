@@ -232,3 +232,37 @@ It prevents reproducibility, obscures which evidence supported a result, and can
 Operational boundary:
 
 This decision establishes the target domain direction; it does not authorize connected clinical ingestion or diagnostic claims. The current squat slice remains a local research prototype. Medical-data handling, simulation intended uses, and clinical deployment require separate governance, security, validation, and regulatory decisions.
+
+---
+
+## ADR-012 — Capture quality uses named observable signals
+
+Status:
+Accepted
+
+Decision:
+
+Implement `capture-quality-v1` as named decode, detection-coverage, bilateral-validity, unavailable-interval, framing, and complete-cycle signals. Derive one overall pass/warning/fail result from the individual statuses and preserve every signal, threshold criterion, explanation, and guidance item.
+
+Reason:
+
+A single opaque quality score would hide why a recording is unusable and imply precision unsupported by the evidence. Named signals can be tested, versioned, recalibrated, and explained to the researcher.
+
+Operational boundary:
+
+V1 thresholds are initial product heuristics. Passing the report means the capture met configured input criteria; it does not validate kinematic or clinical accuracy.
+
+---
+
+## ADR-013 — Bilateral comparisons are exact left-minus-right differences
+
+Status:
+Accepted
+
+Decision:
+
+Report signed and absolute ROM and maximum-flexion differences in degrees. Signed values are always left minus right. Do not emit a generic asymmetry score or percentage in v1.
+
+Reason:
+
+Exact named operands, direction, and units are reproducible and avoid suggesting a clinically meaningful normalized score without a validated denominator or interpretation.

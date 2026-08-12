@@ -3,8 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-REPETITION_SCHEMA_VERSION = "1.0.0"
-REPETITION_ANALYSIS_VERSION = "squat-repetition-analysis-v1"
+REPETITION_SCHEMA_VERSION = "1.1.0"
+REPETITION_ANALYSIS_VERSION = "squat-repetition-analysis-v2"
 
 
 class SquatPhaseModel(BaseModel):
@@ -32,16 +32,21 @@ class SquatRepetition(BaseModel):
     left_rom_degrees: float = Field(ge=0)
     right_rom_degrees: float = Field(ge=0)
     mean_rom_degrees: float = Field(ge=0)
+    signed_rom_difference_degrees: float
+    absolute_rom_difference_degrees: float = Field(ge=0)
+    signed_max_flexion_difference_degrees: float
+    absolute_max_flexion_difference_degrees: float = Field(ge=0)
     confidence: float = Field(ge=0, le=1)
 
 
 class SquatRepetitionAnalysis(BaseModel):
-    schema_version: Literal["1.0.0"] = REPETITION_SCHEMA_VERSION
-    analysis_version: Literal["squat-repetition-analysis-v1"] = REPETITION_ANALYSIS_VERSION
+    schema_version: Literal["1.1.0"] = REPETITION_SCHEMA_VERSION
+    analysis_version: Literal["squat-repetition-analysis-v2"] = REPETITION_ANALYSIS_VERSION
     source_pose_sequence_id: UUID
     source_knee_flexion_analysis_version: Literal["knee-flexion-analysis-v1"]
     exercise: Literal["squat"] = "squat"
     angle_unit: Literal["degree"] = "degree"
+    bilateral_difference_convention: Literal["left-minus-right-v1"] = "left-minus-right-v1"
     phase_model: SquatPhaseModel
     repetitions: list[SquatRepetition]
     artifact_reference: str

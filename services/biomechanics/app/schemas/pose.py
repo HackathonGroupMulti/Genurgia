@@ -1,9 +1,15 @@
+from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-SCHEMA_VERSION = "1.0.0"
+POSE_SCHEMA_VERSION = "1.0.0"
+RECORDING_SCHEMA_VERSION = "1.1.0"
+
+CameraView = Literal["front", "rear", "left_side", "right_side", "oblique", "unknown"]
+VideoOrientation = Literal["portrait", "landscape", "unknown"]
+LateralityContext = Literal["bilateral", "left", "right", "unknown"]
 
 
 class CoordinateConvention(BaseModel):
@@ -38,7 +44,7 @@ class PoseFrame(BaseModel):
 
 
 class Recording(BaseModel):
-    schema_version: Literal["1.0.0"] = SCHEMA_VERSION
+    schema_version: Literal["1.0.0", "1.1.0"] = RECORDING_SCHEMA_VERSION
     id: UUID
     original_filename: str
     content_type: str
@@ -48,10 +54,16 @@ class Recording(BaseModel):
     width: int = Field(gt=0)
     height: int = Field(gt=0)
     storage_reference: str
+    captured_at: datetime | None = None
+    protocol: Literal["squat"] = "squat"
+    camera_view: CameraView = "unknown"
+    orientation: VideoOrientation = "unknown"
+    laterality_context: LateralityContext = "bilateral"
+    capture_notes: str | None = Field(default=None, max_length=1000)
 
 
 class PoseSequence(BaseModel):
-    schema_version: Literal["1.0.0"] = SCHEMA_VERSION
+    schema_version: Literal["1.0.0"] = POSE_SCHEMA_VERSION
     id: UUID
     recording_id: UUID
     pose_model: str
@@ -68,7 +80,7 @@ class PoseSequenceArtifact(BaseModel):
 
 
 class PoseSequenceSummary(BaseModel):
-    schema_version: Literal["1.0.0"] = SCHEMA_VERSION
+    schema_version: Literal["1.0.0"] = POSE_SCHEMA_VERSION
     id: UUID
     recording_id: UUID
     pose_model: str

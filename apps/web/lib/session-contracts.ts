@@ -13,6 +13,7 @@ export type SessionSummary = {
   recorded_at: string;
   created_at: string;
   status: SessionStatus;
+  capture_quality_status?: "pass" | "warning" | "fail" | null;
   recording: {
     schema_version: string;
     id: string;
@@ -24,6 +25,12 @@ export type SessionSummary = {
     fps: number;
     width: number;
     height: number;
+    captured_at?: string | null;
+    protocol?: "squat";
+    camera_view?: "front" | "rear" | "left_side" | "right_side" | "oblique" | "unknown";
+    orientation?: "portrait" | "landscape" | "unknown";
+    laterality_context?: "bilateral" | "left" | "right" | "unknown";
+    capture_notes?: string | null;
   };
   pose_sequence: {
     schema_version: string;
@@ -38,7 +45,7 @@ export type SessionSummary = {
   };
   analyses: {
     id: number;
-    analysis_type: "knee_flexion" | "squat_repetitions";
+    analysis_type: "knee_flexion" | "squat_repetitions" | "capture_quality";
     analysis_version: string;
     artifact_reference: string;
     created_at: string;
@@ -81,6 +88,8 @@ function isSession(value: unknown): value is SessionSummary {
     typeof value.recorded_at === "string" &&
     typeof value.created_at === "string" &&
     ["pose_extracted", "knee_flexion_complete", "complete"].includes(String(value.status)) &&
+    (value.capture_quality_status === undefined || value.capture_quality_status === null ||
+      ["pass", "warning", "fail"].includes(String(value.capture_quality_status))) &&
     isRecord(value.recording) &&
     typeof value.recording.original_filename === "string" &&
     isRecord(value.pose_sequence) &&

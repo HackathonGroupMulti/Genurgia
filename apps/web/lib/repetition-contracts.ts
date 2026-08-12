@@ -9,16 +9,21 @@ export type SquatRepetition = {
   left_rom_degrees: number;
   right_rom_degrees: number;
   mean_rom_degrees: number;
+  signed_rom_difference_degrees: number;
+  absolute_rom_difference_degrees: number;
+  signed_max_flexion_difference_degrees: number;
+  absolute_max_flexion_difference_degrees: number;
   confidence: number;
 };
 
 export type SquatRepetitionAnalysis = {
-  schema_version: "1.0.0";
-  analysis_version: "squat-repetition-analysis-v1";
+  schema_version: "1.1.0";
+  analysis_version: "squat-repetition-analysis-v2";
   source_pose_sequence_id: string;
   source_knee_flexion_analysis_version: "knee-flexion-analysis-v1";
   exercise: "squat";
   angle_unit: "degree";
+  bilateral_difference_convention: "left-minus-right-v1";
   phase_model: {
     algorithm_version: "bilateral-squat-state-machine-v1";
     phase_states: ["standing", "descending", "bottom", "ascending"];
@@ -57,6 +62,10 @@ function isRepetition(value: unknown): value is SquatRepetition {
     isNumber(value.left_rom_degrees) &&
     isNumber(value.right_rom_degrees) &&
     isNumber(value.mean_rom_degrees) &&
+    isNumber(value.signed_rom_difference_degrees) &&
+    isNumber(value.absolute_rom_difference_degrees) &&
+    isNumber(value.signed_max_flexion_difference_degrees) &&
+    isNumber(value.absolute_max_flexion_difference_degrees) &&
     isNumber(value.confidence)
   );
 }
@@ -66,12 +75,13 @@ export function parseSquatRepetitionAnalysis(
 ): SquatRepetitionAnalysis | null {
   if (
     !isRecord(value) ||
-    value.schema_version !== "1.0.0" ||
-    value.analysis_version !== "squat-repetition-analysis-v1" ||
+    value.schema_version !== "1.1.0" ||
+    value.analysis_version !== "squat-repetition-analysis-v2" ||
     typeof value.source_pose_sequence_id !== "string" ||
     value.source_knee_flexion_analysis_version !== "knee-flexion-analysis-v1" ||
     value.exercise !== "squat" ||
     value.angle_unit !== "degree" ||
+    value.bilateral_difference_convention !== "left-minus-right-v1" ||
     !isRecord(value.phase_model) ||
     value.phase_model.algorithm_version !== "bilateral-squat-state-machine-v1" ||
     !Array.isArray(value.phase_model.phase_states) ||

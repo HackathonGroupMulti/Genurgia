@@ -1,6 +1,6 @@
 # Knee Twin Roadmap
 
-Last reviewed: 2026-08-11
+Last reviewed: 2026-08-12
 
 ## Executive scope
 
@@ -14,7 +14,7 @@ The present repository is a local technical prototype. It demonstrates raw-evide
 | --- | --- | --- |
 | Squat video and pose extraction | Implemented | First external-observation protocol. |
 | Knee flexion, repetitions, ROM | Implemented | Initial versioned kinematic measurements. |
-| Capture-level quality and left/right differences | Missing | Complete the first analysis slice. |
+| Capture-level quality and left/right differences | Implemented | Versioned observable signals and exact degree differences; diverse validation remains open. |
 | Longitudinal session history | Partial | Foundation for timepoints and episodes. |
 | Other movement and sensor protocols | Not implemented | Broader functional evidence. |
 | Medical image and internal-imagery ingestion | Not implemented | Preserve authorized anatomical evidence and provenance. |

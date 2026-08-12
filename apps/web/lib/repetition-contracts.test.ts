@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { parseSquatRepetitionAnalysis } from "./repetition-contracts";
 
 const validAnalysis = {
-  schema_version: "1.0.0",
-  analysis_version: "squat-repetition-analysis-v1",
+  schema_version: "1.1.0",
+  analysis_version: "squat-repetition-analysis-v2",
   source_pose_sequence_id: "sequence-id",
   source_knee_flexion_analysis_version: "knee-flexion-analysis-v1",
   exercise: "squat",
   angle_unit: "degree",
+  bilateral_difference_convention: "left-minus-right-v1",
   phase_model: {
     algorithm_version: "bilateral-squat-state-machine-v1",
     phase_states: ["standing", "descending", "bottom", "ascending"],
@@ -33,10 +34,14 @@ const validAnalysis = {
       left_rom_degrees: 80,
       right_rom_degrees: 81,
       mean_rom_degrees: 80.5,
+      signed_rom_difference_degrees: -1,
+      absolute_rom_difference_degrees: 1,
+      signed_max_flexion_difference_degrees: -2,
+      absolute_max_flexion_difference_degrees: 2,
       confidence: 0.8,
     },
   ],
-  artifact_reference: "/artifacts/id/squat_repetitions.json",
+  artifact_reference: "/artifacts/id/squat_repetitions_v2.json",
 };
 
 describe("squat repetition contract", () => {

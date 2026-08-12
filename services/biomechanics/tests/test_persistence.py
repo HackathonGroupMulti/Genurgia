@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from app.migrations import MIGRATIONS
 from app.persistence import SessionNotFound, SQLiteSessionRepository
 from app.schemas.pose import CoordinateConvention, PoseSequenceSummary, Recording
 
@@ -155,3 +156,27 @@ def test_repository_releases_database_file_after_each_operation(tmp_path: Path) 
     database_path.rename(moved_path)
 
     assert moved_path.is_file()
+
+
+def test_repository_migrates_existing_v1_database_without_losing_sessions(
+    tmp_path: Path,
+) -> None:
+    import sqlite3
+
+    database_path = tmp_path / "legacy.sqlite3"
+    with sqlite3.connect(database_path) as connection:
+        for statement in MIGRATIONS[0].statements:
+            connection.execute(statement)
+
+    sessions = SQLiteSessionRepository(database_path)
+    recording, sequence = extraction_metadata()
+    session_id = sessions.record_pose_extraction(recording, sequence)
+
+    stored = sessions.get_session(session_id)
+    assert stored.recording.protocol == "squat"
+    assert stored.recording.laterality_context == "bilateral"
+    with sqlite3.connect(database_path) as connection:
+        versions = [row[0] for row in connection.execute(
+            "SELECT version FROM schema_migrations ORDER BY version"
+        )]
+    assert versions == [1, 2]

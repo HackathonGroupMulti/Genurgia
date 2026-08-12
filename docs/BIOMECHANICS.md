@@ -117,7 +117,7 @@ This is a deliberately simple initial filter. Any future filter that changes num
 
 ## Asymmetry
 
-Status: not implemented. `analysis/symmetry.py` is still a placeholder.
+Status: implemented as `bilateral-exact-differences-v1` in repetition-analysis v2.
 
 Do not create a generic clinically meaningful “asymmetry score” without defining it.
 
@@ -127,7 +127,7 @@ Every asymmetry metric must state exactly what is being compared. Examples inclu
 * difference in ROM;
 * temporal difference between repetition phases.
 
-Proposed v1 squat metrics for approval before implementation:
+Implemented v1 squat metrics:
 
 ```text
 signed_rom_difference_degrees = left_rom_degrees - right_rom_degrees
@@ -146,9 +146,9 @@ Do not introduce a percentage difference until its denominator, zero behavior, i
 
 ## Capture quality
 
-Status: only sample-level landmark confidence and missing-data states exist today. There is no capture-level result.
+Status: implemented as `capture-quality-v1`. It consumes preserved pose observations, filtered bilateral knee series, and accepted repetition count.
 
-The initial capture-quality report should use named observable signals rather than a vague quality score. Candidate signals include:
+The capture-quality report uses named observable signals rather than a vague quality score:
 
 * decoded duration, frame rate, dimensions, and frame count;
 * fraction of frames with a detected pose;
@@ -157,7 +157,15 @@ The initial capture-quality report should use named observable signals rather th
 * whether required body landmarks remain inside configured image margins;
 * whether a complete standing-to-bottom-to-standing cycle is observable.
 
-Every signal must define its numerator/denominator, units, unavailable behavior, threshold source, and whether failure blocks analysis or produces a warning. Thresholds are product heuristics until validated and must be named and versioned. A capture-quality pass means the recording met the system's input criteria; it does not mean the resulting kinematics are clinically accurate.
+V1 thresholds are:
+
+* pose detection: pass at `>= 0.90`, warning at `>= 0.70`, otherwise fail;
+* valid filtered bilateral knees: pass at `>= 0.85`, warning at `>= 0.60`, otherwise fail;
+* maximum consecutive unavailable bilateral interval: pass at `<= 250 ms`, warning at `<= 500 ms`, otherwise fail;
+* required hip/knee/ankle image landmarks inside a `5%` image margin: pass for `>= 0.95` of evaluable frames, warning at `>= 0.80`, otherwise fail;
+* at least one complete configured squat cycle is required for a protocol pass.
+
+Thresholds are versioned product heuristics, not validated clinical cutoffs. A capture-quality pass means the recording met the system's input criteria; it does not mean the resulting kinematics are clinically accurate.
 
 ## Initial squat repetition segmentation
 

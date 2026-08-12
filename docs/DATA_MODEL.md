@@ -15,6 +15,7 @@ Implementation status as of 2026-08-11:
 | Repetition | Stored inside the repetition artifact; compact means copied to session metrics. |
 | SessionMetric | SQLite rows sourced from a named analysis version. |
 | CalibrationProfile | Not implemented. |
+| CaptureQualityReport | Versioned JSON artifact plus session status and compact numeric signals. |
 
 ## Target identity and evidence graph
 
@@ -173,11 +174,11 @@ The conceptual session graph now has a local SQLite representation:
 
 Detailed time series, raw landmarks, and media do not enter SQLite. A repeated run of the same analysis version updates that version's artifact reference and replaces its metric set. A new analysis version creates a new analysis row. Session comparisons use metrics from the newest repetition-analysis version and define change as current mean modeled ROM minus the preceding stored squat session's mean modeled ROM.
 
-## Planned initial-slice additions
+## Milestone 6 additions
 
 ### CaptureQualityReport
 
-A versioned derived artifact should record:
+A versioned derived artifact records:
 
 * source pose-sequence and model versions;
 * overall status such as `pass`, `warning`, or `fail`;
@@ -185,15 +186,15 @@ A versioned derived artifact should record:
 * actionable capture guidance;
 * unavailable checks and the reason they could not be calculated.
 
-Only compact status/summary fields should be duplicated into relational metadata.
+Only compact status/summary fields are duplicated into relational metadata.
 
 ### Exact left/right difference metrics
 
-Per-repetition difference fields should live with the repetition analysis that produced their operands. Session-level aggregates may be copied into `session_metrics`, always with exact names, units, and source analysis version. A generic unlabeled asymmetry score should not be stored.
+Per-repetition difference fields live in `squat-repetition-analysis-v2`, which produced their operands. Session-level means are copied into `session_metrics` with exact names, degrees, and source analysis version. No generic unlabeled asymmetry score is stored.
 
 ### Capture metadata
 
-The next recording schema should distinguish:
+Recording schema `1.1.0` distinguishes:
 
 * source capture time from upload/creation time;
 * declared exercise;
@@ -201,6 +202,6 @@ The next recording schema should distinguish:
 * optional user capture notes;
 * future calibration profile reference when calibration exists.
 
-### Schema evolution requirement
+### Schema evolution
 
-The SQLite schema currently has no migration ledger. These additions must not be shipped by editing `CREATE TABLE` statements alone; add a migration version and upgrade tests first.
+SQLite uses ordered, checksummed migrations with an upgrade regression from the legacy schema. Existing recording rows receive explicit `unknown`/`bilateral` defaults without modifying their raw artifacts.

@@ -82,7 +82,7 @@ Analysis/domain modules must NOT depend on FastAPI or Next.js.
 
 * `POST /pose-sequences/{id}/squat-repetitions` derives a versioned repetition analysis from the separately stored knee-flexion artifact. It regenerates knee flexion from raw pose observations if that intermediate artifact is absent.
 * The pure analysis layer owns phase transitions, acceptance thresholds, boundaries, ROM, and confidence propagation; HTTP and UI code only orchestrate and present those results.
-* The resulting `squat_repetitions.json` remains separate from both `pose_sequence.json` and `knee_flexion.json`.
+* The resulting version-specific repetition artifact remains separate from both `pose_sequence.json` and `knee_flexion.json`; v2 writes `squat_repetitions_v2.json` without replacing a preserved v1 artifact.
 * The frontend calls the repetition endpoint after knee-flexion analysis, validates the versioned response, and presents boundaries and metrics without recalculating them.
 
 ## Milestone 4 interfaces
@@ -122,14 +122,15 @@ This is acceptable for a local single-user prototype, but it creates three expli
 
 Background jobs are not automatically required. First measure supported duration, resolution, memory, latency, failure recovery, and concurrency. Introduce an asynchronous job boundary only when those measurements justify it.
 
-## Planned initial-slice completion boundaries
+## Milestone 6 evidence-quality boundaries
 
-Milestone 6 should add the following without putting domain logic in HTTP or UI layers:
+Milestone 6 adds the following without putting domain logic in HTTP or UI layers:
 
-* a pure/versioned capture-quality analysis consuming pose/video metadata and existing quality states;
-* pure/versioned exact left/right difference calculations consuming accepted repetition outputs;
-* application-service orchestration that persists new artifacts and compact session metrics;
-* API and frontend contracts that expose statuses, units, provenance, and actionable guidance.
+* pure/versioned `capture-quality-v1` consuming raw image landmarks, filtered bilateral knee availability, and accepted repetition count;
+* pure/versioned `bilateral-exact-differences-v1` consuming accepted repetition operands;
+* a separate `capture_quality.json` artifact and version-specific `squat_repetitions_v2.json` artifact;
+* API and frontend contracts exposing statuses, units, provenance, guidance, and exact differences;
+* source capture metadata stored in both the recording artifact and relational metadata.
 
 Additional movement protocols should use a strategy boundary for protocol-specific landmarks, phases, metrics, and quality rules while reusing evidence, artifact, persistence, and visualization infrastructure.
 
@@ -157,4 +158,4 @@ immutable multimodal evidence
 
 ## Persistence evolution
 
-SQLite currently initializes tables with `CREATE TABLE IF NOT EXISTS`; it has no migration ledger. Any persisted-schema change must first introduce a migration/version mechanism and upgrade tests. Artifact schemas and analysis meanings remain separately versioned and should not be conflated with database migration versions.
+SQLite now applies ordered, checksummed migrations recorded in `schema_migrations`. Migration 1 adopts the pre-existing session schema without destroying data; migration 2 adds capture metadata and capture-quality status. Upgrade tests begin from the legacy schema. Artifact schemas and analysis meanings remain separately versioned and are not conflated with database migration versions.

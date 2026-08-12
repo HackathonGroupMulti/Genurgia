@@ -1,0 +1,392 @@
+{
+  "$defs": {
+    "CoordinateConvention": {
+      "properties": {
+        "image": {
+          "const": "mediapipe-normalized-image-v1",
+          "default": "mediapipe-normalized-image-v1",
+          "title": "Image",
+          "type": "string"
+        },
+        "image_axes": {
+          "default": "origin top-left; +x right; +y down; x/y normalized by image size",
+          "title": "Image Axes",
+          "type": "string"
+        },
+        "image_depth": {
+          "default": "MediaPipe model-relative z; smaller values are closer to camera",
+          "title": "Image Depth",
+          "type": "string"
+        },
+        "world": {
+          "const": "mediapipe-pose-world-v1",
+          "default": "mediapipe-pose-world-v1",
+          "title": "World",
+          "type": "string"
+        },
+        "world_units": {
+          "const": "meter",
+          "default": "meter",
+          "title": "World Units",
+          "type": "string"
+        },
+        "world_origin": {
+          "default": "MediaPipe model-defined origin at the midpoint of the hips",
+          "title": "World Origin",
+          "type": "string"
+        }
+      },
+      "title": "CoordinateConvention",
+      "type": "object"
+    },
+    "Landmark": {
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Y"
+        },
+        "z": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Z"
+        },
+        "visibility": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visibility"
+        },
+        "presence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Presence"
+        }
+      },
+      "required": [
+        "index",
+        "name",
+        "x",
+        "y",
+        "z"
+      ],
+      "title": "Landmark",
+      "type": "object"
+    },
+    "PoseFrame": {
+      "properties": {
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp_ms": {
+          "minimum": 0,
+          "title": "Timestamp Ms",
+          "type": "integer"
+        },
+        "poses": {
+          "items": {
+            "$ref": "#/$defs/PoseObservation"
+          },
+          "title": "Poses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frame_index",
+        "timestamp_ms",
+        "poses"
+      ],
+      "title": "PoseFrame",
+      "type": "object"
+    },
+    "PoseObservation": {
+      "properties": {
+        "pose_index": {
+          "minimum": 0,
+          "title": "Pose Index",
+          "type": "integer"
+        },
+        "image_landmarks": {
+          "items": {
+            "$ref": "#/$defs/Landmark"
+          },
+          "title": "Image Landmarks",
+          "type": "array"
+        },
+        "world_landmarks": {
+          "items": {
+            "$ref": "#/$defs/Landmark"
+          },
+          "title": "World Landmarks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pose_index",
+        "image_landmarks",
+        "world_landmarks"
+      ],
+      "title": "PoseObservation",
+      "type": "object"
+    },
+    "PoseSequence": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "recording_id": {
+          "format": "uuid",
+          "title": "Recording Id",
+          "type": "string"
+        },
+        "pose_model": {
+          "title": "Pose Model",
+          "type": "string"
+        },
+        "pose_model_version": {
+          "title": "Pose Model Version",
+          "type": "string"
+        },
+        "coordinate_convention": {
+          "$ref": "#/$defs/CoordinateConvention"
+        },
+        "frame_count": {
+          "exclusiveMinimum": 0,
+          "title": "Frame Count",
+          "type": "integer"
+        },
+        "detected_frame_count": {
+          "minimum": 0,
+          "title": "Detected Frame Count",
+          "type": "integer"
+        },
+        "frames": {
+          "items": {
+            "$ref": "#/$defs/PoseFrame"
+          },
+          "title": "Frames",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "recording_id",
+        "pose_model",
+        "pose_model_version",
+        "frame_count",
+        "detected_frame_count",
+        "frames"
+      ],
+      "title": "PoseSequence",
+      "type": "object"
+    },
+    "Recording": {
+      "properties": {
+        "schema_version": {
+          "default": "1.1.0",
+          "enum": [
+            "1.0.0",
+            "1.1.0"
+          ],
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "original_filename": {
+          "title": "Original Filename",
+          "type": "string"
+        },
+        "content_type": {
+          "title": "Content Type",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "fps": {
+          "exclusiveMinimum": 0,
+          "title": "Fps",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "storage_reference": {
+          "title": "Storage Reference",
+          "type": "string"
+        },
+        "captured_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Captured At"
+        },
+        "protocol": {
+          "const": "squat",
+          "default": "squat",
+          "title": "Protocol",
+          "type": "string"
+        },
+        "camera_view": {
+          "default": "unknown",
+          "enum": [
+            "front",
+            "rear",
+            "left_side",
+            "right_side",
+            "oblique",
+            "unknown"
+          ],
+          "title": "Camera View",
+          "type": "string"
+        },
+        "orientation": {
+          "default": "unknown",
+          "enum": [
+            "portrait",
+            "landscape",
+            "unknown"
+          ],
+          "title": "Orientation",
+          "type": "string"
+        },
+        "laterality_context": {
+          "default": "bilateral",
+          "enum": [
+            "bilateral",
+            "left",
+            "right",
+            "unknown"
+          ],
+          "title": "Laterality Context",
+          "type": "string"
+        },
+        "capture_notes": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capture Notes"
+        }
+      },
+      "required": [
+        "id",
+        "original_filename",
+        "content_type",
+        "size_bytes",
+        "duration_ms",
+        "fps",
+        "width",
+        "height",
+        "storage_reference"
+      ],
+      "title": "Recording",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "recording": {
+      "$ref": "#/$defs/Recording"
+    },
+    "pose_sequence": {
+      "$ref": "#/$defs/PoseSequence"
+    }
+  },
+  "required": [
+    "recording",
+    "pose_sequence"
+  ],
+  "title": "PoseSequenceArtifact",
+  "type": "object"
+}

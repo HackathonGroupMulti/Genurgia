@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from app.migrations import migrate
 from app.schemas.pose import PoseSequenceSummary, Recording
 from app.schemas.sessions import (
     AnalysisMetadata,
@@ -16,61 +17,6 @@ from app.schemas.sessions import (
     SessionMetric,
     SessionSummary,
 )
-
-SCHEMA_SQL = """
-CREATE TABLE IF NOT EXISTS sessions (
-    id TEXT PRIMARY KEY,
-    exercise_type TEXT NOT NULL CHECK (exercise_type = 'squat'),
-    recorded_at TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    status TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS recordings (
-    id TEXT PRIMARY KEY,
-    session_id TEXT NOT NULL UNIQUE REFERENCES sessions(id) ON DELETE CASCADE,
-    schema_version TEXT NOT NULL,
-    original_filename TEXT NOT NULL,
-    content_type TEXT NOT NULL,
-    storage_reference TEXT NOT NULL,
-    size_bytes INTEGER NOT NULL,
-    duration_ms INTEGER NOT NULL,
-    fps REAL NOT NULL,
-    width INTEGER NOT NULL,
-    height INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS pose_sequences (
-    id TEXT PRIMARY KEY,
-    session_id TEXT NOT NULL UNIQUE REFERENCES sessions(id) ON DELETE CASCADE,
-    recording_id TEXT NOT NULL UNIQUE REFERENCES recordings(id),
-    schema_version TEXT NOT NULL,
-    pose_model TEXT NOT NULL,
-    pose_model_version TEXT NOT NULL,
-    raw_landmarks_reference TEXT NOT NULL,
-    annotated_video_reference TEXT NOT NULL,
-    frame_count INTEGER NOT NULL,
-    detected_frame_count INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS analyses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
-    pose_sequence_id TEXT NOT NULL REFERENCES pose_sequences(id) ON DELETE CASCADE,
-    analysis_type TEXT NOT NULL,
-    analysis_version TEXT NOT NULL,
-    artifact_reference TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    UNIQUE (pose_sequence_id, analysis_type, analysis_version)
-);
-CREATE TABLE IF NOT EXISTS session_metrics (
-    analysis_id INTEGER NOT NULL REFERENCES analyses(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    value REAL NOT NULL,
-    unit TEXT NOT NULL,
-    source_analysis_version TEXT NOT NULL,
-    PRIMARY KEY (analysis_id, name)
-);
-CREATE INDEX IF NOT EXISTS idx_sessions_recorded_at ON sessions(recorded_at DESC);
-CREATE INDEX IF NOT EXISTS idx_analyses_session ON analyses(session_id, created_at);
-"""
 
 
 class SessionNotFound(LookupError):
@@ -82,7 +28,7 @@ class SQLiteSessionRepository:
         self.database_path = database_path.resolve()
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
-            connection.executescript(SCHEMA_SQL)
+            migrate(connection)
 
     def record_pose_extraction(
         self,
@@ -91,17 +37,22 @@ class SQLiteSessionRepository:
     ) -> UUID:
         session_id = uuid4()
         now = _utc_now()
+        recorded_at = recording.captured_at.isoformat() if recording.captured_at else now
         with self._connect() as connection:
             connection.execute(
-                "INSERT INTO sessions VALUES (?, 'squat', ?, ?, 'pose_extracted')",
-                (str(session_id), now, now),
+                """INSERT INTO sessions
+                (id, exercise_type, recorded_at, created_at, status)
+                VALUES (?, 'squat', ?, ?, 'pose_extracted')""",
+                (str(session_id), recorded_at, now),
             )
             connection.execute(
                 """
                 INSERT INTO recordings
                 (id, session_id, schema_version, original_filename, content_type,
-                 storage_reference, size_bytes, duration_ms, fps, width, height)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 storage_reference, size_bytes, duration_ms, fps, width, height,
+                 captured_at, protocol, camera_view, orientation, laterality_context,
+                 capture_notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     str(recording.id),
@@ -115,6 +66,12 @@ class SQLiteSessionRepository:
                     recording.fps,
                     recording.width,
                     recording.height,
+                    recording.captured_at.isoformat() if recording.captured_at else None,
+                    recording.protocol,
+                    recording.camera_view,
+                    recording.orientation,
+                    recording.laterality_context,
+                    recording.capture_notes,
                 ),
             )
             connection.execute(
@@ -148,6 +105,7 @@ class SQLiteSessionRepository:
         artifact_reference: str,
         status: str,
         metrics: Iterable[tuple[str, float, str]] = (),
+        capture_quality_status: str | None = None,
     ) -> None:
         now = _utc_now()
         with self._connect() as connection:
@@ -206,6 +164,11 @@ class SQLiteSessionRepository:
                 """,
                 (status, session_id),
             )
+            if capture_quality_status is not None:
+                connection.execute(
+                    "UPDATE sessions SET capture_quality_status = ? WHERE id = ?",
+                    (capture_quality_status, session_id),
+                )
 
     def list_sessions(self, limit: int = 50) -> list[SessionSummary]:
         with self._connect() as connection:
@@ -252,7 +215,8 @@ class SQLiteSessionRepository:
             """
             SELECT s.*, r.id AS recording_id, r.schema_version AS recording_schema_version,
                    r.original_filename, r.content_type, r.storage_reference, r.size_bytes,
-                   r.duration_ms, r.fps, r.width, r.height,
+                   r.duration_ms, r.fps, r.width, r.height, r.captured_at, r.protocol,
+                   r.camera_view, r.orientation, r.laterality_context, r.capture_notes,
                    p.id AS pose_sequence_id, p.schema_version AS pose_schema_version,
                    p.pose_model, p.pose_model_version, p.raw_landmarks_reference,
                    p.annotated_video_reference, p.frame_count, p.detected_frame_count
@@ -272,10 +236,11 @@ class SQLiteSessionRepository:
         metrics = connection.execute(
             """
             SELECT m.* FROM session_metrics m
-            WHERE m.analysis_id = (
-                SELECT id FROM analyses
-                WHERE session_id = ? AND analysis_type = 'squat_repetitions'
-                ORDER BY id DESC LIMIT 1
+            JOIN analyses a ON a.id = m.analysis_id
+            WHERE a.id IN (
+                SELECT MAX(id) FROM analyses
+                WHERE session_id = ?
+                GROUP BY analysis_type
             )
             ORDER BY m.name
             """,
@@ -286,6 +251,7 @@ class SQLiteSessionRepository:
             recorded_at=row["recorded_at"],
             created_at=row["created_at"],
             status=row["status"],
+            capture_quality_status=row["capture_quality_status"],
             recording=RecordingMetadata(
                 schema_version=row["recording_schema_version"],
                 id=row["recording_id"],
@@ -297,6 +263,12 @@ class SQLiteSessionRepository:
                 fps=row["fps"],
                 width=row["width"],
                 height=row["height"],
+                captured_at=row["captured_at"],
+                protocol=row["protocol"],
+                camera_view=row["camera_view"],
+                orientation=row["orientation"],
+                laterality_context=row["laterality_context"],
+                capture_notes=row["capture_notes"],
             ),
             pose_sequence=PoseSequenceMetadata(
                 schema_version=row["pose_schema_version"],
