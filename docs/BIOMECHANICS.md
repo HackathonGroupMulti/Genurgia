@@ -1,6 +1,20 @@
 # Biomechanics
 
-This document defines conventions before numerical implementation. Milestone 1 preserves raw observations but intentionally contains no joint-angle calculations.
+This document defines conventions for implemented and planned numerical behavior. The current calculations use external pose evidence only. Patient-specific anatomical reconstruction, tissue mechanics, and simulation require separate inputs, coordinate systems, validation, and versions.
+
+## Evidence and model tiers
+
+Knee Twin must label numerical results by how they were produced:
+
+* **observed** — supplied directly by an instrument or source artifact, with its acquisition limits;
+* **annotated** — identified by a model or expert on source evidence;
+* **reconstructed** — geometry or state derived from observations and explicit transforms;
+* **estimated** — a quantity inferred by a named mathematical/statistical model;
+* **simulated** — an output of explicit governing equations, properties, loads, and boundary conditions.
+
+Internal imagery is not automatically ground truth for the whole knee. Arthroscopic imagery, for example, may directly show only a limited visible surface and still requires calibration and registration to relate pixels to anatomical geometry. Material properties, internal forces, and failure behavior remain unknown unless measured or represented as explicit assumptions with sensitivity analysis.
+
+Simulation precision must not be confused with accuracy. Each virtual experiment must identify its anatomy version, coordinate transforms, material/property sources, loads, boundary conditions, solver and settings, sensitivity/uncertainty results, and validation tier.
 
 ## Raw pose observations
 
@@ -103,6 +117,8 @@ This is a deliberately simple initial filter. Any future filter that changes num
 
 ## Asymmetry
 
+Status: not implemented. `analysis/symmetry.py` is still a placeholder.
+
 Do not create a generic clinically meaningful “asymmetry score” without defining it.
 
 Every asymmetry metric must state exactly what is being compared. Examples include:
@@ -110,6 +126,38 @@ Every asymmetry metric must state exactly what is being compared. Examples inclu
 * difference in maximum knee flexion;
 * difference in ROM;
 * temporal difference between repetition phases.
+
+Proposed v1 squat metrics for approval before implementation:
+
+```text
+signed_rom_difference_degrees = left_rom_degrees - right_rom_degrees
+absolute_rom_difference_degrees = abs(signed_rom_difference_degrees)
+
+signed_max_flexion_difference_degrees =
+    left_max_flexion_degrees - right_max_flexion_degrees
+
+absolute_max_flexion_difference_degrees =
+    abs(signed_max_flexion_difference_degrees)
+```
+
+Positive signed values mean the modeled left operand is greater; negative values mean the modeled right operand is greater. Absolute values communicate magnitude only. These are exact differences in degrees, not percentages, normalized indices, diagnoses, or evidence of impairment. Session aggregates should state whether they are arithmetic means, maxima, or another named operation and must retain their source analysis version.
+
+Do not introduce a percentage difference until its denominator, zero behavior, interpretation, and validation are explicitly agreed.
+
+## Capture quality
+
+Status: only sample-level landmark confidence and missing-data states exist today. There is no capture-level result.
+
+The initial capture-quality report should use named observable signals rather than a vague quality score. Candidate signals include:
+
+* decoded duration, frame rate, dimensions, and frame count;
+* fraction of frames with a detected pose;
+* fraction of frames with valid bilateral knee-flexion inputs;
+* maximum consecutive unavailable bilateral interval in milliseconds;
+* whether required body landmarks remain inside configured image margins;
+* whether a complete standing-to-bottom-to-standing cycle is observable.
+
+Every signal must define its numerator/denominator, units, unavailable behavior, threshold source, and whether failure blocks analysis or produces a warning. Thresholds are product heuristics until validated and must be named and versioned. A capture-quality pass means the recording met the system's input criteria; it does not mean the resulting kinematics are clinically accurate.
 
 ## Initial squat repetition segmentation
 

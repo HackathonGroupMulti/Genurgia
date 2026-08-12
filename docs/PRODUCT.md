@@ -1,65 +1,98 @@
 # Product
 
-## Problem
+## What Knee Twin is
 
-Tracking knee recovery or movement quality manually makes longitudinal changes difficult to quantify.
+Knee Twin is a longitudinal, patient-specific digital representation of a knee. Its intended scope is the complete knee system: external movement, internal anatomy, tissue condition, intervention history, and simulated mechanical behavior over time.
 
-Knee Twin provides a visual and quantitative record of movement over time.
+Squat analysis is the first implemented observation workflow, not the product boundary. It proves that Knee Twin can ingest evidence, preserve raw observations, derive versioned measurements, replay them in context, and compare timepoints. Later workflows should apply the same principles to additional movements, medical images, internal knee imagery, 3D anatomical models, and validated simulations.
 
-## Core user flow
+Knee Twin is currently a research and engineering system, not a diagnostic medical device. Derived outputs must identify their source evidence, assumptions, uncertainty, algorithm version, and validation status.
 
-1. User selects an exercise.
-2. User records or uploads a standardized movement video.
-3. System checks capture quality.
-4. System extracts pose information.
-5. System computes supported kinematic measurements.
-6. System identifies repetitions.
-7. System displays synchronized visualizations.
-8. System stores the session.
-9. User compares the session against prior sessions.
+## Product goal
 
-## MVP exercise
+Create a living knee record that can answer, at a specific point in time:
 
-Squat.
+* What evidence exists for this knee?
+* What anatomy and motion can be reconstructed from that evidence?
+* What changed between timepoints, such as before and after an injury or intervention?
+* Which quantities were directly observed, estimated, inferred, or simulated?
+* How confident is each result, and what evidence is missing?
+* Which virtual scenarios can be explored without exposing the person to unnecessary physical loading?
 
-## Initial MVP outputs
+Virtual testing is intended to reduce avoidable risk and narrow physical testing, not automatically replace clinical examination or validated physical measurements. A simulation result is only as trustworthy as its inputs, model assumptions, calibration, and validation.
 
-* knee flexion through time;
-* left/right values;
-* range of motion;
-* repetition segmentation;
-* per-repetition metrics;
-* simple asymmetry;
-* pose confidence;
-* session comparison.
+## Evidence domains
 
-## Future exercises
+Knee Twin should support multiple evidence types without pretending they are interchangeable.
 
-* single-leg squat;
-* step-down;
-* lunge;
-* knee extension;
-* walking/gait.
+### External movement evidence
 
-Exercise-specific functionality should eventually be configuration or strategy built on a generic motion-analysis engine rather than entirely duplicated pipelines.
+* monocular and multi-view video;
+* markerless or marker-based motion capture;
+* depth cameras;
+* force plates, pressure data, and instrumented equipment;
+* wearable and rehabilitation sensor data;
+* standardized movement protocols such as squats, gait, running, jumping, cutting, and stairs.
 
-## Explicit non-goals for early versions
+### Internal and anatomical evidence
 
-* diagnosis;
-* treatment recommendations presented as medical advice;
-* exact tissue loading;
-* exact ligament forces;
-* exact cartilage pressure;
-* replacing physical examination;
-* pretending monocular pose estimation is equivalent to laboratory motion capture.
+* MRI and CT image series where lawfully available;
+* ultrasound and other supported imaging;
+* arthroscopy or other internal imagery supplied through an authorized clinical/research workflow;
+* clinician-authored landmarks, segmentations, and operative observations;
+* implant, graft, injury, and procedure metadata with provenance.
 
-## Long-term vision
+Internal footage can provide valuable direct surface observations, but it does not by itself produce exact whole-knee geometry, material properties, loads, or tissue mechanics. Those require registration with other evidence and must remain explicitly estimated where they are not directly measured.
 
-A personal movement digital twin that becomes increasingly calibrated to the individual and may later use:
+## Twin layers
 
-* richer camera setups;
-* personal anthropometrics;
-* calibration sessions;
-* musculoskeletal models;
-* OpenSim;
-* force estimates where scientifically justified.
+The product should mature as composable layers:
+
+1. **Evidence record** — immutable source observations, consent/provenance, capture context, and quality.
+2. **Measurement layer** — versioned kinematics, morphology, tissue annotations, and longitudinal changes.
+3. **Anatomical twin** — patient-specific 3D geometry reconstructed from appropriate imaging and reviewed segmentations.
+4. **Functional twin** — external movement registered to anatomy using calibrated coordinate systems and boundary conditions.
+5. **Simulation twin** — validated musculoskeletal and/or finite-element models for explicitly defined virtual experiments.
+
+Every layer must remain usable without claiming that a later layer exists. The UI must distinguish observed, reconstructed, estimated, and simulated data.
+
+## Core longitudinal workflow
+
+1. Establish the person, left/right knee, episode, and timepoint.
+2. Import an authorized source observation and retain it unchanged.
+3. Record provenance, capture protocol, coordinate system, consent, and quality.
+4. Derive versioned measurements without overwriting source evidence.
+5. Register compatible observations into a common patient/knee coordinate context.
+6. Construct or update the appropriate 3D representation.
+7. Compare compatible timepoints and expose uncertainty or missing inputs.
+8. Configure a named virtual experiment with explicit assumptions and boundary conditions.
+9. Run a versioned solver and preserve inputs, outputs, validation status, and reproducibility metadata.
+10. Present results as research or decision-support evidence appropriate to their validation level.
+
+## First implementation slice: squat movement analysis
+
+The present repository implements most of an initial squat workflow:
+
+* video upload and decoding;
+* timestamped raw pose-landmark preservation;
+* annotated replay;
+* modeled left/right knee flexion;
+* confidence and unavailable states;
+* repetition boundaries and per-repetition ROM;
+* local session persistence and limited comparison;
+* synchronized video, charts, and a model-relative skeleton.
+
+Capture-quality reporting, exact left/right difference metrics, historical replay, and broader validation remain open. Completing this slice establishes engineering patterns for evidence provenance and longitudinal analysis; it does not complete the Knee Twin product.
+
+## Safety and claims boundary
+
+Until a capability has an approved validation and regulatory path, Knee Twin must not claim:
+
+* diagnosis or treatment selection;
+* exact internal tissue forces or failure thresholds;
+* guaranteed injury prediction;
+* equivalence to MRI, CT, arthroscopy, motion capture, force measurement, or clinical examination;
+* that a virtual test is safe enough to replace a required real-world or clinical test;
+* that generated 3D geometry is patient-specific when it is only a generic visualization.
+
+The long-term ambition is a high-fidelity, evidence-linked knee twin. Scientific uncertainty is part of that product, not something to hide.

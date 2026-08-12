@@ -205,3 +205,30 @@ Neither dependency improves the underlying monocular evidence by itself. Both wo
 Limitation:
 
 SVG perspective, rotation, depth, and scale are visualization choices. They are not biomechanical outputs and must not be interpreted as calibrated anatomy.
+
+---
+
+## ADR-011 — Model the complete knee as a versioned evidence and derivation graph
+
+Status:
+Accepted
+
+Decision:
+
+Treat squat pose analysis as the first external-observation workflow, not the boundary of Knee Twin. Future internal/anatomical observations, reviewed segmentations, 3D reconstructions, registrations, virtual experiments, and simulation results remain distinct versioned objects linked to immutable source evidence for a specific person, knee/laterality, episode, and timepoint.
+
+Reason:
+
+A patient-specific knee twin will combine modalities with different coverage, coordinate systems, uncertainty, and authority. One mutable model would hide provenance and make it easy to confuse observed, reconstructed, estimated, and simulated quantities.
+
+Rejected alternative:
+
+Store a single current 3D knee object and update it in place as new data or algorithms arrive.
+
+Why rejected:
+
+It prevents reproducibility, obscures which evidence supported a result, and cannot safely represent competing segmentations, registrations, assumptions, or solver versions.
+
+Operational boundary:
+
+This decision establishes the target domain direction; it does not authorize connected clinical ingestion or diagnostic claims. The current squat slice remains a local research prototype. Medical-data handling, simulation intended uses, and clinical deployment require separate governance, security, validation, and regulatory decisions.

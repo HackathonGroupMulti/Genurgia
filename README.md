@@ -1,8 +1,8 @@
 # Knee Twin
 
-Knee Twin is a personal biomechanics and recovery-tracking application that builds a longitudinal representation of lower-body movement from recorded video. The MVP begins with squat kinematics and is explicitly a movement-analysis tool, not a medical diagnostic device.
+Knee Twin is intended to become a longitudinal, patient-specific digital representation of a complete knee. Its target scope combines external movement, internal/anatomical evidence, reviewed 3D reconstruction, and validated virtual experiments over time. It is currently a research and engineering system, not a diagnostic medical device.
 
-Milestones 0 through 5 are complete. The application accepts a squat video, preserves timestamped MediaPipe landmarks, exports an annotated MP4, calculates confidence-aware left/right modeled knee flexion, detects complete repetitions, stores comparable session summaries, and synchronizes playback with its metric and skeleton views.
+This repository contains the first external-observation slice: a working local squat-analysis prototype that preserves timestamped MediaPipe observations, exports an annotated replay, calculates confidence-aware modeled knee flexion and repetitions, stores session summaries, and synchronizes playback with charts and a model-relative skeleton. Squats are a foundation and validation protocol, not the product boundary. Patient-specific anatomy, medical/internal imagery, multimodal registration, and simulation are planned stages and are not implemented today.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ Milestones 0 through 5 are complete. The application accepts a squat video, pres
 Next.js UI → FastAPI → application services → analysis/domain modules
 ```
 
-Python owns numerical and biomechanics logic. Raw pose observations are preserved independently from derived metrics so historical sessions can be reanalyzed. Videos and large artifacts use a replaceable local storage boundary, separate from future relational metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DECISIONS.md](docs/DECISIONS.md).
+Python owns numerical and biomechanics logic. Raw pose observations are preserved independently from derived metrics so historical sessions can be reanalyzed. Videos and large artifacts use a replaceable local storage boundary; SQLite stores structured session and analysis metadata. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Repository layout
 
@@ -114,6 +114,6 @@ GitHub Actions runs the same test, lint, type-check, and frontend build validati
 
 ## Current status
 
-All defined MVP milestones are complete. Pose extraction and derived analysis remain synchronous. SQLite stores searchable metadata while original videos and detailed JSON artifacts remain separately stored under `data/local`. The UI synchronizes annotated playback with the angle chart, current modeled measurements, repetition boundaries, and a rotatable world-landmark skeleton, then compares session summaries over time. Reported values are monocular model estimates, not clinical measurements.
+Engineering Milestones 0–5 are complete, proving the local end-to-end pipeline. This is a technical prototype rather than a completed product MVP. Pose extraction and analysis remain synchronous; SQLite and local artifacts assume one local user. The UI cannot reopen historical sessions, comparison is limited to the preceding session, asymmetry is not implemented, and capture quality is not summarized for the user. Reported values are monocular model estimates, not clinical measurements.
 
-The next work is post-MVP hardening: explicit capture-quality guidance, richer capture metadata, and exercise abstraction.
+Milestone 6 completes the initial squat evidence pipeline. The broader roadmap then establishes the canonical knee evidence model, multimodal ingestion, patient-specific 3D anatomy, functional registration, and validated simulation. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), and [docs/ROADMAP.md](docs/ROADMAP.md).

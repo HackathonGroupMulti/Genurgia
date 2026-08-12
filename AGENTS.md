@@ -12,13 +12,15 @@ Before modifying code:
 
 ## Product rule
 
-Knee Twin is a personal movement-analysis and digital-twin system.
+Knee Twin is a longitudinal, patient-specific digital-twin system for the complete knee.
 
-It analyzes recorded human movement and tracks changes over time.
+It is intended to combine external movement, internal/anatomical evidence, 3D reconstruction, and validated virtual experiments over time. Squat movement analysis is the first implemented slice, not the product boundary.
 
 It is NOT a diagnostic medical device.
 
 Do not present estimated quantities as medically validated measurements.
+Do not describe reconstructed or simulated quantities as exact unless the evidence and validation explicitly support that claim.
+Distinguish directly observed, reconstructed, estimated, and simulated data.
 
 ## Engineering rules
 

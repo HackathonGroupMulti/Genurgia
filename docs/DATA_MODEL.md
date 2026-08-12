@@ -1,6 +1,39 @@
 # Data Model
 
-The following entities describe the intended domain. The first implementation does not need every conceptual entity represented as a separate SQL table. Persistence choices should follow practical access patterns while keeping raw observations distinct from derived results.
+The following entities describe the current movement-analysis slice and the target knee-evidence domain. The first implementation does not need every conceptual entity represented as a separate SQL table. Persistence choices should follow practical access patterns while keeping source observations distinct from annotations, derived results, reconstructions, and simulations.
+
+Implementation status as of 2026-08-11:
+
+| Concept | Current representation |
+| --- | --- |
+| User | Not implemented; local single-user assumption. |
+| Session | SQLite row plus API summary. |
+| Recording | SQLite metadata plus referenced media artifact. |
+| PoseSequence/PoseFrame | SQLite sequence metadata plus referenced versioned JSON artifact. |
+| Analysis | SQLite version/provenance row plus referenced derived JSON artifact. |
+| JointSeries | Stored inside the knee-flexion artifact, not relational rows. |
+| Repetition | Stored inside the repetition artifact; compact means copied to session metrics. |
+| SessionMetric | SQLite rows sourced from a named analysis version. |
+| CalibrationProfile | Not implemented. |
+
+## Target identity and evidence graph
+
+Before ingesting medical or internal evidence, the domain must explicitly model:
+
+* `Person` — subject identity or de-identified research subject;
+* `Knee` — left/right laterality belonging to one person;
+* `Episode` — injury, procedure, study, or longitudinal context;
+* `Timepoint` — when evidence or a modeled state applies;
+* `Observation` — immutable source evidence with modality, acquisition, provenance, authorization, and quality;
+* `Annotation` — versioned machine or expert interpretation of an observation;
+* `Reconstruction` — versioned geometry derived from named observations/annotations;
+* `Registration` — an explicit transform between coordinate systems with method, error, and coverage;
+* `VirtualExperiment` — versioned anatomy, properties, loads, boundary conditions, solver configuration, and validation tier;
+* `SimulationResult` — immutable outputs linked to the complete experiment definition.
+
+These form a derivation graph rather than one mutable “twin” record. A new segmentation, transform, material assumption, or solver version creates a new derived object and never overwrites its source.
+
+Every object must state whether its values are directly observed, expert-authored, reconstructed, estimated, or simulated. Unknown individual properties remain unknown or assumption ranges; they are never silently populated from a generic template.
 
 ## User
 
@@ -139,3 +172,35 @@ The conceptual session graph now has a local SQLite representation:
 * `session_metrics` stores compact named values, units, and their source analysis version.
 
 Detailed time series, raw landmarks, and media do not enter SQLite. A repeated run of the same analysis version updates that version's artifact reference and replaces its metric set. A new analysis version creates a new analysis row. Session comparisons use metrics from the newest repetition-analysis version and define change as current mean modeled ROM minus the preceding stored squat session's mean modeled ROM.
+
+## Planned initial-slice additions
+
+### CaptureQualityReport
+
+A versioned derived artifact should record:
+
+* source pose-sequence and model versions;
+* overall status such as `pass`, `warning`, or `fail`;
+* named signals with value, unit, threshold, status, and explanation;
+* actionable capture guidance;
+* unavailable checks and the reason they could not be calculated.
+
+Only compact status/summary fields should be duplicated into relational metadata.
+
+### Exact left/right difference metrics
+
+Per-repetition difference fields should live with the repetition analysis that produced their operands. Session-level aggregates may be copied into `session_metrics`, always with exact names, units, and source analysis version. A generic unlabeled asymmetry score should not be stored.
+
+### Capture metadata
+
+The next recording schema should distinguish:
+
+* source capture time from upload/creation time;
+* declared exercise;
+* camera view and orientation;
+* optional user capture notes;
+* future calibration profile reference when calibration exists.
+
+### Schema evolution requirement
+
+The SQLite schema currently has no migration ledger. These additions must not be shipped by editing `CREATE TABLE` statements alone; add a migration version and upgrade tests first.

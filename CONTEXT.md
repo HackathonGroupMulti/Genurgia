@@ -1,8 +1,10 @@
 # Knee Twin Context
 
-Knee Twin reconstructs and analyzes a user's lower-body movement from video to create a longitudinal digital twin.
+Knee Twin is intended to create a longitudinal, patient-specific digital representation of a complete knee. It should combine external movement evidence, internal/anatomical observations, versioned 3D reconstruction, and validated virtual experiments over time.
 
-Primary pipeline:
+Squat video analysis is the first implemented evidence-to-measurement slice, not the product boundary.
+
+Current implemented pipeline:
 
 video
 → pose extraction
@@ -24,9 +26,9 @@ Initial pose system:
 MediaPipe Pose Landmarker
 
 Advanced biomechanics:
-OpenSim or similar musculoskeletal simulation may be integrated later.
+Patient-specific anatomy, multimodal registration, and replaceable musculoskeletal or finite-element simulation adapters are planned product stages. They require trustworthy inputs, uncertainty reporting, and validation before stronger claims.
 
-Primary MVP:
+Initial external-analysis MVP:
 
 Upload a squat video and obtain:
 
@@ -45,9 +47,13 @@ Raw observations must be stored separately from derived measurements.
 
 The system should retain raw pose landmarks so improved analysis algorithms can be applied to previous sessions without rerunning pose detection when possible.
 
+LONG-TERM PRODUCT DIRECTION:
+
+evidence record → anatomical twin → functional twin → validated simulation twin.
+
 CURRENT MILESTONE:
 
-Post-MVP hardening — capture quality and exercise abstraction.
+Milestone 6 — complete the initial squat evidence-analysis slice.
 
 CURRENT BLOCKER:
 
@@ -55,6 +61,6 @@ None.
 
 NEXT ACTION:
 
-Define explicit capture-quality checks before expanding beyond the squat exercise.
+Specify a versioned capture-quality report and exact left/right ROM/max-flexion difference metrics before implementing either calculation. Ensure new capture metadata can later attach to a specific person, knee/laterality, episode, timepoint, and observation.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.
