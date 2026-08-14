@@ -2,7 +2,7 @@
 
 The following entities describe the current movement-analysis slice and the target knee-evidence domain. The first implementation does not need every conceptual entity represented as a separate SQL table. Persistence choices should follow practical access patterns while keeping source observations distinct from annotations, derived results, reconstructions, and simulations.
 
-Implementation status as of 2026-08-12:
+Implementation status as of 2026-08-14:
 
 | Concept | Current representation |
 | --- | --- |
@@ -31,6 +31,7 @@ Migration 4 and the canonical evidence API now explicitly model:
 * `Annotation` — versioned machine or expert interpretation of an observation;
 * `Reconstruction` — versioned geometry derived from named observations/annotations;
 * `Registration` — an explicit transform between coordinate systems with method, error, and coverage;
+* `SimulationModel` — an immutable, solver-ready model package linked to a reconstruction, with volumetric topology, named sets, structure coverage, quality, hashes, adapter, and validation state;
 * `VirtualExperiment` — versioned anatomy, properties, loads, boundary conditions, solver configuration, and validation tier;
 * `SimulationResult` — immutable outputs linked to the complete experiment definition.
 
@@ -49,6 +50,14 @@ Observation creation requires a source reference, explicit SHA-256 state, acquis
 Milestone 10 import observations use their observation UUID as the immutable artifact-bundle UUID. `source_artifact_reference` identifies the primary exact source (or the multi-view acquisition manifest), `source_sha256` records its durable hash, and the complete per-file hashes remain in `artifact_manifest_v1.json`. `acquisition_manifest` is one of the versioned MRI, arthroscopy, or calibrated multi-view contracts; `quality` repeats its status/signals for modality-neutral querying.
 
 Milestone 11 reconstruction imports likewise share a reconstruction/artifact-bundle UUID. The canonical row preserves knee, timepoint, version, `expert-reviewed` geometry class, complete structure list, coordinate system, review state, and typed references to distinct label maps, computational volume, scientific meshes, web meshes, and quality report. Package review/correction/landmark and threshold metadata remain in the immutable source package and derivation configuration.
+
+## Milestone 14 simulation models
+
+Migration 6 adds `simulation_models` without changing reconstruction or experiment records. A row stores its reconstruction ID, version, adapter ID, canonical model SHA-256, full validated package manifest, artifact references, mesh-quality report, included/excluded structures, validation state, and creation time. The immutable model artifact bundle retains the contributor ZIP, canonical JSON, mesh quality, and integrity manifest. The separate durable import-job bundle retains the typed import result.
+
+`FiniteElementModelPackageV1` contains right-handed millimetre coordinates, nodes, four-node tetrahedral elements, named contact surfaces, named node sets, ligament attachment pairs, provenance, and licensing. It requires positive element orientation and explicit compatibility with the source reconstruction. A PLY surface or reviewed anatomical mesh is not itself a `SimulationModel`.
+
+`ExperimentDefinitionV2` points to a simulation-model ID and hash. Its exact JSON is preserved in `virtual_experiments`; the durable job additionally checks that the queued copy equals the canonical copy. Successful or partial adapter output publishes as a new immutable `SimulationResult` and a typed derivation. Failed attempts remain in the durable job ledger with sanitized failure provenance and any deliberately published partial pose evidence.
 
 ## User
 

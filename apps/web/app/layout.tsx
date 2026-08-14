@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Knee Twin",
-  description: "Personal lower-body movement analysis over time.",
+  description: "Open, longitudinal knee evidence and exploratory simulation.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

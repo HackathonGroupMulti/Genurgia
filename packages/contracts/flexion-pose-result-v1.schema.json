@@ -1,0 +1,150 @@
+{
+  "properties": {
+    "flexion_angle_degrees": {
+      "title": "Flexion Angle Degrees",
+      "type": "number"
+    },
+    "status": {
+      "enum": [
+        "converged",
+        "nonconverged",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "contact_pressure_mpa": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contact Pressure Mpa"
+    },
+    "contact_area_mm2": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contact Area Mm2"
+    },
+    "maximum_displacement_mm": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Displacement Mm"
+    },
+    "maximum_cartilage_meniscus_strain": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Cartilage Meniscus Strain"
+    },
+    "maximum_ligament_strain": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Ligament Strain"
+    },
+    "reaction_force_n": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reaction Force N"
+    },
+    "convergence_residual": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Convergence Residual"
+    },
+    "diagnostic": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Diagnostic"
+    },
+    "field_artifact_reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Field Artifact Reference"
+    },
+    "normalized_field_manifest_reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Normalized Field Manifest Reference"
+    }
+  },
+  "required": [
+    "flexion_angle_degrees",
+    "status"
+  ],
+  "title": "FlexionPoseResultV1",
+  "type": "object"
+}

@@ -26,6 +26,8 @@ from app.schemas.evidence import (
     ReconstructionCreate,
     Registration,
     RegistrationCreate,
+    SimulationModel,
+    SimulationModelCreate,
     SimulationResult,
     SimulationResultCreate,
     Subject,
@@ -115,6 +117,12 @@ class SQLiteEvidenceRepository:
             Knee,
             (str(subject_id),),
         )
+
+    def get_knee(self, knee_id: UUID) -> Knee:
+        models = self._models("SELECT * FROM knees WHERE id = ?", Knee, (str(knee_id),))
+        if not models:
+            raise EvidenceNotFound(f"Knee {knee_id} was not found.")
+        return models[0]
 
     def create_episode(self, request: EpisodeCreate) -> Episode:
         episode_id = uuid4()
@@ -318,6 +326,144 @@ class SQLiteEvidenceRepository:
             },
         )
 
+    def get_reconstruction(self, reconstruction_id: UUID) -> Reconstruction:
+        models = self._json_models(
+            "SELECT * FROM reconstructions WHERE id = ?",
+            Reconstruction,
+            {
+                "structures_json": "structures",
+                "artifact_references_json": "artifact_references",
+                "coordinate_system_json": "coordinate_system",
+            },
+            (str(reconstruction_id),),
+        )
+        if not models:
+            raise EvidenceNotFound(f"Reconstruction {reconstruction_id} was not found.")
+        return models[0]
+
+    def create_simulation_model(
+        self,
+        request: SimulationModelCreate,
+        *,
+        simulation_model_id: UUID | None = None,
+    ) -> SimulationModel:
+        self.get_reconstruction(request.reconstruction_id)
+        identifier, now = self._json_create(
+            """INSERT INTO simulation_models
+            (id, reconstruction_id, version, adapter_id, model_sha256, model_manifest_json,
+             artifact_references_json, mesh_quality_json, included_structures_json,
+             excluded_structures_json, validation_state, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                str(request.reconstruction_id),
+                request.version,
+                request.adapter_id,
+                request.model_sha256,
+                _json(request.model_manifest),
+                _json(request.artifact_references),
+                _json(request.mesh_quality),
+                _json(request.included_structures),
+                _json(request.excluded_structures),
+                request.validation_state,
+            ),
+            identifier=simulation_model_id,
+        )
+        return SimulationModel(id=identifier, created_at=now, **request.model_dump())
+
+    def create_simulation_model_and_derivation(
+        self,
+        model_request: SimulationModelCreate,
+        derivation_request: DerivationCreate,
+        *,
+        simulation_model_id: UUID,
+    ) -> tuple[SimulationModel, Derivation]:
+        """Record an imported FE model and its provenance atomically."""
+        derivation_id = uuid4()
+        now = _now()
+        derivation_request = derivation_request.model_copy(
+            update={"outputs": [str(simulation_model_id)]}
+        )
+        try:
+            with self._connect() as connection:
+                connection.execute(
+                    """INSERT INTO simulation_models
+                    (id, reconstruction_id, version, adapter_id, model_sha256,
+                     model_manifest_json, artifact_references_json, mesh_quality_json,
+                     included_structures_json, excluded_structures_json, validation_state,
+                     created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        str(simulation_model_id),
+                        str(model_request.reconstruction_id),
+                        model_request.version,
+                        model_request.adapter_id,
+                        model_request.model_sha256,
+                        _json(model_request.model_manifest),
+                        _json(model_request.artifact_references),
+                        _json(model_request.mesh_quality),
+                        _json(model_request.included_structures),
+                        _json(model_request.excluded_structures),
+                        model_request.validation_state,
+                        now,
+                    ),
+                )
+                connection.execute(
+                    """INSERT INTO derivations
+                    (id, derivation_type, inputs_json, outputs_json, algorithm,
+                     algorithm_version, configuration_json, code_revision,
+                     environment_json, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        str(derivation_id),
+                        derivation_request.derivation_type,
+                        _json(derivation_request.inputs),
+                        _json(derivation_request.outputs),
+                        derivation_request.algorithm,
+                        derivation_request.algorithm_version,
+                        _json(derivation_request.configuration),
+                        derivation_request.code_revision,
+                        _json(derivation_request.environment),
+                        now,
+                    ),
+                )
+        except sqlite3.IntegrityError as error:
+            raise EvidenceConflict(
+                "Simulation model or derivation references missing evidence."
+            ) from error
+        return (
+            SimulationModel(
+                id=simulation_model_id,
+                created_at=now,
+                **model_request.model_dump(),
+            ),
+            Derivation(id=derivation_id, created_at=now, **derivation_request.model_dump()),
+        )
+
+    def get_simulation_model(self, simulation_model_id: UUID) -> SimulationModel:
+        models = self._simulation_models(" WHERE id = ?", (str(simulation_model_id),))
+        if not models:
+            raise EvidenceNotFound(f"Simulation model {simulation_model_id} was not found.")
+        return models[0]
+
+    def list_simulation_models(self) -> list[SimulationModel]:
+        return self._simulation_models()
+
+    def _simulation_models(
+        self, clause: str = "", parameters: tuple[Any, ...] = ()
+    ) -> list[SimulationModel]:
+        return self._json_models(
+            "SELECT * FROM simulation_models" + clause + " ORDER BY created_at",
+            SimulationModel,
+            {
+                "model_manifest_json": "model_manifest",
+                "artifact_references_json": "artifact_references",
+                "mesh_quality_json": "mesh_quality",
+                "included_structures_json": "included_structures",
+                "excluded_structures_json": "excluded_structures",
+            },
+            parameters,
+        )
+
     def create_registration(self, request: RegistrationCreate) -> Registration:
         identifier, now = self._json_create(
             """INSERT INTO registrations
@@ -424,6 +570,17 @@ class SQLiteEvidenceRepository:
             {"definition_json": "definition"},
         )
 
+    def get_experiment(self, experiment_id: UUID) -> VirtualExperiment:
+        models = self._json_models(
+            "SELECT * FROM virtual_experiments WHERE id = ?",
+            VirtualExperiment,
+            {"definition_json": "definition"},
+            (str(experiment_id),),
+        )
+        if not models:
+            raise EvidenceNotFound(f"Experiment {experiment_id} was not found.")
+        return models[0]
+
     def create_simulation_result(self, request: SimulationResultCreate) -> SimulationResult:
         identifier, now = self._json_create(
             """INSERT INTO simulation_results
@@ -440,6 +597,64 @@ class SQLiteEvidenceRepository:
             ),
         )
         return SimulationResult(id=identifier, created_at=now, **request.model_dump())
+
+    def create_simulation_result_and_derivation(
+        self,
+        result_request: SimulationResultCreate,
+        derivation_request: DerivationCreate,
+    ) -> tuple[SimulationResult, Derivation]:
+        """Record a published simulation result and its provenance atomically."""
+        result_id = uuid4()
+        derivation_id = uuid4()
+        now = _now()
+        derivation_request = derivation_request.model_copy(
+            update={"outputs": [str(result_id)]}
+        )
+        try:
+            with self._connect() as connection:
+                connection.execute(
+                    """INSERT INTO simulation_results
+                    (id, experiment_id, status, outputs_json, sensitivity_json,
+                     validation_evidence_json, artifact_references_json, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        str(result_id),
+                        str(result_request.experiment_id),
+                        result_request.status,
+                        _json(result_request.outputs),
+                        _json(result_request.sensitivity),
+                        _json(result_request.validation_evidence),
+                        _json(result_request.artifact_references),
+                        now,
+                    ),
+                )
+                connection.execute(
+                    """INSERT INTO derivations
+                    (id, derivation_type, inputs_json, outputs_json, algorithm,
+                     algorithm_version, configuration_json, code_revision,
+                     environment_json, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        str(derivation_id),
+                        derivation_request.derivation_type,
+                        _json(derivation_request.inputs),
+                        _json(derivation_request.outputs),
+                        derivation_request.algorithm,
+                        derivation_request.algorithm_version,
+                        _json(derivation_request.configuration),
+                        derivation_request.code_revision,
+                        _json(derivation_request.environment),
+                        now,
+                    ),
+                )
+        except sqlite3.IntegrityError as error:
+            raise EvidenceConflict(
+                "Simulation result or derivation references missing evidence."
+            ) from error
+        return (
+            SimulationResult(id=result_id, created_at=now, **result_request.model_dump()),
+            Derivation(id=derivation_id, created_at=now, **derivation_request.model_dump()),
+        )
 
     def list_simulation_results(self) -> list[SimulationResult]:
         return self._json_models(

@@ -681,3 +681,212 @@ button:disabled {
   width: fit-content;
   padding: 0.8rem 1.1rem;
 }
+
+.lab-page {
+  justify-content: flex-start;
+}
+
+.lab-header,
+.knee-lab-panel {
+  width: min(100%, 72rem);
+}
+
+.lab-header {
+  display: flex;
+  gap: 2rem;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.knee-lab-panel {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 1rem 3rem rgba(18, 33, 27, 0.08);
+}
+
+.evidence-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.evidence-legend span {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(18, 33, 27, 0.16);
+  border-radius: 999px;
+  color: var(--muted);
+  background: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.adapter-card,
+.pose-status {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(18, 33, 27, 0.16);
+  border-radius: 0.85rem;
+  background: white;
+}
+
+.adapter-card.available,
+.pose-converged {
+  border-color: rgba(23, 114, 81, 0.45);
+}
+
+.adapter-card.unavailable,
+.pose-failed,
+.pose-nonconverged {
+  border-color: rgba(161, 61, 53, 0.45);
+}
+
+.adapter-card small,
+.adapter-card span,
+.pose-status span {
+  color: var(--muted);
+}
+
+.lab-field {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lab-field select {
+  min-height: 2.8rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(18, 33, 27, 0.18);
+  border-radius: 0.75rem;
+  background: white;
+  color: var(--ink);
+}
+
+.lab-field.compact {
+  min-width: 14rem;
+}
+
+.lab-model-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.lab-model-summary div {
+  min-width: 0;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.lab-model-summary dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lab-model-summary dd {
+  margin: 0.4rem 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+}
+
+.manifest-editor,
+.simulation-results {
+  display: grid;
+  gap: 1rem;
+}
+
+.manifest-actions,
+.lab-run-actions,
+.model-import {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.manifest-actions > div {
+  display: grid;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.manifest-actions small,
+.lab-run-actions p {
+  color: var(--muted);
+}
+
+.manifest-editor textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid rgba(18, 33, 27, 0.18);
+  border-radius: 0.85rem;
+  background: #101b17;
+  color: #eef6f1;
+  font: 0.78rem/1.5 "Courier New", monospace;
+  resize: vertical;
+}
+
+.simulation-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.simulation-field {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.simulation-field-canvas {
+  min-height: 20rem;
+  overflow: hidden;
+  border: 1px solid rgba(18, 33, 27, 0.12);
+  border-radius: 0.85rem;
+  background: #f8f7f1;
+}
+
+.simulation-field canvas {
+  display: block;
+  width: 100%;
+}
+
+.simulation-field figcaption {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.run-comparison {
+  overflow-x: auto;
+}
+
+.run-comparison table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.run-comparison th,
+.run-comparison td {
+  padding: 0.65rem;
+  border-bottom: 1px solid rgba(18, 33, 27, 0.12);
+  text-align: left;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .lab-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

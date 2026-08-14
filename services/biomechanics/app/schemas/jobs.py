@@ -6,7 +6,11 @@ from pydantic import BaseModel, Field
 
 
 class JobCreateV1(BaseModel):
-    job_type: Literal["anatomical-motion-replay-v1"]
+    job_type: Literal[
+        "anatomical-motion-replay-v1",
+        "febio-model-import-v1",
+        "febio-flexion-sweep-v1",
+    ]
     request: dict[str, Any]
 
 

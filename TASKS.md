@@ -155,13 +155,19 @@ This is the active implementation queue. Knee Twin's product scope is a complete
 * [ ] Animate a reviewed human anatomical twin only after compatible human anatomy and motion registration pass their gates.
 * [ ] Benchmark and cancellation-test production-size imaging/reconstruction/registration jobs before routing them to the worker.
 
-### Milestone 14 — First validated simulation adapter
+### Milestone 14 — Open exploratory FEBio simulation pipeline
 
-* [ ] Choose one narrow scientific question and reference dataset before selecting a solver.
-* [ ] Integrate a replaceable musculoskeletal or finite-element adapter appropriate to that question.
-* [ ] Compare outputs with defined reference measurements and document error and applicability.
-* [ ] Present results as simulated hypotheses unless validation supports stronger language.
-* [ ] Do not use simulation output as autonomous diagnosis or treatment advice.
+* [x] Choose the narrow synthetic-first question: manually loaded tibiofemoral contact/strain change over independent 0–90° flexion poses.
+* [x] Add immutable `SimulationModel` persistence and a durable queued, validated contributor-authored volumetric tet4 package boundary; never relabel reconstruction surface meshes as solver-ready.
+* [x] Require manual, sourced, ranged material, ligament, contact, load, boundary, and convergence assumptions in additive `ExperimentDefinitionV2` contracts.
+* [x] Add a replaceable `febio-4.12` adapter registry, executable/version/hash preflight, deterministic `.feb` generation, bounded invocation, cancellation, partial-pose preservation, atomic artifacts, and canonical result derivation.
+* [x] Ship a deterministic CC0 synthetic fixture builder and a Knee Lab for import, manifest editing/export, jobs, failures, metrics, provenance, comparison history, and VTK geometry inspection.
+* [x] Present every result as an `exploratory-simulated-hypothesis`; never turn convergence into accuracy, diagnosis, treatment advice, or injury risk.
+* [x] Add fake-process/adapter, migration, contract, API, UI, corrupt topology, missing assumption, integrity, partial failure, and offline-workstation tests.
+* [ ] Run the generated CC0 fixture with a real separately installed/built FEBio 4.12 executable and verify the emitted FEBio 4 input, VTK output, load/reaction balance, and configured convergence tolerances.
+* [ ] Compare a later scientifically selected model with defined reference measurements and document error and applicability; engineering execution alone does not close this evidence gate.
+
+Engineering verification on 2026-08-14: Ruff, 139 backend tests, ESLint, TypeScript, 37 frontend tests, production build, two Playwright workflows, Markdownlint, and `git diff --check` passed. The real-FEBio and scientific-comparison gates remain explicitly open.
 
 ## Program E — validation and responsible use
 

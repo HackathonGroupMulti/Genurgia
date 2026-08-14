@@ -1,5 +1,6 @@
 import { getBackendHealth } from "@/lib/biomechanics-api";
 import { VideoUpload } from "@/components/video-upload";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +30,9 @@ export default async function Home() {
         </div>
 
         <p className="disclaimer">
-          Knee Twin is a movement-analysis tool, not a medical diagnostic device.
+          Knee Twin produces research evidence and exploratory hypotheses, not medical diagnosis.
         </p>
+        <Link className="artifact-link" href="/lab">Open the FEBio Knee Lab</Link>
       </section>
       <VideoUpload />
     </main>

@@ -1,0 +1,14 @@
+{
+  "properties": {
+    "upload_bundle_id": {
+      "format": "uuid",
+      "title": "Upload Bundle Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "upload_bundle_id"
+  ],
+  "title": "FiniteElementModelImportJobRequestV1",
+  "type": "object"
+}

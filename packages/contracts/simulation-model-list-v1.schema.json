@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "SimulationModel": {
+      "properties": {
+        "reconstruction_id": {
+          "format": "uuid",
+          "title": "Reconstruction Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "adapter_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "model_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Sha256",
+          "type": "string"
+        },
+        "model_manifest": {
+          "additionalProperties": true,
+          "title": "Model Manifest",
+          "type": "object"
+        },
+        "artifact_references": {
+          "additionalProperties": true,
+          "title": "Artifact References",
+          "type": "object"
+        },
+        "mesh_quality": {
+          "additionalProperties": true,
+          "title": "Mesh Quality",
+          "type": "object"
+        },
+        "included_structures": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Included Structures",
+          "type": "array"
+        },
+        "excluded_structures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Structures",
+          "type": "array"
+        },
+        "validation_state": {
+          "enum": [
+            "structurally-valid",
+            "invalid"
+          ],
+          "title": "Validation State",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reconstruction_id",
+        "version",
+        "adapter_id",
+        "model_sha256",
+        "model_manifest",
+        "artifact_references",
+        "mesh_quality",
+        "included_structures",
+        "excluded_structures",
+        "validation_state",
+        "id",
+        "created_at"
+      ],
+      "title": "SimulationModel",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "simulation_models": {
+      "items": {
+        "$ref": "#/$defs/SimulationModel"
+      },
+      "title": "Simulation Models",
+      "type": "array"
+    }
+  },
+  "required": [
+    "simulation_models"
+  ],
+  "title": "SimulationModelList",
+  "type": "object"
+}

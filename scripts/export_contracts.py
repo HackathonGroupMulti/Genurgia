@@ -11,6 +11,7 @@ from app.schemas.evidence import (
     ObservationList,
     ReconstructionList,
     RegistrationList,
+    SimulationModelList,
     SimulationResultList,
     SubjectList,
     TimepointList,
@@ -45,6 +46,16 @@ from app.schemas.sessions import (
     SessionListResponse,
     SessionSummary,
 )
+from app.schemas.simulation import (
+    ExperimentDefinitionV2,
+    FebioFlexionSweepResultV1,
+    FiniteElementModelImportJobRequestV1,
+    FiniteElementModelImportResultV1,
+    FiniteElementModelPackageV1,
+    FlexionPoseResultV1,
+    NormalizedFieldManifestV1,
+    SimulationAdapterListV1,
+)
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = REPOSITORY_ROOT / "packages" / "contracts"
@@ -73,6 +84,7 @@ CONTRACTS = {
     "derivation-list-v1.schema.json": DerivationList,
     "virtual-experiment-list-v1.schema.json": VirtualExperimentList,
     "simulation-result-list-v1.schema.json": SimulationResultList,
+    "simulation-model-list-v1.schema.json": SimulationModelList,
     "dicom-series-manifest-v1.schema.json": DicomSeriesManifestV1,
     "arthroscopy-manifest-v1.schema.json": ArthroscopyManifestV1,
     "multi-view-capture-manifest-v1.schema.json": MultiViewCaptureManifestV1,
@@ -85,6 +97,16 @@ CONTRACTS = {
     "experiment-definition-v1.schema.json": ExperimentDefinitionV1,
     "motion-replay-result-v1.schema.json": MotionReplayResultV1,
     "job-list-v1.schema.json": JobListV1,
+    "finite-element-model-package-v1.schema.json": FiniteElementModelPackageV1,
+    "finite-element-model-import-job-request-v1.schema.json": (
+        FiniteElementModelImportJobRequestV1
+    ),
+    "finite-element-model-import-result-v1.schema.json": FiniteElementModelImportResultV1,
+    "experiment-definition-v2.schema.json": ExperimentDefinitionV2,
+    "flexion-pose-result-v1.schema.json": FlexionPoseResultV1,
+    "normalized-field-manifest-v1.schema.json": NormalizedFieldManifestV1,
+    "febio-flexion-sweep-result-v1.schema.json": FebioFlexionSweepResultV1,
+    "simulation-adapter-list-v1.schema.json": SimulationAdapterListV1,
 }
 
 

@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "NormalizedFieldValueV1": {
+      "properties": {
+        "name": {
+          "enum": [
+            "contact-pressure",
+            "contact-area",
+            "displacement",
+            "cartilage-meniscus-strain",
+            "ligament-strain",
+            "reaction-force",
+            "convergence-residual"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "enum": [
+            "MPa",
+            "mm2",
+            "mm",
+            "1",
+            "N"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "evidence_class": {
+          "const": "simulated",
+          "default": "simulated",
+          "title": "Evidence Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "unit",
+        "available"
+      ],
+      "title": "NormalizedFieldValueV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "flexion_angle_degrees": {
+      "title": "Flexion Angle Degrees",
+      "type": "number"
+    },
+    "pose_status": {
+      "enum": [
+        "converged",
+        "nonconverged",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Pose Status",
+      "type": "string"
+    },
+    "source_field_artifact": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Field Artifact"
+    },
+    "fields": {
+      "items": {
+        "$ref": "#/$defs/NormalizedFieldValueV1"
+      },
+      "title": "Fields",
+      "type": "array"
+    },
+    "interpretation": {
+      "const": "exploratory-simulated-hypothesis",
+      "default": "exploratory-simulated-hypothesis",
+      "title": "Interpretation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "flexion_angle_degrees",
+    "pose_status",
+    "source_field_artifact",
+    "fields"
+  ],
+  "title": "NormalizedFieldManifestV1",
+  "type": "object"
+}

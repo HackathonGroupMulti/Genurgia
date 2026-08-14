@@ -74,6 +74,20 @@ Migration 5 adds durable local jobs. `SQLiteJobRunner` is the sole claim boundar
 
 `ExperimentDefinitionV1` is canonical and solver-neutral. Adapters consume it; solver-native structures cannot replace its sourced properties, loading/boundary conditions, coordinates, versions, hashes, outputs, sensitivity, or validation tier.
 
+## Milestone 14 finite-element boundary
+
+Migration 6 adds immutable `SimulationModel` records between reconstructions and experiments. A simulation model points to one reconstruction but preserves its own volumetric topology, named anatomical parts, contact surfaces, attachment and boundary sets, coordinate convention, included/excluded structures, mesh-quality evidence, artifact hashes, adapter capability, and validation state. Existing PLY surface meshes are never relabeled as finite-element meshes.
+
+The FE import HTTP boundary streams each bounded ZIP into a verified intake bundle and returns a durable `febio-model-import-v1` job. The single local worker validates topology, units, laterality, coordinates, reconstruction compatibility, and mesh quality before atomically recording the immutable model plus derivation. A successful job removes the redundant intake bundle because the model bundle preserves the exact source ZIP; a failed job retains its intake evidence for retry and diagnosis.
+
+`FiniteElementModelPackageV1` is the contributor-facing, solver-ready volumetric exchange boundary. V1 accepts a bounded ZIP containing canonical JSON, validates topology, positive tetrahedral orientation, laterality, coordinates, structure coverage, named sets, and reconstruction compatibility, and then publishes an immutable SHA-256 bundle. It does not generate a patient mesh.
+
+`ExperimentDefinitionV2` adds the named `febio-tibiofemoral-flexion-sweep` question without changing V1. Every material, ligament connector, contact, load, boundary, and convergence value is explicit, unit-bearing, sourced, ranged, and classified as individually measured or assumed. The fixed angles are independent jobs within one adapter run, so a failed pose cannot erase successful evidence.
+
+The job runner dispatches through an adapter registry. `febio-flexion-sweep-v1` validates capabilities, deterministically writes `.feb` input, invokes an external FEBio 4.12 executable without a shell, checks cancellation between poses, preserves native logs and fields, normalizes only named exploratory outputs, verifies the published artifact manifest, and creates canonical result/derivation records. FEBio binaries are not bundled. Solver convergence is execution evidence, not scientific validation.
+
+The `/lab` interface talks to the local API through a loopback-only proxy. It renders server-owned contracts and VTK fields but does not calculate mechanics. Synthetic fixture assumptions can be preloaded only for the versioned CC0 fixture; non-fixture experiments require researchers to author or import the complete manifest.
+
 The local filesystem implementation of the artifact-storage boundary stores each extraction bundle: original recording, versioned raw pose-sequence JSON, annotated MP4, and separate derived JSON artifacts. SQLite stores structured session, source, analysis-version, and compact metric metadata with references to those artifacts.
 
 Pose extraction is synchronous in the first local vertical slice. `PoseAnalysisService` owns orchestration, while the HTTP route handles multipart transport and maps explicit domain failures to API errors. The `PoseProvider` protocol keeps MediaPipe replaceable.

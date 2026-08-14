@@ -1,7 +1,8 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, HTTPException, Query, status
+from pydantic import ValidationError
 
 from app.dependencies import EvidenceRepositoryDependency
 from app.schemas.evidence import (
@@ -37,6 +38,7 @@ from app.schemas.evidence import (
     VirtualExperimentCreate,
     VirtualExperimentList,
 )
+from app.schemas.simulation import ExperimentDefinitionV2
 
 router = APIRouter(tags=["canonical evidence"])
 
@@ -192,6 +194,29 @@ def create_experiment(
     request: VirtualExperimentCreate,
     repository: EvidenceRepositoryDependency,
 ) -> VirtualExperiment:
+    if request.definition_version == "experiment-definition-v2":
+        try:
+            definition = ExperimentDefinitionV2.model_validate(request.definition)
+        except ValidationError as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=error.errors(include_url=False, include_context=False),
+            ) from error
+        simulation_model = repository.get_simulation_model(definition.simulation_model_id)
+        reconstruction = repository.get_reconstruction(simulation_model.reconstruction_id)
+        if reconstruction.knee_id != request.knee_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Experiment and simulation model refer to different knees.",
+            )
+        if reconstruction.timepoint_id != request.timepoint_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Experiment and simulation model refer to different timepoints.",
+            )
+        request = request.model_copy(
+            update={"definition": definition.model_dump(mode="json")}
+        )
     return repository.create_experiment(request)
 
 

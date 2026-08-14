@@ -1,106 +1,58 @@
 # Current State
 
-Last updated: 2026-08-12
+Last updated: 2026-08-14
 
-## Product and implementation verdict
+## Product position
 
-Knee Twin is an offline, expert-facing research platform intended to create a longitudinal, patient-specific knee twin from immutable evidence, reviewed anatomy, functional registration, and reproducible virtual experiments. It is not a diagnostic medical device.
+Knee Twin is an offline, open-source research pipeline for turning longitudinal knee evidence into inspectable 3D hypotheses. It preserves immutable observations, reconstructions, registrations, assumptions, solver inputs, outputs, failures, and later alternatives. Its usefulness does not depend on the first physics model being accurate; it depends on making every attempt reproducible and replaceable so evidence and contributors can strengthen it.
 
-Engineering Milestones 0–13 are technically complete. The repository implements movement evidence, a canonical knee graph, multimodal imports, anatomy review packages, synthetic registration, durable local jobs, solver-neutral experiments, and reproducible synthetic motion-replay summaries. Existing squat sessions remain operational.
+Knee Twin is not a diagnostic medical device. Observed, reconstructed, expert-assumed, estimated, and simulated information is labeled separately. Numerical convergence is not scientific or clinical validation.
 
-The current “digital twin” is still an evidence/review system, not a validated or simulated patient knee. Synthetic packages demonstrate complete structure handling but not anatomical accuracy. No human patient-specific segmentation, arthroscopy-to-MRI registration, calibrated motion replay, or mechanical experiment has been validated. Milestones 6, 10, and 11 retain external evidence gates.
+## Implemented platform
 
-## Working and verified
+Engineering Milestones 0–13 are technically complete. Existing squat workflows remain operational with bounded/atomic uploads, raw MediaPipe observations, bilateral flexion and repetition derivations, capture quality, exact left-minus-right differences, historical replay, explicit compatible comparisons, reanalysis, artifact integrity, deletion/recovery behavior, and offline-workstation guidance.
 
-### Movement and longitudinal evidence
+The additive canonical graph models de-identified subjects, left/right knees, episodes, timepoints, immutable observations, annotations, reconstructions, registrations, derivations, virtual experiments, and simulation results. Legacy session IDs, endpoints, and artifacts are preserved. Controlled MRI DICOM, arthroscopy, and calibrated four-camera imports preserve native coordinate meaning. Manual complete-knee reconstruction packages, synthetic calibrated registration, registered evidence contracts, durable single-worker SQLite jobs, and solver-neutral motion replay are implemented; their human scientific gates remain open.
 
-* Preserve original media, raw image/world landmarks, overlays, quality, confidence, missing states, repetition/ROM metrics, and exact named left-minus-right differences.
-* Reopen synchronized historical evidence, compare explicitly selected compatible sessions, and reanalyze without replacing earlier outputs.
-* Export expected/actual SHA-256 artifact integrity and missing/corrupt state.
+## Milestone 14 engineering implementation
 
-### Canonical knee evidence graph
+Migration 6 and the canonical API add immutable `SimulationModel` records linked to reconstructions. `FiniteElementModelPackageV1` imports contributor-prepared volumetric nodes/tetrahedra, named anatomical parts, contact surfaces, attachment/boundary sets, right-handed millimetre coordinates, laterality, structure coverage, provenance, licensing, and mesh quality. The HTTP boundary streams each bounded ZIP into a verified intake bundle and returns a durable `febio-model-import-v1` job. The worker validates hashes, topology, positive tetrahedral volume, complete required flexion structures, and source-reconstruction compatibility before atomically publishing the model and derivation. Existing PLY surfaces are not treated as finite-element meshes.
 
-* `Subject` contains a de-identified research code and owns explicit left/right `Knee` records.
-* `Episode` and `Timepoint` preserve longitudinal context and timezone-aware observation time.
-* Immutable `Observation` records preserve modality, exact source reference/hash, acquisition manifest, authorization, quality, and knee targets.
-* Versioned `Annotation`, `Reconstruction`, `Registration`, `Derivation`, `VirtualExperiment`, and `SimulationResult` records remain separate evidence classes.
-* Subject ownership prevents cross-subject knee/timepoint combinations.
-* Migration 4 maps legacy squat sessions into stable canonical records without changing legacy identifiers or artifacts.
+`ExperimentDefinitionV2` adds one named question: under a manually specified compressive load, how do simulated tibiofemoral contact and strain fields change from 0° to 90° of prescribed flexion? Materials, ligament connectors, contacts, load, boundary controls, convergence controls, units, sources, ranges, rationales, individual-measurement state, software versions, outputs, and validation tier are all explicit. Missing values, unknown units, non-finite values, unsafe topology, incompatible knee/timepoint/laterality/coordinates, or a model-hash mismatch refuse execution.
 
-### Multimodal acquisition
+The SQLite job runner now dispatches through an adapter registry. `febio-flexion-sweep-v1` preflights an external FEBio 4.12 executable, records its exact version and hash, deterministically generates `.feb` inputs, invokes it without a shell, checks cancellation, independently preserves each fixed pose as converged/nonconverged/failed/cancelled, normalizes named mechanical fields, and atomically publishes verified inputs, configuration, stdout/stderr, logs, FEBio VTK fields, normalized field manifests, result JSON, and a SHA-256 manifest. Canonical `SimulationResult` and derivation records are created only after bundle verification.
 
-* `POST /observations/imports/mri` streams and preserves one exact DICOM ZIP, validates one MR series, checks declared DICOM laterality against the selected knee, records patient-LPS spatial metadata in millimetres, and rejects detected populated direct identifiers from the declared subset.
-* `POST /observations/imports/arthroscopy` preserves video plus procedure, scope/camera, calibration, decoded timing, and expert visible-region metadata.
-* `POST /observations/imports/multi-view` requires four decoded 1080p/60 fps views, per-camera intrinsic/extrinsic calibration, a visible synchronization event, capture-volume validation, and a standardized anatomical calibration pose.
-* Each import publishes the source and typed acquisition manifest atomically, verifies SHA-256 integrity, then creates the canonical observation. Metadata failure rolls back the bundle.
-* The DICOM research screen explicitly does not claim complete PS3.15 confidentiality-profile conformance.
-* Imports use generated synthetic fixtures only. Approved paired human evidence has not been acquired.
+The `/lab` workspace exposes solver availability and model completeness, FE package import, knee/timepoint/reconstruction/model selection, full JSON assumption editing/import/export, canonical experiment creation, run/cancel/retry state, immutable run history, pose scrubbing, partial/failure states, and VTK field viewing. Persistent labels distinguish `Observed`, `Reconstructed`, `Expert assumption`, and `Simulated`. Only the versioned CC0 synthetic fixture may preload its fixture-only assumptions.
 
-### Offline reliability and operating controls
+Public local interfaces now include:
 
-* Multipart uploads stream to bounded hidden temporary storage; observation imports have a configurable 2 GiB per-file default.
-* Artifact bundles publish atomically with durable SHA-256 manifests.
-* SQLite owns canonical/operation metadata, migrations are checksummed, and recovery/deletion behavior is tested.
-* Both tiers reject non-loopback service configuration; sensitive research data requires an approved encrypted volume.
+* `POST /simulation-models/imports/febio`, returning a durable import job;
+* `GET /simulation-models` and `GET /simulation-models/{id}`;
+* `GET /simulation-adapters`;
+* `POST /jobs` with `febio-flexion-sweep-v1`, plus existing job state, cancellation, retry, and worker execution;
+* existing `/experiments`, `/simulation-results`, `/derivations/{id}`, evidence, session, and artifact APIs.
 
-### Complete-anatomy review package
+Python models are exported as committed JSON Schemas with matching TypeScript contracts/parsers. The project is Apache-2.0 licensed; the generated synthetic fixture is dedicated under CC0-1.0. Contribution rules establish adapter, benchmark, citation, contract, and claim boundaries.
 
-* `POST /reconstructions/imports/manual` requires all 22 v1 bone, cartilage, meniscus, ligament, tendon, and major knee-crossing musculotendon structures.
-* It preserves reviewed/reference label maps, computational volume, per-structure PLY/GLB meshes, approved landmarks, corrections, and different primary/independent reviewers.
-* Pure Dice, average symmetric surface distance, and Hausdorff-95 calculations preserve physical millimetre units and refuse missing structures.
-* Draft structure thresholds force `thresholds-unapproved`, `expert-reviewed`, and `in_review` even for a perfect synthetic fixture.
+## Evidence and verification state
 
-### Synthetic registration core
+Automated coverage includes migration from Milestone 13, pure tetrahedral-volume calculation, mesh/set/laterality/coordinate/model completeness, deterministic XML and hashes, contract parity, API import/preflight, explicit-value refusal, unknown units, safe subprocess arguments, fake-executable convergence/output/failure/cancellation/partial behavior, durable canonical results, frontend contract/component behavior, and production build/browser workflows.
 
-* Calibrated DLT triangulation recovers capture-space points and refuses insufficient/degenerate camera evidence.
-* Proper rigid landmark fitting records anatomy-from-capture transforms and residuals in millimetres; deterministic perturbation reports 95% translation/rotation sensitivity.
-* Calibrated expert-seeded arthroscopy PnP reports anatomy-from-camera transforms and reprojection errors in pixels.
-* Functional frames preserve coverage, confidence, exclusions, residuals, uncertainty, and validation tier.
-* Arthroscopy refinement is refused without calibration, parallax, coverage, and residual evidence; research tissue scoring requires independent raters and is non-diagnostic.
+Verification recorded on 2026-08-14:
 
-### Durable jobs and replay
+* Ruff passed over the biomechanics service and contract-export script.
+* Pytest passed all 139 backend tests.
+* ESLint and TypeScript type checking passed with zero warnings or errors.
+* Vitest passed 37 frontend contract/component tests.
+* The optimized Next.js production build completed successfully, including `/lab`.
+* Playwright passed both offline-workstation browser workflows.
+* Markdownlint passed all 21 project Markdown files in scope.
+* `git diff --check` passed before the local milestone commit.
 
-* Migration 5 stores queued/running/succeeded/failed/cancelled state, progress, request, result, logs, attempts, cancellation, timestamps, and failure detail.
-* A single immediate-transaction claimant, interruption recovery, cancellation/retry, and SHA-256-verified atomic result publication are tested.
-* `ExperimentDefinitionV1` requires immutable hashes, coordinates/transforms, sourced units/assumptions, software/container versions, outputs, sensitivity, and validation tier.
-* Synthetic replay records residual RMS, exclusions, transform uncertainty, anatomical constraint violations, and registration sensitivity plus a canonical definition hash.
+The compact CC0 model is mechanically minimal, overlapping, and non-anatomical. It is an integration fixture, not human evidence, and its values cannot flow into other experiments automatically.
 
-## Open evidence and product gaps
-
-* Participant-diverse squat fixtures and approved paired MRI/arthroscopy/multi-view cases are absent.
-* The identifier-tag screen does not detect private-tag, pixel, filename, structured-content, or indirect identifiers; upstream governed de-identification remains mandatory.
-* MRI import preserves original DICOM but does not yet create a separately versioned computational volume.
-* The current reconstruction, registration, experiment, and result records are contracts, not demonstrated scientific outputs.
-* The package validates synthetic/review artifacts but does not generate segmentation or meshes; no domain-approved human reference workflow, taxonomy/landmark protocol, or structure thresholds exist.
-* Numerical registration/replay exists only for synthetic evidence; no approved human overlay/refinement or animated anatomical replay and no mechanical solver adapter exists.
-* Authentication, roles, connected clinical systems, identifiable-data handling, and clinical use remain unauthorized.
-
-## API surface
-
-Existing `/pose-sequences`, `/artifacts`, `/sessions`, and `/operations` endpoints remain. Canonical APIs include `/subjects`, `/knees`, `/episodes`, `/timepoints`, `/observations`, `/annotations`, `/reconstructions`, `/registrations`, `/derivations`, `/experiments`, and `/simulation-results`.
-
-Multimodal imports are:
-
-* `/observations/imports/mri`;
-* `/observations/imports/arthroscopy`;
-* `/observations/imports/multi-view`.
-
-They currently execute synchronously and explicitly report that the durable job runner is deferred to Milestone 13.
-
-Reviewed reconstruction packages use `/reconstructions/imports/manual`.
-
-## Verification baseline
-
-Milestone 13 verification: 125 backend tests, Ruff, JSON Schema parity, Markdown lint, 34 frontend tests, ESLint, TypeScript, production build, and `git diff --check` pass locally. New tests cover migration upgrade, queue/claim/cancel/retry/recovery/failure, result integrity, replay evidence, definition hashes, and evidence-tier contracts.
+FEBio 4.12 is not installed on the current workstation. Docker's engine is unavailable, the local WSL distribution cannot start, and the available native toolchain lacks the supported Visual Studio compiler path. Therefore the required real-FEBio run—finite outputs, configured convergence, load/reaction balance, reproducible manifests, and verified artifacts—has not been recorded. Milestone 14's engineering path is implemented, but its completion gate remains open. Human mechanical accuracy and validation are also deliberately unclaimed.
 
 ## Current priority
 
-Milestone 14: add solver-neutral kinematic, musculoskeletal, contact-hypothesis, finite-element, and intervention adapter contracts in increasing claim order, with strict input capability/refusal checks and no silent population constants.
-
-## Preserve
-
-* Source evidence remains immutable and separate from annotations and every derived artifact.
-* Observed, reconstructed, estimated, and simulated quantities remain visually and contractually distinct.
-* Unknown provenance, individual properties, coordinate context, and validation remain explicit unknowns.
-* Unsupported registration, comparison, or simulation fails closed.
-* All outputs remain research-only and non-diagnostic.
+Install or build FEBio 4.12 separately, point `FEBIO_EXECUTABLE` to it, run the generated CC0 fixture through the complete local workflow, and record the exact executable hash and validation evidence. After that, formalize the fixture as a public benchmark, add sensitivity batches as explicit child experiments, and add alternative adapters behind the same canonical boundary while paired human-data validation progresses independently.

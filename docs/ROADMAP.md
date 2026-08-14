@@ -1,12 +1,12 @@
 # Knee Twin Roadmap
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-08-14
 
 ## Executive scope
 
 Knee Twin is intended to become a complete longitudinal digital representation of an individual knee. The system should combine external motion, internal/anatomical evidence, 3D reconstruction, and validated virtual experiments. Squat analysis is the first implemented evidence-to-measurement slice, not the final application.
 
-The present repository is a local technical prototype. It demonstrates raw-evidence preservation, versioned derivation, synchronized replay, and longitudinal metadata for one movement protocol. It does not yet contain patient-specific anatomy, internal imaging ingestion, anatomical registration, tissue models, or a simulation engine.
+The present repository is a local technical prototype and open hypothesis machine. It preserves multimodal evidence, versioned derivations, complete-knee reconstruction review packages, synthetic registration/replay, immutable finite-element model imports, and an external FEBio adapter. These engineering paths are not evidence that anatomy, mechanics, or clinical outputs are accurate.
 
 ## Capability map
 
@@ -17,11 +17,11 @@ The present repository is a local technical prototype. It demonstrates raw-evide
 | Capture-level quality and left/right differences | Implemented | Versioned observable signals and exact degree differences; diverse validation remains open. |
 | Longitudinal session history | Implemented for local squat sessions | Historical replay, compatibility checks, reanalysis, integrity manifests, and recovery form the timepoint foundation. |
 | Other movement and sensor protocols | Not implemented | Broader functional evidence. |
-| Medical image and internal-imagery ingestion | Not implemented | Preserve authorized anatomical evidence and provenance. |
+| Medical image and internal-imagery ingestion | Implemented for controlled offline imports | Preserve authorized anatomical evidence and provenance; approved paired human evidence remains open. |
 | Subject/knee identity and laterality model | Implemented | Canonical graph prevents cross-subject/knee/timepoint mixing and preserves legacy sessions. |
-| Patient-specific segmentation and 3D anatomy | Not implemented | Reconstruct reviewable anatomical geometry. |
-| Multimodal spatial/temporal registration | Not implemented | Align motion and anatomy in explicit coordinate systems. |
-| Musculoskeletal or finite-element simulation | Not implemented | Run named virtual experiments with controlled assumptions. |
+| Patient-specific segmentation and 3D anatomy | Manual-review package boundary implemented | Reconstruct reviewable anatomical geometry; human reference evidence remains open. |
+| Multimodal spatial/temporal registration | Synthetic registration path implemented | Align motion and anatomy in explicit coordinate systems; human reference validation remains open. |
+| Finite-element simulation | Exploratory FEBio adapter implemented; real 4.12 run gate open | Run named hypotheses with explicit contributor-supplied meshes and assumptions. |
 | Scientific and clinical validation | Not established | Determine permitted interpretation and claims. |
 
 ## Delivery plan
@@ -60,7 +60,7 @@ Define a solver-independent experiment contract containing anatomy version, mate
 
 Candidate experiments may include motion replay, load-distribution hypotheses, intervention comparisons, implant/graft configuration research, and sensitivity analysis. They must not be described as exact predictions or treatment recommendations without evidence and authorization supporting those claims.
 
-Exit gate: a simulation is reproducible, its uncertainty and sensitivity are reported, and its predictions have been compared against an appropriate reference for the claimed use.
+Engineering exit gate: a simulation attempt is runnable, reproducible, failure-preserving, and explicit about assumptions and limitations. Scientific exit gates advance separately for each claimed use through benchmark and human reference evidence.
 
 ### Stage 6 — validated decision-support pathways
 
@@ -92,4 +92,4 @@ Exit gate: product claims match demonstrated evidence and the approved operating
 
 ## Immediate priority
 
-Implement modality-specific MRI/DICOM, arthroscopy, and calibrated multi-view acquisition manifests and quality gates using synthetic or appropriately licensed fixtures. Continue participant-diverse squat-fixture and approved paired-case acquisition in parallel. Do not add a simulation engine before trustworthy anatomical inputs and validation targets exist.
+Install or build an external FEBio 4.12 executable and run the CC0 integration fixture through the real solver, recording version/hash, finite outputs, convergence configuration, force balance, reproducible manifests, and artifact verification. Then publish the synthetic package as a contributor benchmark format, add explicit child sensitivity experiments, and keep approved paired-case acquisition and independent validation moving in parallel. Low-tier experiments may run; only their permitted interpretation is constrained.

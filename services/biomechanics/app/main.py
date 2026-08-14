@@ -10,6 +10,7 @@ from app.api.operations import router as operations_router
 from app.api.pose_sequences import router as pose_sequences_router
 from app.api.reconstructions import router as reconstruction_imports_router
 from app.api.sessions import router as sessions_router
+from app.api.simulation import router as simulation_router
 from app.evidence_repository import EvidenceConflict, EvidenceNotFound, SQLiteEvidenceRepository
 from app.job_runner import SQLiteJobRunner
 from app.persistence import SQLiteSessionRepository
@@ -18,6 +19,7 @@ from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.services.reconstructions import ReconstructionImportService
 from app.services.sessions import SessionWorkflowService
+from app.services.simulation_models import SimulationModelImportService
 from app.settings import (
     allowed_origins,
     artifact_root,
@@ -92,6 +94,11 @@ def create_app(
         evidence,
         max_observation_upload_bytes(),
     )
+    application.state.simulation_model_import_service = SimulationModelImportService(
+        store,
+        evidence,
+        max_observation_upload_bytes(),
+    )
     application.state.job_runner = SQLiteJobRunner(sessions.database_path, store)
     application.state.session_workflow_service = SessionWorkflowService(
         sessions,
@@ -106,6 +113,7 @@ def create_app(
     application.include_router(pose_sequences_router)
     application.include_router(reconstruction_imports_router)
     application.include_router(sessions_router)
+    application.include_router(simulation_router)
     application.add_exception_handler(
         EvidenceNotFound,
         lambda _request, error: JSONResponse(

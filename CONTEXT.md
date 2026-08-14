@@ -26,7 +26,7 @@ Initial pose system:
 MediaPipe Pose Landmarker
 
 Advanced biomechanics:
-Patient-specific anatomy, multimodal registration, and replaceable musculoskeletal or finite-element simulation adapters are planned product stages. They require trustworthy inputs, uncertainty reporting, and validation before stronger claims.
+Complete-knee review packages, synthetic multimodal registration, immutable finite-element model imports, and the first replaceable FEBio adapter are implemented engineering stages. Approved human evidence, real-solver integration evidence, uncertainty studies, and independent validation remain required before stronger claims.
 
 Initial external-analysis MVP:
 
@@ -53,7 +53,7 @@ evidence record → anatomical twin → functional twin → validated simulation
 
 CURRENT MILESTONE:
 
-Milestone 14 — solver-neutral mechanical simulation adapters.
+Milestone 14 — open exploratory FEBio simulation pipeline; real-solver evidence gate open.
 
 PARALLEL EVIDENCE GAP:
 
@@ -61,6 +61,6 @@ Participant-diverse, redistributable squat fixtures are not yet available. Miles
 
 NEXT ACTION:
 
-Implement adapters in claim order: kinematic constraints first, then musculoskeletal and finite-element manifests that refuse missing force, anthropometric, material, attachment, load, and boundary evidence. Keep solver-native types outside canonical records.
+Install or build a separately licensed FEBio 4.12 executable, run the CC0 seven-pose fixture through the implemented adapter, correct any solver-format incompatibility, and record equilibrium/convergence evidence. Do not close Milestone 14 from fake-adapter tests alone.
 
 Keep this file short. Future agents should update only the bottom status fields when appropriate rather than turning this into a giant project history.

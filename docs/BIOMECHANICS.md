@@ -221,6 +221,20 @@ These metrics measure agreement between two label maps; they do not establish an
 
 `expert-seed-pnp-v1` estimates arthroscope camera pose from at least four expert 3D-to-2D correspondences and calibrated intrinsics/distortion. Residuals are Euclidean image-pixel reprojection errors. Registration uncertainty uses configured synthetic perturbations and reports 95th-percentile translation in millimetres and rotation in degrees; it is sensitivity to the assumed perturbation, not validated clinical confidence.
 
+## Exploratory FEBio flexion sweep
+
+`febio-flexion-sweep-v1` asks one deliberately limited question: under a manually specified compressive load, how do simulated tibiofemoral contact and strain fields change across prescribed flexion angles of `0, 15, 30, 45, 60, 75, and 90°`? Each angle is solved independently. A pose is retained as `converged`, `nonconverged`, `failed`, or `cancelled`; partial evidence is never collapsed into one authoritative score.
+
+The imported mesh uses right-handed millimetres and positively oriented four-node tetrahedra. V1 requires volumetric femur, tibia, femoral cartilage, medial/lateral tibial cartilage, and medial/lateral menisci, plus explicit ACL/PCL/MCL/LCL attachment pairs. Included and excluded structures remain visible. This is not a complete physiological formulation merely because its source reconstruction describes a complete knee.
+
+Every scalar has a value, unit, source, range, rationale, evidence class, and individual-measurement flag. Required units are MPa and unitless Poisson ratio for neo-Hookean material inputs; N/mm and mm for ligament connector stiffness and slack length; unitless contact penalty and friction; N for compression; and mm, unitless, count, and seconds for convergence controls. Missing or unknown inputs block execution. Population assumptions are not inserted silently.
+
+Normalized fields retain their mechanical names: contact pressure in MPa, contact area in mm², displacement in mm, cartilage/meniscus and ligament strain as ratios, reaction force in N, and convergence residual as configured by the experiment. The V1 VTK normalizer reports the maximum exported nodal contact pressure, sums secondary-surface triangle area where exported nodal pressure is positive, reports maximum displacement magnitude, reports the maximum Frobenius norm of exported Lagrange strain over cartilage/meniscus element domains, calculates connector extension relative to its geometric reference length, and sums z reaction forces over the declared tibia-fixed nodes. Fields unsupported by a solver output remain unavailable. They must never be presented as injury risk, diagnosis, tissue health, or predicted clinical outcome. A finite result and numerical convergence establish only that this explicit numerical attempt ran. Accuracy, construct validity, and permitted interpretation advance independently through synthetic, integration, research, and independent validation tiers.
+
+The first tension-only connector maps its authored slack length to the initial geometric origin-to-insertion distance. An experiment is refused when those values differ; V1 does not discard the authored slack length or pretend FEBio's tension-only linear spring has a separate reference-length parameter.
+
+The bundled CC0 geometry is intentionally compact and non-anatomical. Its assumptions belong only to that fixture version and test software integration, deterministic artifacts, cancellation, and failure preservation—not human knee mechanics.
+
 ## Known limitations
 
 * monocular depth uncertainty;

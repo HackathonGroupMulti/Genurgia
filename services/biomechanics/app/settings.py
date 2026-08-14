@@ -68,3 +68,8 @@ def max_observation_upload_bytes() -> int:
     if value <= 0:
         raise ValueError("MAX_OBSERVATION_UPLOAD_BYTES must be a positive integer.")
     return value
+
+
+def febio_executable() -> str | None:
+    configured = os.getenv("FEBIO_EXECUTABLE")
+    return configured.strip() if configured and configured.strip() else None

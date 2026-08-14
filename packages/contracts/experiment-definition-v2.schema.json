@@ -1,0 +1,333 @@
+{
+  "$defs": {
+    "ContactAssumptionV1": {
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "primary_surface": {
+          "minLength": 1,
+          "title": "Primary Surface",
+          "type": "string"
+        },
+        "secondary_surface": {
+          "minLength": 1,
+          "title": "Secondary Surface",
+          "type": "string"
+        },
+        "penalty": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "friction_coefficient": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        }
+      },
+      "required": [
+        "name",
+        "primary_surface",
+        "secondary_surface",
+        "penalty",
+        "friction_coefficient"
+      ],
+      "title": "ContactAssumptionV1",
+      "type": "object"
+    },
+    "ConvergenceAssumptionsV1": {
+      "properties": {
+        "displacement_tolerance": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "energy_tolerance": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "maximum_reformations": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "timeout_seconds_per_pose": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        }
+      },
+      "required": [
+        "displacement_tolerance",
+        "energy_tolerance",
+        "maximum_reformations",
+        "timeout_seconds_per_pose"
+      ],
+      "title": "ConvergenceAssumptionsV1",
+      "type": "object"
+    },
+    "FlexionBoundaryAssumptionsV1": {
+      "properties": {
+        "tibia_fixed_node_set": {
+          "const": "tibia_fixed",
+          "default": "tibia_fixed",
+          "title": "Tibia Fixed Node Set",
+          "type": "string"
+        },
+        "femur_control_node_set": {
+          "const": "femur_control",
+          "default": "femur_control",
+          "title": "Femur Control Node Set",
+          "type": "string"
+        },
+        "compressive_load": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "rotation_axis": {
+          "enum": [
+            "x",
+            "y",
+            "z"
+          ],
+          "title": "Rotation Axis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "compressive_load",
+        "rotation_axis"
+      ],
+      "title": "FlexionBoundaryAssumptionsV1",
+      "type": "object"
+    },
+    "LigamentAssumptionV1": {
+      "properties": {
+        "structure": {
+          "enum": [
+            "acl",
+            "pcl",
+            "mcl",
+            "lcl"
+          ],
+          "title": "Structure",
+          "type": "string"
+        },
+        "stiffness": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "slack_length": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        }
+      },
+      "required": [
+        "structure",
+        "stiffness",
+        "slack_length"
+      ],
+      "title": "LigamentAssumptionV1",
+      "type": "object"
+    },
+    "MaterialAssumptionV1": {
+      "properties": {
+        "structure": {
+          "minLength": 1,
+          "title": "Structure",
+          "type": "string"
+        },
+        "model": {
+          "const": "neo-Hookean",
+          "default": "neo-Hookean",
+          "title": "Model",
+          "type": "string"
+        },
+        "young_modulus": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        },
+        "poisson_ratio": {
+          "$ref": "#/$defs/SourcedScalarV2"
+        }
+      },
+      "required": [
+        "structure",
+        "young_modulus",
+        "poisson_ratio"
+      ],
+      "title": "MaterialAssumptionV1",
+      "type": "object"
+    },
+    "SourcedScalarV2": {
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "range": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Range",
+          "type": "array"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "individual_measurement": {
+          "title": "Individual Measurement",
+          "type": "boolean"
+        },
+        "evidence_class": {
+          "enum": [
+            "observed",
+            "reconstructed",
+            "expert-assumption"
+          ],
+          "title": "Evidence Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "source",
+        "range",
+        "rationale",
+        "individual_measurement",
+        "evidence_class"
+      ],
+      "title": "SourcedScalarV2",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "2.0.0",
+      "default": "2.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_type": {
+      "const": "febio-tibiofemoral-flexion-sweep",
+      "title": "Experiment Type",
+      "type": "string"
+    },
+    "simulation_model_id": {
+      "format": "uuid",
+      "title": "Simulation Model Id",
+      "type": "string"
+    },
+    "simulation_model_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Simulation Model Sha256",
+      "type": "string"
+    },
+    "scientific_question": {
+      "const": "Under a manually specified compressive load, how do simulated tibiofemoral contact and strain fields change from 0 to 90 degrees of prescribed flexion?",
+      "title": "Scientific Question",
+      "type": "string"
+    },
+    "flexion_angles_degrees": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Flexion Angles Degrees",
+      "type": "array"
+    },
+    "materials": {
+      "items": {
+        "$ref": "#/$defs/MaterialAssumptionV1"
+      },
+      "minItems": 1,
+      "title": "Materials",
+      "type": "array"
+    },
+    "ligaments": {
+      "items": {
+        "$ref": "#/$defs/LigamentAssumptionV1"
+      },
+      "title": "Ligaments",
+      "type": "array"
+    },
+    "contacts": {
+      "items": {
+        "$ref": "#/$defs/ContactAssumptionV1"
+      },
+      "minItems": 1,
+      "title": "Contacts",
+      "type": "array"
+    },
+    "boundary": {
+      "$ref": "#/$defs/FlexionBoundaryAssumptionsV1"
+    },
+    "convergence": {
+      "$ref": "#/$defs/ConvergenceAssumptionsV1"
+    },
+    "requested_outputs": {
+      "items": {
+        "enum": [
+          "contact-pressure",
+          "contact-area",
+          "displacement",
+          "cartilage-meniscus-strain",
+          "ligament-strain",
+          "reaction-force",
+          "convergence-residual"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requested Outputs",
+      "type": "array"
+    },
+    "software_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Software Versions",
+      "type": "object"
+    },
+    "validation_tier": {
+      "enum": [
+        "synthetic",
+        "integration",
+        "research",
+        "independent"
+      ],
+      "title": "Validation Tier",
+      "type": "string"
+    },
+    "interpretation": {
+      "const": "exploratory-simulated-hypothesis",
+      "default": "exploratory-simulated-hypothesis",
+      "title": "Interpretation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_type",
+    "simulation_model_id",
+    "simulation_model_sha256",
+    "scientific_question",
+    "flexion_angles_degrees",
+    "materials",
+    "ligaments",
+    "contacts",
+    "boundary",
+    "convergence",
+    "requested_outputs",
+    "software_versions",
+    "validation_tier"
+  ],
+  "title": "ExperimentDefinitionV2",
+  "type": "object"
+}

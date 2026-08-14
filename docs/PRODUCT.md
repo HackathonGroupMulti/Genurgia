@@ -8,6 +8,8 @@ Squat analysis is the first implemented observation workflow, not the product bo
 
 Knee Twin is currently a research and engineering system, not a diagnostic medical device. Derived outputs must identify their source evidence, assumptions, uncertainty, algorithm version, and validation status.
 
+Its early value is not numerical authority. Knee Twin is an open hypothesis machine: it should make a structurally valid attempt when a researcher explicitly supplies the missing physics assumptions, preserve failures and non-convergence, and expose enough provenance for another contributor to replace any weak model. Engineering reproducibility and scientific accuracy are separate gates.
+
 ## Product goal
 
 Create a living knee record that can answer, at a specific point in time:
@@ -67,11 +69,12 @@ Every layer must remain usable without claiming that a later layer exists. The U
 7. Compare compatible timepoints and expose uncertainty or missing inputs.
 8. Configure a named virtual experiment with explicit assumptions and boundary conditions.
 9. Run a versioned solver and preserve inputs, outputs, validation status, and reproducibility metadata.
-10. Present results as research or decision-support evidence appropriate to their validation level.
+10. Inspect unsuccessful or low-tier experiments without mistaking them for absent evidence or validated predictions.
+11. Present results as research or decision-support evidence appropriate to their validation level.
 
 ## First implementation slice: squat movement analysis
 
-The present repository implements most of an initial squat workflow:
+The repository implements the initial squat workflow:
 
 * video upload and decoding;
 * timestamped raw pose-landmark preservation;
@@ -81,10 +84,10 @@ The present repository implements most of an initial squat workflow:
 * repetition boundaries, per-repetition ROM, and exact bilateral differences;
 * capture-quality signals and actionable recording guidance;
 * capture time, view/orientation, knee context, and notes;
-* local session persistence and limited comparison;
+* local session persistence, explicit compatible comparison, historical replay, and reanalysis;
 * synchronized video, charts, and a model-relative skeleton.
 
-Historical replay and participant-diverse validation remain open. The implemented slice establishes engineering patterns for evidence provenance and longitudinal analysis; it does not complete the Knee Twin product.
+Participant-diverse validation remains open. The implemented slice establishes engineering patterns for evidence provenance and longitudinal analysis; it does not complete the Knee Twin product.
 
 ## Safety and claims boundary
 

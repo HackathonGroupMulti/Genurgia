@@ -140,6 +140,28 @@ class ReconstructionList(BaseModel):
     reconstructions: list[Reconstruction]
 
 
+class SimulationModelCreate(BaseModel):
+    reconstruction_id: UUID
+    version: str = Field(min_length=1, max_length=100)
+    adapter_id: str = Field(min_length=1, max_length=100)
+    model_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    model_manifest: JsonObject
+    artifact_references: JsonObject
+    mesh_quality: JsonObject
+    included_structures: list[str] = Field(min_length=1)
+    excluded_structures: list[str]
+    validation_state: Literal["structurally-valid", "invalid"]
+
+
+class SimulationModel(SimulationModelCreate):
+    id: UUID
+    created_at: datetime
+
+
+class SimulationModelList(BaseModel):
+    simulation_models: list[SimulationModel]
+
+
 class RegistrationCreate(BaseModel):
     source_reference: str = Field(min_length=1)
     target_reference: str = Field(min_length=1)

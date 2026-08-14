@@ -7,9 +7,19 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
+from app.evidence_repository import SQLiteEvidenceRepository
+from app.febio_adapter import FebioFlexionSweepAdapter, definition_sha256
 from app.migrations import migrate
+from app.schemas.evidence import DerivationCreate, SimulationResultCreate
 from app.schemas.experiments import MotionReplayRequestV1, MotionReplayResultV1
 from app.schemas.jobs import JobCreateV1, JobV1
+from app.schemas.simulation import (
+    FebioFlexionSweepRequestV1,
+    FebioFlexionSweepResultV1,
+    FiniteElementModelImportJobRequestV1,
+)
+from app.services.simulation_models import SimulationModelImportService
+from app.settings import febio_executable
 from app.storage import LocalArtifactStore
 
 
@@ -24,9 +34,26 @@ class JobConflict(ValueError):
 class SQLiteJobRunner:
     """Durable single-claim local worker for bounded offline jobs."""
 
-    def __init__(self, database_path: Path, artifacts: LocalArtifactStore) -> None:
+    def __init__(
+        self,
+        database_path: Path,
+        artifacts: LocalArtifactStore,
+        *,
+        configured_febio_executable: str | None = None,
+    ) -> None:
         self.database_path = database_path.resolve()
         self.artifacts = artifacts
+        self.evidence = SQLiteEvidenceRepository(self.database_path)
+        self._febio = FebioFlexionSweepAdapter(
+            configured_febio_executable
+            if configured_febio_executable is not None
+            else febio_executable()
+        )
+        self._handlers = {
+            "anatomical-motion-replay-v1": self._run_motion_replay,
+            "febio-model-import-v1": self._run_febio_model_import,
+            "febio-flexion-sweep-v1": self._run_febio_flexion_sweep,
+        }
         with self._connect() as connection:
             migrate(connection)
             connection.execute(
@@ -112,30 +139,219 @@ class SQLiteJobRunner:
                 (_now(), str(job_id)),
             )
             connection.commit()
+        staging: Path | None = None
+        published = False
         try:
             job = self.get(job_id)
             if job.cancel_requested:
                 return self._finish(job_id, "cancelled", None, None)
-            if job.job_type != "anatomical-motion-replay-v1":
+            handler = self._handlers.get(job.job_type)
+            if handler is None:
                 raise ValueError(f"Unsupported job type {job.job_type}.")
-            result = _motion_replay(MotionReplayRequestV1.model_validate(job.request))
             staging = self.artifacts.begin_bundle(job_id)
             try:
-                self.artifacts.write_staged_json(
-                    staging, "motion_replay_result_v1.json", result.model_dump(mode="json")
-                )
+                result_filename, completion_status = handler(job_id, job.request, staging)
                 self.artifacts.publish_bundle(job_id, staging)
+                published = True
+                staging = None
             except Exception:
-                self.artifacts.abort_bundle(staging)
+                if staging is not None:
+                    self.artifacts.abort_bundle(staging)
                 raise
             verified = self.artifacts.verify_bundle(job_id)
             if not verified or any(item["integrity"] != "verified" for item in verified):
                 self.artifacts.delete_bundle(job_id)
-                raise ValueError("Motion replay result failed artifact integrity verification.")
-            reference = self.artifacts.reference(job_id, "motion_replay_result_v1.json")
-            return self._finish(job_id, "succeeded", reference, None)
+                raise ValueError("Job result failed artifact integrity verification.")
+            reference = self.artifacts.reference(job_id, result_filename)
+            if job.job_type == "febio-flexion-sweep-v1":
+                self._record_febio_result(job, reference, completion_status)
+            if job.job_type == "febio-model-import-v1":
+                upload = FiniteElementModelImportJobRequestV1.model_validate(job.request)
+                self.artifacts.delete_bundle(upload.upload_bundle_id)
+            return self._finish(job_id, completion_status, reference, None)
         except Exception as error:
+            if published:
+                self.artifacts.delete_bundle(job_id)
             return self._finish(job_id, "failed", None, str(error)[:1000])
+
+    def _run_motion_replay(
+        self,
+        _job_id: UUID,
+        request: dict[str, object],
+        staging: Path,
+    ) -> tuple[str, str]:
+        result = _motion_replay(MotionReplayRequestV1.model_validate(request))
+        filename = "motion_replay_result_v1.json"
+        self.artifacts.write_staged_json(staging, filename, result.model_dump(mode="json"))
+        return filename, "succeeded"
+
+    def _run_febio_model_import(
+        self,
+        _job_id: UUID,
+        request: dict[str, object],
+        staging: Path,
+    ) -> tuple[str, str]:
+        parsed = FiniteElementModelImportJobRequestV1.model_validate(request)
+        source = self.artifacts.path_for(
+            parsed.upload_bundle_id,
+            "source_fe_model_package.zip",
+        )
+        if not source.is_file():
+            raise ValueError("The queued finite-element model upload is missing.")
+        service = SimulationModelImportService(
+            self.artifacts,
+            self.evidence,
+            max_upload_bytes=source.stat().st_size,
+        )
+        result = service.import_febio_package(source)
+        filename = "finite_element_model_import_result_v1.json"
+        self.artifacts.write_staged_json(staging, filename, result.model_dump(mode="json"))
+        return filename, "succeeded"
+
+    def _run_febio_flexion_sweep(
+        self,
+        job_id: UUID,
+        request: dict[str, object],
+        staging: Path,
+    ) -> tuple[str, str]:
+        parsed = FebioFlexionSweepRequestV1.model_validate(request)
+        canonical_experiment = self.evidence.get_experiment(parsed.virtual_experiment_id)
+        if canonical_experiment.definition_version != "experiment-definition-v2" or (
+            canonical_experiment.definition != parsed.experiment.model_dump(mode="json")
+        ):
+            raise ValueError("The queued definition differs from its canonical experiment.")
+        model = self.evidence.get_simulation_model(parsed.experiment.simulation_model_id)
+        self.artifacts.write_staged_json(
+            staging,
+            "experiment_definition_v2.json",
+            parsed.experiment.model_dump(mode="json"),
+        )
+        poses, solver_version, executable_sha256, cancelled = self._febio.execute(
+            parsed.experiment,
+            model,
+            staging,
+            is_cancelled=lambda: self.get(job_id).cancel_requested,
+            report_progress=lambda progress, event: self._report_progress(
+                job_id, progress, event
+            ),
+        )
+        self.artifacts.write_staged_json(
+            staging,
+            "adapter_configuration_v1.json",
+            {
+                "adapter_id": "febio-4.12",
+                "solver_version": solver_version,
+                "solver_executable_sha256": executable_sha256,
+                "simulation_model_id": str(model.id),
+                "simulation_model_sha256": model.model_sha256,
+                "independent_pose_count": len(parsed.experiment.flexion_angles_degrees),
+                "interpretation": "exploratory-simulated-hypothesis",
+            },
+        )
+        for pose in poses:
+            if pose.field_artifact_reference:
+                pose.field_artifact_reference = self.artifacts.reference(
+                    job_id, pose.field_artifact_reference
+                )
+            if pose.normalized_field_manifest_reference:
+                pose.normalized_field_manifest_reference = self.artifacts.reference(
+                    job_id, pose.normalized_field_manifest_reference
+                )
+        result = FebioFlexionSweepResultV1(
+            experiment_definition_sha256=definition_sha256(parsed.experiment),
+            solver_version=solver_version,
+            solver_executable_sha256=executable_sha256,
+            poses=poses,
+            included_structures=model.included_structures,
+            excluded_structures=model.excluded_structures,
+            validation_tier=parsed.experiment.validation_tier,
+        )
+        filename = "febio_flexion_sweep_result_v1.json"
+        self.artifacts.write_staged_json(staging, filename, result.model_dump(mode="json"))
+        return filename, "cancelled" if cancelled else "succeeded"
+
+    def _record_febio_result(
+        self,
+        job: JobV1,
+        reference: str,
+        completion_status: str,
+    ) -> None:
+        parsed = FebioFlexionSweepRequestV1.model_validate(job.request)
+        payload = json.loads(
+            self.artifacts.path_for(
+                job.id, "febio_flexion_sweep_result_v1.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.evidence.create_simulation_result_and_derivation(
+            SimulationResultCreate(
+                experiment_id=parsed.virtual_experiment_id,
+                status="cancelled" if completion_status == "cancelled" else "complete",
+                outputs={
+                    "interpretation": payload["interpretation"],
+                    "experiment_definition_sha256": payload[
+                        "experiment_definition_sha256"
+                    ],
+                    "solver_version": payload["solver_version"],
+                    "solver_executable_sha256": payload[
+                        "solver_executable_sha256"
+                    ],
+                    "poses": payload["poses"],
+                    "included_structures": payload["included_structures"],
+                    "excluded_structures": payload["excluded_structures"],
+                },
+                sensitivity={"status": "not-run", "reason": "explicit-child-experiments-only"},
+                validation_evidence={
+                    "tier": payload["validation_tier"],
+                    "solver_version": payload["solver_version"],
+                    "solver_executable_sha256": payload[
+                        "solver_executable_sha256"
+                    ],
+                    "numerical_convergence_is_not_scientific_validation": True,
+                },
+                artifact_references={
+                    "normalized_result": reference,
+                    "experiment_definition": self.artifacts.reference(
+                        job.id, "experiment_definition_v2.json"
+                    ),
+                    "adapter_configuration": self.artifacts.reference(
+                        job.id, "adapter_configuration_v1.json"
+                    ),
+                    "artifact_manifest": self.artifacts.reference(
+                        job.id, "artifact_manifest_v1.json"
+                    ),
+                },
+            ),
+            DerivationCreate(
+                derivation_type="febio-flexion-sweep",
+                inputs=[
+                    str(parsed.experiment.simulation_model_id),
+                    str(parsed.virtual_experiment_id),
+                ],
+                # The repository replaces this placeholder with the result ID in
+                # the same SQLite transaction.
+                outputs=["pending-simulation-result"],
+                algorithm="febio-flexion-sweep-adapter",
+                algorithm_version="v1",
+                configuration={
+                    "definition_sha256": payload["experiment_definition_sha256"],
+                    "solver_version": payload["solver_version"],
+                    "solver_executable_sha256": payload[
+                        "solver_executable_sha256"
+                    ],
+                },
+                code_revision="knee-twin-milestone-14",
+                environment={"execution": "offline-workstation", "job_id": str(job.id)},
+            ),
+        )
+
+    def _report_progress(self, job_id: UUID, progress: float, event: str) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """UPDATE jobs SET progress=?,
+                   logs_json=json_insert(logs_json, '$[#]', json_object('at', ?, 'event', ?))
+                   WHERE id=?""",
+                (progress, _now(), event, str(job_id)),
+            )
 
     def _finish(
         self, job_id: UUID, status: str, result: str | None, error: str | None
@@ -144,7 +360,14 @@ class SQLiteJobRunner:
             connection.execute(
                 """UPDATE jobs SET status=?, progress=?, result_artifact_reference=?,
                    completed_at=?, error_detail=? WHERE id=?""",
-                (status, 1 if status == "succeeded" else 0, result, _now(), error, str(job_id)),
+                (
+                    status,
+                    1 if status == "succeeded" else self.get(job_id).progress,
+                    result,
+                    _now(),
+                    error,
+                    str(job_id),
+                ),
             )
         return self.get(job_id)
 

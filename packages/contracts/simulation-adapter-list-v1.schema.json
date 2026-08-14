@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "SimulationAdapterCapabilityV1": {
+      "properties": {
+        "adapter_id": {
+          "const": "febio-4.12",
+          "default": "febio-4.12",
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "display_name": {
+          "const": "FEBio 4.12 tibiofemoral flexion sweep",
+          "default": "FEBio 4.12 tibiofemoral flexion sweep",
+          "title": "Display Name",
+          "type": "string"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "executable_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Executable Path"
+        },
+        "executable_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Executable Sha256"
+        },
+        "detected_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detected Version"
+        },
+        "supported_version": {
+          "const": "4.12",
+          "default": "4.12",
+          "title": "Supported Version",
+          "type": "string"
+        },
+        "required_modules": {
+          "default": [
+            "solid"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Modules",
+          "type": "array"
+        },
+        "capabilities": {
+          "default": [
+            "independent-flexion-poses",
+            "partial-results"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "unavailable_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unavailable Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "available",
+        "executable_path",
+        "executable_sha256",
+        "detected_version",
+        "unavailable_reasons"
+      ],
+      "title": "SimulationAdapterCapabilityV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "adapters": {
+      "items": {
+        "$ref": "#/$defs/SimulationAdapterCapabilityV1"
+      },
+      "title": "Adapters",
+      "type": "array"
+    }
+  },
+  "required": [
+    "adapters"
+  ],
+  "title": "SimulationAdapterListV1",
+  "type": "object"
+}

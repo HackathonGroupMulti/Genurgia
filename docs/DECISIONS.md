@@ -415,3 +415,30 @@ Reconstruction and simulation need cancellation, retry, recovery, and reproducib
 Operational boundary:
 
 The worker endpoint is explicit in v1. Production-size performance and cancellation checkpoints must be measured before long imaging or external-solver handlers are added.
+
+---
+
+## ADR-021 — Exploratory mechanics use immutable model packages and replaceable adapters
+
+Status:
+Accepted
+
+Decision:
+
+Add an immutable `SimulationModel` between reconstruction and experiment. Import contributor-prepared volumetric `FiniteElementModelPackageV1` packages instead of pretending reconstruction surface meshes are solver meshes. Extend the canonical experiment boundary additively with `ExperimentDefinitionV2`, requiring all material, connector, contact, load, boundary, and convergence values to be explicit and sourced. Dispatch durable jobs through an adapter registry, with the first adapter generating deterministic inputs for an external, unbundled FEBio 4.12 executable and preserving each flexion pose independently.
+
+Reason:
+
+Knee Twin's immediate value is an open, inspectable machine for 3D hypotheses. Requiring demonstrated human accuracy before a transparent pipeline exists would prevent contributors from improving meshes, assumptions, formulations, solvers, and benchmarks. Conversely, hiding defaults or treating numerical convergence as truth would make exploratory output misleading and irreproducible.
+
+Rejected alternative:
+
+Automatically tetrahedralize existing PLY surfaces, inject literature-average properties, and expose one successful run as a knee prediction.
+
+Why rejected:
+
+Surface suitability, contacts, attachments, boundary conditions, and material evidence cannot be inferred safely from a mesh filename. Silent defaults erase the exact uncertainty the open pipeline needs contributors to inspect and replace.
+
+Operational boundary:
+
+Malformed topology, incompatible laterality/coordinates, missing assumptions, unknown units, or unavailable solver capabilities block execution. Nonconvergence and solver failures are retained as useful evidence. The CC0 fixture may preload fixture-only assumptions. FEBio is separately installed, its exact version and executable hash are recorded, and real FEBio 4.12 verification remains a completion gate. Clinical or evidence-qualified claims require separate validation and governance.

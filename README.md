@@ -1,8 +1,8 @@
 # Knee Twin
 
-Knee Twin is intended to become a longitudinal, patient-specific digital representation of a complete knee. Its target scope combines external movement, internal/anatomical evidence, reviewed 3D reconstruction, and validated virtual experiments over time. It is currently a research and engineering system, not a diagnostic medical device.
+Knee Twin is an open-source pipeline for building longitudinal, patient-specific 3D knee hypotheses from external movement, internal/anatomical evidence, reviewed reconstruction, registration, and virtual experiments. Its purpose is to make every input, assumption, solver attempt, failure, and later improvement reproducible and replaceable. It is a research and engineering system, not a diagnostic medical device.
 
-This repository contains the first external-observation slice plus controlled multimodal ingestion. The local application preserves squat evidence and can now import pre-de-identified MRI DICOM ZIPs, authorized arthroscopy video, and standardized calibrated four-camera RGB captures into immutable observations with acquisition, quality, coordinate, authorization, and hash provenance. Squats and ingestion are foundations, not the product boundary. Patient-specific anatomy, multimodal registration, and simulation are not implemented today.
+The local application preserves squat and multimodal evidence, accepts complete-knee reconstruction review packages and contributor-prepared volumetric FE packages, tests synthetic registration/replay, and can dispatch a manually specified tibiofemoral flexion sweep to a separately installed FEBio 4.12 executable. The resulting fields are exploratory simulated hypotheses, even when the solver converges. Accuracy and clinical interpretation require separate evidence gates.
 
 ## Architecture
 
@@ -33,6 +33,7 @@ scripts/                     Model download and contract export tools
 * Node.js 20.9 or newer (Node.js 22 is used in CI)
 * npm 10 or newer
 * Python 3.11 or newer (Python 3.13 is used in CI)
+* Optional: separately installed FEBio 4.12 for the exploratory flexion sweep; Knee Twin does not bundle FEBio binaries
 
 The setup below uses PowerShell from the repository root.
 
@@ -79,7 +80,7 @@ Start the frontend from the repository root in another terminal:
 npm run dev:web
 ```
 
-Open <http://localhost:3000>. The homepage displays backend connectivity and provides a video upload form. Successful analysis displays the annotated video, a seekable synchronized knee-flexion graph, current measurements, repetition metrics, a rotatable model-relative skeleton, session history, and links to preserved raw artifacts.
+Open <http://localhost:3000>. The homepage provides movement evidence workflows and links to `/lab`. Knee Lab queues FE package imports, checks solver availability, requires explicit assumptions, queues/cancels/retries runs, preserves pose-level failures, and renders browser-readable exploratory fields.
 
 Keep both processes bound to loopback. Do not add `--host 0.0.0.0`. Research evidence must reside on an approved encrypted workstation volume; follow [docs/OFFLINE_SECURITY.md](docs/OFFLINE_SECURITY.md) before using local cases.
 
@@ -94,6 +95,7 @@ Keep both processes bound to loopback. Do not add `--host 0.0.0.0`. Research evi
 | `POSE_LANDMARKER_MODEL_PATH` | `./data/models/pose_landmarker_full.task` | MediaPipe full float16 model path |
 | `MAX_VIDEO_UPLOAD_BYTES` | `104857600` | Maximum accepted upload size |
 | `MAX_OBSERVATION_UPLOAD_BYTES` | `2147483648` | Per-file MRI, arthroscopy, or multi-view import limit |
+| `FEBIO_EXECUTABLE` | auto-detect `febio4`/`febio` | Absolute path to an external FEBio 4.12 executable |
 
 ## Validate
 
@@ -118,6 +120,6 @@ GitHub Actions runs the same backend, frontend, production-build, and Chromium s
 
 ## Current status
 
-Engineering Milestones 0–13 are technically complete. The platform now includes durable local jobs, solver-neutral experiment definitions, and reproducible synthetic motion-replay summaries alongside movement, multimodal, anatomy-review, and registration foundations. This remains a technical prototype: human anatomy, registration, replay, and mechanics stay below independent validation. Reported values are research estimates, not clinical measurements.
+Engineering Milestones 0–13 are technically complete. Milestone 14's open simulation-model, experiment, adapter, job, synthetic-fixture, and Knee Lab paths are implemented. This remains a technical prototype: human anatomy, registration, replay, and mechanics stay below independent validation. Reported values are observed, reconstructed, estimated, or simulated as labeled—not clinical measurements.
 
-Milestones 6 and 10–13 retain external scientific gates. Milestone 14 adds evidence-refusing mechanical adapters next. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md), [docs/REGISTRATION.md](docs/REGISTRATION.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
+Milestones 6 and 10–14 retain external scientific gates. A real FEBio 4.12 run of the CC0 fixture is still required before the Milestone 14 completion gate can close on this workstation. See [TASKS.md](TASKS.md), [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md), [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md), [docs/REGISTRATION.md](docs/REGISTRATION.md), and [docs/ROADMAP.md](docs/ROADMAP.md).

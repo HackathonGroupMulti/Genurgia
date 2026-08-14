@@ -1,0 +1,501 @@
+{
+  "$defs": {
+    "FiniteElementCoordinateSystemV1": {
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "const": "mm",
+          "default": "mm",
+          "title": "Unit",
+          "type": "string"
+        },
+        "handedness": {
+          "const": "right-handed",
+          "default": "right-handed",
+          "title": "Handedness",
+          "type": "string"
+        },
+        "laterality": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "title": "Laterality",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "laterality"
+      ],
+      "title": "FiniteElementCoordinateSystemV1",
+      "type": "object"
+    },
+    "FiniteElementModelPackageV1": {
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "reconstruction_id": {
+          "format": "uuid",
+          "title": "Reconstruction Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "adapter_id": {
+          "const": "febio-4.12",
+          "default": "febio-4.12",
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "coordinate_system": {
+          "$ref": "#/$defs/FiniteElementCoordinateSystemV1"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/MeshNodeV1"
+          },
+          "minItems": 4,
+          "title": "Nodes",
+          "type": "array"
+        },
+        "elements": {
+          "items": {
+            "$ref": "#/$defs/Tet4ElementV1"
+          },
+          "minItems": 1,
+          "title": "Elements",
+          "type": "array"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/NamedSurfaceV1"
+          },
+          "minItems": 1,
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "node_sets": {
+          "items": {
+            "$ref": "#/$defs/NamedNodeSetV1"
+          },
+          "minItems": 2,
+          "title": "Node Sets",
+          "type": "array"
+        },
+        "ligament_attachments": {
+          "items": {
+            "$ref": "#/$defs/LigamentAttachmentV1"
+          },
+          "title": "Ligament Attachments",
+          "type": "array"
+        },
+        "included_structures": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Included Structures",
+          "type": "array"
+        },
+        "excluded_structures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Structures",
+          "type": "array"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "license": {
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reconstruction_id",
+        "version",
+        "coordinate_system",
+        "nodes",
+        "elements",
+        "surfaces",
+        "node_sets",
+        "ligament_attachments",
+        "included_structures",
+        "excluded_structures",
+        "source",
+        "license"
+      ],
+      "title": "FiniteElementModelPackageV1",
+      "type": "object"
+    },
+    "LigamentAttachmentV1": {
+      "properties": {
+        "name": {
+          "enum": [
+            "acl",
+            "pcl",
+            "mcl",
+            "lcl"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "origin_node_id": {
+          "exclusiveMinimum": 0,
+          "title": "Origin Node Id",
+          "type": "integer"
+        },
+        "insertion_node_id": {
+          "exclusiveMinimum": 0,
+          "title": "Insertion Node Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "origin_node_id",
+        "insertion_node_id"
+      ],
+      "title": "LigamentAttachmentV1",
+      "type": "object"
+    },
+    "MeshNodeV1": {
+      "properties": {
+        "id": {
+          "exclusiveMinimum": 0,
+          "title": "Id",
+          "type": "integer"
+        },
+        "position_mm": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position Mm",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "position_mm"
+      ],
+      "title": "MeshNodeV1",
+      "type": "object"
+    },
+    "MeshQualityV1": {
+      "properties": {
+        "minimum_signed_tetrahedron_volume_mm3": {
+          "exclusiveMinimum": 0,
+          "title": "Minimum Signed Tetrahedron Volume Mm3",
+          "type": "number"
+        },
+        "duplicate_node_ids": {
+          "const": 0,
+          "default": 0,
+          "title": "Duplicate Node Ids",
+          "type": "integer"
+        },
+        "duplicate_element_ids": {
+          "const": 0,
+          "default": 0,
+          "title": "Duplicate Element Ids",
+          "type": "integer"
+        },
+        "orphan_node_count": {
+          "minimum": 0,
+          "title": "Orphan Node Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "minimum_signed_tetrahedron_volume_mm3",
+        "orphan_node_count"
+      ],
+      "title": "MeshQualityV1",
+      "type": "object"
+    },
+    "NamedNodeSetV1": {
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9_-]{1,63}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "node_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "node_ids"
+      ],
+      "title": "NamedNodeSetV1",
+      "type": "object"
+    },
+    "NamedSurfaceV1": {
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9_-]{1,63}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "facets": {
+          "items": {
+            "$ref": "#/$defs/SurfaceFacetV1"
+          },
+          "minItems": 1,
+          "title": "Facets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "facets"
+      ],
+      "title": "NamedSurfaceV1",
+      "type": "object"
+    },
+    "SimulationModel": {
+      "properties": {
+        "reconstruction_id": {
+          "format": "uuid",
+          "title": "Reconstruction Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "adapter_id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "model_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Sha256",
+          "type": "string"
+        },
+        "model_manifest": {
+          "additionalProperties": true,
+          "title": "Model Manifest",
+          "type": "object"
+        },
+        "artifact_references": {
+          "additionalProperties": true,
+          "title": "Artifact References",
+          "type": "object"
+        },
+        "mesh_quality": {
+          "additionalProperties": true,
+          "title": "Mesh Quality",
+          "type": "object"
+        },
+        "included_structures": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Included Structures",
+          "type": "array"
+        },
+        "excluded_structures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Structures",
+          "type": "array"
+        },
+        "validation_state": {
+          "enum": [
+            "structurally-valid",
+            "invalid"
+          ],
+          "title": "Validation State",
+          "type": "string"
+        },
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reconstruction_id",
+        "version",
+        "adapter_id",
+        "model_sha256",
+        "model_manifest",
+        "artifact_references",
+        "mesh_quality",
+        "included_structures",
+        "excluded_structures",
+        "validation_state",
+        "id",
+        "created_at"
+      ],
+      "title": "SimulationModel",
+      "type": "object"
+    },
+    "SurfaceFacetV1": {
+      "properties": {
+        "node_ids": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node_ids"
+      ],
+      "title": "SurfaceFacetV1",
+      "type": "object"
+    },
+    "Tet4ElementV1": {
+      "properties": {
+        "id": {
+          "exclusiveMinimum": 0,
+          "title": "Id",
+          "type": "integer"
+        },
+        "structure": {
+          "minLength": 1,
+          "title": "Structure",
+          "type": "string"
+        },
+        "node_ids": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "structure",
+        "node_ids"
+      ],
+      "title": "Tet4ElementV1",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "simulation_model": {
+      "$ref": "#/$defs/SimulationModel"
+    },
+    "package": {
+      "$ref": "#/$defs/FiniteElementModelPackageV1"
+    },
+    "mesh_quality": {
+      "$ref": "#/$defs/MeshQualityV1"
+    },
+    "artifact_integrity": {
+      "items": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "object"
+      },
+      "title": "Artifact Integrity",
+      "type": "array"
+    },
+    "evidence_class": {
+      "const": "contributor-authored-finite-element-model",
+      "default": "contributor-authored-finite-element-model",
+      "title": "Evidence Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "simulation_model",
+    "package",
+    "mesh_quality",
+    "artifact_integrity"
+  ],
+  "title": "FiniteElementModelImportResultV1",
+  "type": "object"
+}

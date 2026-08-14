@@ -304,6 +304,30 @@ MIGRATIONS = (
             "CREATE INDEX idx_jobs_status_created ON jobs(status, created_at)",
         ),
     ),
+    Migration(
+        version=6,
+        name="finite_element_simulation_models",
+        statements=(
+            """CREATE TABLE simulation_models (
+                id TEXT PRIMARY KEY,
+                reconstruction_id TEXT NOT NULL REFERENCES reconstructions(id),
+                version TEXT NOT NULL,
+                adapter_id TEXT NOT NULL,
+                model_sha256 TEXT NOT NULL,
+                model_manifest_json TEXT NOT NULL,
+                artifact_references_json TEXT NOT NULL,
+                mesh_quality_json TEXT NOT NULL,
+                included_structures_json TEXT NOT NULL,
+                excluded_structures_json TEXT NOT NULL,
+                validation_state TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""",
+            (
+                "CREATE INDEX idx_simulation_models_reconstruction "
+                "ON simulation_models(reconstruction_id, created_at)"
+            ),
+        ),
+    ),
 )
 
 

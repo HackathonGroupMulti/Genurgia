@@ -10,6 +10,7 @@ from app.services.kinematics import KinematicsService
 from app.services.pose_analysis import PoseAnalysisService
 from app.services.reconstructions import ReconstructionImportService
 from app.services.sessions import SessionWorkflowService
+from app.services.simulation_models import SimulationModelImportService
 from app.storage import LocalArtifactStore
 
 
@@ -58,6 +59,10 @@ def get_job_runner(request: Request) -> SQLiteJobRunner:
     return request.app.state.job_runner
 
 
+def get_simulation_model_import_service(request: Request) -> SimulationModelImportService:
+    return request.app.state.simulation_model_import_service
+
+
 PoseServiceDependency = Annotated[PoseAnalysisService, Depends(get_pose_analysis_service)]
 ArtifactStoreDependency = Annotated[LocalArtifactStore, Depends(get_artifact_store)]
 KinematicsServiceDependency = Annotated[KinematicsService, Depends(get_kinematics_service)]
@@ -82,3 +87,7 @@ ReconstructionImportServiceDependency = Annotated[
     Depends(get_reconstruction_import_service),
 ]
 JobRunnerDependency = Annotated[SQLiteJobRunner, Depends(get_job_runner)]
+SimulationModelImportServiceDependency = Annotated[
+    SimulationModelImportService,
+    Depends(get_simulation_model_import_service),
+]
